@@ -1,0 +1,16 @@
+version: "3.8"
+
+
+services:
+  ####################################
+  # Atomic Microservice: Users
+  ####################################
+  account-service:
+    build:
+      context: ./account-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30000:8080"
