@@ -6,6 +6,7 @@
         <option value="$PROJECT_DIR$/account-service/account-service/pom.xml" />
         <option value="$PROJECT_DIR$/task-management-service/pom.xml" />
         <option value="$PROJECT_DIR$/account-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pc-access-service/pom.xml" />
       </list>
     </option>
   </component>
