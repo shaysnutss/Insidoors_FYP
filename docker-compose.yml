@@ -26,3 +26,15 @@ services:
     #   - "user_dev.env"
     ports:
       - "30001:8080"
+  ####################################
+  # Atomic Microservice: employee-service
+  ####################################
+  employee-service:
+    build:
+      context: ./employee-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30002:8080"
