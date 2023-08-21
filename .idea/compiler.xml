@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="task-management-service" />
+        <module name="proxy-service" />
         <module name="account-service" />
         <module name="pc-access-service" />
       </profile>
@@ -15,6 +16,7 @@
     <bytecodeTargetLevel>
       <module name="account-service" target="17" />
       <module name="pc-access-service" target="17" />
+      <module name="proxy-service" target="17" />
       <module name="task-management-service" target="17" />
     </bytecodeTargetLevel>
   </component>
@@ -22,6 +24,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="account-service" options="-parameters" />
       <module name="pc-access-service" options="-parameters" />
+      <module name="proxy-service" options="-parameters" />
       <module name="task-management-service" options="-parameters" />
     </option>
   </component>

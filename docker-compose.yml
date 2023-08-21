@@ -62,3 +62,15 @@ services:
     #   - "user_dev.env"
     ports:
       - "30004:8080"
+  ####################################
+  # Atomic Microservice: proxy-service
+  ####################################
+  proxy-service:
+    build:
+      context: ./proxy-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30005:8080"
