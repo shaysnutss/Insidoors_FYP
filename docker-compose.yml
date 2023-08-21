@@ -73,4 +73,3 @@ services:
     # env_file:
     #   - "user_dev.env"
     ports:
-      - "30005:8080"
