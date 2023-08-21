@@ -38,3 +38,15 @@ services:
     #   - "user_dev.env"
     ports:
       - "30002:8080"
+  ####################################
+  # Atomic Microservice: comments-service
+  ####################################
+  comments-service:
+    build:
+      context: ./comments-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30003:8080"
