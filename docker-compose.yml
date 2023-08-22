@@ -86,3 +86,15 @@ services:
     #   - "user_dev.env"
     ports:
       - "30006:8080"
+  ####################################
+  # Atomic Microservice: behavioral-analysis-service
+  ####################################
+  behavioral-analysis-service:
+    build:
+      context: ./behavioral-analysis-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30007:8080"
