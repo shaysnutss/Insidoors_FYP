@@ -98,3 +98,15 @@ services:
     #   - "user_dev.env"
     ports:
       - "30007:8080"
+  ####################################
+  # Atomic Microservice: insidoors-frontend
+  ####################################
+  insidoors-frontend:
+    build:
+      context: ./insidoors-frontend
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30008:3000"
