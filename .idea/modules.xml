@@ -4,8 +4,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Insidoors_FYP.iml" filepath="$PROJECT_DIR$/.idea/Insidoors_FYP.iml" />
       <module fileurl="file://$PROJECT_DIR$/account-service/account-service.iml" filepath="$PROJECT_DIR$/account-service/account-service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/pc-access-service/pc-access-service.iml" filepath="$PROJECT_DIR$/pc-access-service/pc-access-service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/proxy-service/proxy-service.iml" filepath="$PROJECT_DIR$/proxy-service/proxy-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/behavioral-analysis-service/behavioral-analysis-service.iml" filepath="$PROJECT_DIR$/behavioral-analysis-service/behavioral-analysis-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/comments-service/comments-service.iml" filepath="$PROJECT_DIR$/comments-service/comments-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/employee-service/employee-service.iml" filepath="$PROJECT_DIR$/employee-service/employee-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/task-management-service/task-management-service.iml" filepath="$PROJECT_DIR$/task-management-service/task-management-service.iml" />
     </modules>
   </component>

@@ -8,13 +8,18 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="task-management-service" />
-        <module name="proxy-service" />
+        <module name="comments-service" />
+        <module name="behavioral-analysis-service" />
         <module name="account-service" />
-        <module name="pc-access-service" />
+        <module name="employee-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="account-service" target="17" />
+      <module name="behavioral-analysis-service" target="17" />
+      <module name="building-access-service" target="17" />
+      <module name="comments-service" target="17" />
+      <module name="employee-service" target="17" />
       <module name="pc-access-service" target="17" />
       <module name="proxy-service" target="17" />
       <module name="task-management-service" target="17" />
@@ -23,6 +28,10 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="account-service" options="-parameters" />
+      <module name="behavioral-analysis-service" options="-parameters" />
+      <module name="building-access-service" options="-parameters" />
+      <module name="comments-service" options="-parameters" />
+      <module name="employee-service" options="-parameters" />
       <module name="pc-access-service" options="-parameters" />
       <module name="proxy-service" options="-parameters" />
       <module name="task-management-service" options="-parameters" />
