@@ -62,8 +62,7 @@ public class CommentsServiceController {
     }
     
     @DeleteMapping("/comments/{id}")
-    public void deleteNews(@PathVariable Long id){
-        //newsService.deleteNews(id);
+    public void deleteComment(@PathVariable Long id){
         try {
             commentsServiceRepo.deleteById(id);
         } catch(EmptyResultDataAccessException e) {
