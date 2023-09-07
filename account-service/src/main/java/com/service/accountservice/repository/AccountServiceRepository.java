@@ -11,4 +11,5 @@ public interface AccountServiceRepository extends JpaRepository<Account, Long> {
 
     // find an account by the email as email is unique
     Account findByEmail(String email);
+
 }
