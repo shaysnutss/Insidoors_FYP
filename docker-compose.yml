@@ -39,18 +39,6 @@ services:
     ports:
       - "30002:8080"
   ####################################
-  # Atomic Microservice: pc-access-service
-  ####################################
-  pc-access-service:
-    build:
-      context: ./pc-access-service
-      dockerfile: Dockerfile
-    restart: always
-    # env_file:
-    #   - "user_dev.env"
-    ports:
-      - "30003:8080"
-  ####################################
   # Atomic Microservice: comments-service
   ####################################
   comments-service:
@@ -62,30 +50,6 @@ services:
     #   - "user_dev.env"
     ports:
       - "30004:8080"
-  ####################################
-  # Atomic Microservice: proxy-service
-  ####################################
-  proxy-service:
-    build:
-      context: ./proxy-service
-      dockerfile: Dockerfile
-    restart: always
-    # env_file:
-    #   - "user_dev.env"
-    ports:
-      - "30005:8080"
-  ####################################
-  # Atomic Microservice: building-access-service
-  ####################################
-  building-access-service:
-    build:
-      context: ./proxy-service
-      dockerfile: Dockerfile
-    restart: always
-    # env_file:
-    #   - "user_dev.env"
-    ports:
-      - "30006:8080"
   ####################################
   # Atomic Microservice: behavioral-analysis-service
   ####################################
