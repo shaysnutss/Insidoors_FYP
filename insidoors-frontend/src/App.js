@@ -1,9 +1,26 @@
-import logo from './logo.svg';
+import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import './App.css';
-import { Login } from './components'
+import { Login, Register } from './components'
 
 function App() {
-  return <Login />
+  return (
+      <BrowserRouter>
+          <Routes>
+              <Route
+                  path="/"
+                  element={ <Login /> }
+              />
+              <Route
+                  path="/register"
+                  element={ <Register /> }
+              />
+              <Route
+                  path="/login"
+                  element={ <Login /> }
+              />
+          </Routes>
+      </BrowserRouter>
+  );
 }
 
 export default App;
