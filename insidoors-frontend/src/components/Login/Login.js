@@ -1,4 +1,5 @@
 import { loginPic } from "../../assets"
+import { Link } from "react-router-dom";
 import "./Login.css";
 
 export const Login = () => {
@@ -13,8 +14,8 @@ export const Login = () => {
           <div className="overlap-2">
             <div className="text-wrapper-2">Log in.</div>
             <p className="don-t-have-an">
-              <span className="span">Don’t have an account?</span>
-              <span><a href="register"> Register</a></span>
+              <span className="span">Don’t have an account? </span>
+              <span><Link className="text-wrapper-4" to="/register" style={{textDecoration:'none'}}>Register</Link></span>
             </p>
             <img className="login-cuate" alt="Login cuate" src={loginPic} />
           </div>
@@ -22,14 +23,15 @@ export const Login = () => {
             <button className="input-button">Log in</button>
           </div>
           <div>
-            <input type="text" className="input-text" placeholder="E-mail" name="email" />
+            <input type="text" className="input-text" placeholder="E-mail" name="emailLog" />
           </div>
           <div>
-            <input type="password" className="text-input-wrapper" placeholder="Password" name="password" />
+            <input type="password" className="text-input-wrapper" placeholder="Password" name="passwordLog" />
           </div>
         </div>
       </div>
     </div>
+
   );
 };
 
