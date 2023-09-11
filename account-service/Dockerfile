@@ -1,7 +1,7 @@
 FROM openjdk:17-jdk-slim
 WORKDIR .
 
-COPY .mvn/ .mvn
+COPY .mvn .mvn
 COPY mvnw pom.xml ./
 RUN sed -i 's/\r$//' mvnw
 RUN chmod +x mvnw
