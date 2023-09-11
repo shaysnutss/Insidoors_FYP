@@ -392,7 +392,7 @@ from evaluate import evaluator
 
 # Define trainer for evaluation
 
-eval_trainer = Trainer(
+eval_trainer = CustomTrainer(
     model=model,
     eval_dataset=curated_dataset,
     compute_metrics=compute_metrics
