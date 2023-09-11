@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
         // If token is not present, or authentication is not JWT type, then pass the request to the next filter
-        if (authHeader == null && !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         We do this when the second request sent, after the /authenticate endpoint is called
         Because the authenticate endpoint merely creates the token, it does not actually set the user
         in the securityContext */
-        if(userEmail == null && SecurityContextHolder.getContext().getAuthentication() == null){
+        if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
             // Here we are loading the user details from the DB by querying the DB with the username/email in the token
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
@@ -62,6 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
         }
+        filterChain.doFilter(request,response);
 
     }
 }

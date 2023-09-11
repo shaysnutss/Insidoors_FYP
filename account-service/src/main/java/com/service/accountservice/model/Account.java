@@ -19,10 +19,11 @@ import java.util.Collections;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-@Table(name = "account_service", schema = "account")
+@Builder
+@Table(name = "account", schema = "account")
 public class Account implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

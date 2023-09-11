@@ -1,4 +1,4 @@
-CREATE DATABASE accounts;
+CREATE DATABASE account;
 USE account;
 CREATE TABLE account (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
