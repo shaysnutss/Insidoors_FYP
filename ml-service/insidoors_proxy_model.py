@@ -358,9 +358,19 @@ training_args = TrainingArguments(
 # In[ ]:
 
 
-# Define trainer
+# Define trainers
 
-trainer = CustomTrainer(
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=train_dataset,
+    eval_dataset=val_dataset,
+    tokenizer=tokenizer,
+    data_collator=data_collator,
+    compute_metrics=compute_metrics
+)
+
+trainer_with_custom_weights = CustomTrainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset,
@@ -374,9 +384,10 @@ trainer = CustomTrainer(
 # In[ ]:
 
 
-# Train model
+# Train models
 
 trainer.train()
+trainer_with_custom_weights.train()
 
 
 # ### Evaluate model
@@ -390,9 +401,15 @@ from evaluate import evaluator
 # In[ ]:
 
 
-# Define trainer for evaluation
+# Define trainers for evaluation
 
-eval_trainer = CustomTrainer(
+eval_trainer = Trainer(
+    model=model,
+    eval_dataset=curated_dataset,
+    compute_metrics=compute_metrics
+)
+
+eval_trainer_with_custom_weights = CustomTrainer(
     model=model,
     eval_dataset=curated_dataset,
     compute_metrics=compute_metrics
@@ -402,9 +419,19 @@ eval_trainer = CustomTrainer(
 # In[ ]:
 
 
-# Evaluate model
+# Evaluate base model
 
+print('Base model evaluation:')
 eval_trainer.evaluate()
+
+
+# In[ ]:
+
+
+# Evaluate model with custom class weights
+
+print('Model w/ custom weights evaluation:')
+eval_trainer_with_custom_weights.evaluate()
 
 
 # In[ ]:
@@ -412,7 +439,7 @@ eval_trainer.evaluate()
 
 # Save model
 
-trainer.save_model(MODEL_NAME)
+trainer_with_custom_weights.save_model(MODEL_NAME)
 
 
 # In[ ]:
