@@ -263,9 +263,9 @@ import evaluate
 # In[ ]:
 
 
-# Load accuracy metric
+# Load accuracy, f1, precision, and recall metrics
 
-accuracy = evaluate.load('accuracy')
+metrics = evaluate.combine(['accuracy', 'f1', 'precision', 'recall'])
 
 
 # In[ ]:
@@ -277,7 +277,7 @@ def compute_metrics(results):
     predictions, labels = results
     predictions = np.argmax(predictions, axis=1)
     
-    return accuracy.compute(predictions=predictions, references=labels)
+    return metrics.compute(predictions=predictions, references=labels)
 
 
 # ### Handle class imbalance
@@ -335,6 +335,7 @@ from transformers import AutoModelForSequenceClassification, TrainingArguments
 # Load pretrained DistilBERT model
 
 model = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+model_with_custom_weights = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
 
 
 # In[ ]:
@@ -371,7 +372,7 @@ trainer = Trainer(
 )
 
 trainer_with_custom_weights = CustomTrainer(
-    model=model,
+    model=model_with_custom_weights,
     args=training_args,
     train_dataset=train_dataset,
     eval_dataset=val_dataset,
@@ -384,9 +385,16 @@ trainer_with_custom_weights = CustomTrainer(
 # In[ ]:
 
 
-# Train models
+# Train base model
 
 trainer.train()
+
+
+# In[ ]:
+
+
+# Train model with custom class weights
+
 trainer_with_custom_weights.train()
 
 
@@ -410,7 +418,7 @@ eval_trainer = Trainer(
 )
 
 eval_trainer_with_custom_weights = CustomTrainer(
-    model=model,
+    model=model_with_custom_weights,
     eval_dataset=curated_dataset,
     compute_metrics=compute_metrics
 )
