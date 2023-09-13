@@ -12,21 +12,64 @@
 # - matplotlib
 # - torch
 # - transformers[torch]
+# - scikit-learn
 # - evaluate
 
 
 # In[ ]:
 
 
+# !pip install sqlalchemy
+# !pip install mysqlclient
+# !pip install names
+# !pip install pandas
+# !pip install matplotlib
+# !pip install torch
+# !pip install transformers[torch]
+# !pip install scikit-learn
+# !pip install evaluate
+
+
+# In[ ]:
+
+
+# For SMU GPU cluster:
+# !pip install sqlalchemy --no-build-isolation
+# !pip install names --no-build-isolation
+# !pip install pandas --no-build-isolation
+# !pip install matplotlib --no-build-isolation
+# !pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 --no-build-isolation
+# !pip install transformers[torch] --no-build-isolation
+# !pip install scikit-learn --no-build-isolation
+# !pip install evaluate --no-build-isolation
+
+
+# In[ ]:
+
+
+get_ipython().system('whichgpu')
+
+
+# In[ ]:
+
+
 # FUTURE ITERATIONS:
-# 1. handle class imbalances
-# 2. properly incorporate tabular data
+# 1. properly incorporate tabular data
+# 2. change evaluation metrics (aoc roc, f1, confusion matrix)
 
 
 # ## Insidoors Text Classification Model for Proxy Access Logs
-# *Version: 1*
+# *Version: 2*
 # <br>
-# This notebook details the first iteration of a binary text classification model that identifies suspicious proxy access cases
+# This notebook details the second iteration of a binary text classification model that identifies suspicious proxy access cases
+# * Implemented custom class weights to handle class imbalance
+
+# In[ ]:
+
+
+PRETRAINED_MODEL = 'distilbert-base-uncased'
+MODEL_NAME = 'insidoors_proxy_v2'
+
 
 # ### Load data from MySQL
 
@@ -44,26 +87,26 @@ from sqlalchemy import create_engine
 # TODO: use .env file
 # !! Replace placeholders before running !!
 
-USER = '<USER>'
-PASSWORD = '<PASSWORD>'
-HOST = '<HOST>' 
-PORT = '<PORT>'
-DATABASE = 'insidoors'
-TABLE = 'proxy_log'
-CONNECTION_STRING = 'mysql+mysqldb://' + USER + ':' + PASSWORD + '@' + HOST + ':' + PORT + '/' + DATABASE
+# USER = '<USER>'
+# PASSWORD = '<PASSWORD>'
+# HOST = '<HOST>'
+# PORT = '<PORT>'
+# DATABASE = 'insidoors'
+# TABLE = 'proxy_log'
+# CONNECTION_STRING = 'mysql+mysqldb://' + USER + ':' + PASSWORD + '@' + HOST + ':' + PORT + '/' + DATABASE
 
-engine = create_engine(CONNECTION_STRING)
-query = 'SELECT * FROM ' + TABLE + ';'
-df = pd.read_sql(query, engine)
-
-display(df)
-
-
-# FOR GOOGLE COLAB: COMMENT OUT CODE ABOVE AND USE THE FOLLOWING
-
-# df = pd.read_csv('proxy_data.csv', sep=';', header=0)
+# engine = create_engine(CONNECTION_STRING)
+# query = 'SELECT * FROM ' + TABLE + ';'
+# df = pd.read_sql(query, engine)
 
 # display(df)
+
+
+# FOR GOOGLE COLAB & SMU GPU CLUSTER: COMMENT OUT CODE ABOVE AND USE THE FOLLOWING
+
+df = pd.read_csv('proxy_data.csv', sep=';', header=0)
+
+display(df)
 
 
 # In[ ]:
@@ -163,7 +206,7 @@ display(curated)
 
 # Tokenize input text using DistilBERT tokenizer
 
-tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
+tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL)
 
 train_encodings = tokenizer(train['input'].tolist(), padding=True, truncation=True)
 val_encodings = tokenizer(val['input'].tolist(), padding=True, truncation=True)
@@ -237,21 +280,61 @@ def compute_metrics(results):
     return accuracy.compute(predictions=predictions, references=labels)
 
 
+# ### Handle class imbalance
+
+# In[ ]:
+
+
+from sklearn.utils import class_weight
+from torch import nn
+from transformers import Trainer
+
+
+# In[ ]:
+
+
+# Create class weights for imbalanced data
+
+class_weights = class_weight.compute_class_weight(
+    class_weight='balanced',
+    classes=np.unique(train['suspect']),
+    y=train['suspect']
+)
+
+print(class_weights)
+
+
+# In[ ]:
+
+
+# Define custom trainer to override the loss function
+
+class CustomTrainer(Trainer):
+  def compute_loss(self, model, inputs, return_outputs=False):
+    labels = inputs.pop("labels")
+    outputs = model(**inputs)
+    logits = outputs.get("logits")
+    weight = torch.tensor(class_weights, dtype=torch.float, device=model.device)
+    loss_fct = nn.CrossEntropyLoss(weight=weight)
+    loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
+    
+    return (loss, outputs) if return_outputs else loss
+
+
 # ### Build and train model
 
 # In[ ]:
 
 
-from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer
+from transformers import AutoModelForSequenceClassification, TrainingArguments
 
 
 # In[ ]:
 
 
 # Load pretrained DistilBERT model
-# TODO: check if model has to be the same as tokenizer, create global variable
 
-model = AutoModelForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels=2)
+model = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
 
 
 # In[ ]:
@@ -275,9 +358,19 @@ training_args = TrainingArguments(
 # In[ ]:
 
 
-# Define trainer
+# Define trainers
 
 trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=train_dataset,
+    eval_dataset=val_dataset,
+    tokenizer=tokenizer,
+    data_collator=data_collator,
+    compute_metrics=compute_metrics
+)
+
+trainer_with_custom_weights = CustomTrainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset,
@@ -291,9 +384,10 @@ trainer = Trainer(
 # In[ ]:
 
 
-# Train model
+# Train models
 
 trainer.train()
+trainer_with_custom_weights.train()
 
 
 # ### Evaluate model
@@ -307,9 +401,15 @@ from evaluate import evaluator
 # In[ ]:
 
 
-# Define trainer for evaluation
+# Define trainers for evaluation
 
 eval_trainer = Trainer(
+    model=model,
+    eval_dataset=curated_dataset,
+    compute_metrics=compute_metrics
+)
+
+eval_trainer_with_custom_weights = CustomTrainer(
     model=model,
     eval_dataset=curated_dataset,
     compute_metrics=compute_metrics
@@ -319,9 +419,19 @@ eval_trainer = Trainer(
 # In[ ]:
 
 
-# Evaluate model
+# Evaluate base model
 
+print('Base model evaluation:')
 eval_trainer.evaluate()
+
+
+# In[ ]:
+
+
+# Evaluate model with custom class weights
+
+print('Model w/ custom weights evaluation:')
+eval_trainer_with_custom_weights.evaluate()
 
 
 # In[ ]:
@@ -329,7 +439,7 @@ eval_trainer.evaluate()
 
 # Save model
 
-trainer.save_model('insidoors_proxy_v1')
+trainer_with_custom_weights.save_model(MODEL_NAME)
 
 
 # In[ ]:
@@ -344,8 +454,8 @@ test_input = test_suspect + test_nonsuspect
 print('Sample input:')
 display(test_input)
 
-saved_tokenizer = AutoTokenizer.from_pretrained('insidoors_proxy_v1')
-saved_model = AutoModelForSequenceClassification.from_pretrained('insidoors_proxy_v1')
+saved_tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+saved_model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
 test_input = saved_tokenizer(test_input, padding=True, truncation=True, return_tensors="pt")
 
 with torch.no_grad():
