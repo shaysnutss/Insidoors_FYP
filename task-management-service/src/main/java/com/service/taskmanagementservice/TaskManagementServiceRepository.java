@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TaskManagementServiceRepository extends JpaRepository<TaskManagementService, Long> {
     
-    List<TaskManagementService> findByEmployeeId(int employeeId);
+    List<TaskManagementService> findAllByEmployeeId(int employeeId);
 
-    List<TaskManagementService> findByAccountId(int accountId);
+    List<TaskManagementService> findAllByAccountId(int accountId);
 }
