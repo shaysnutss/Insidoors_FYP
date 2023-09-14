@@ -35,7 +35,6 @@
 
 # For SMU GPU cluster:
 # !pip install sqlalchemy --no-build-isolation
-# !pip install names --no-build-isolation
 # !pip install pandas --no-build-isolation
 # !pip install matplotlib --no-build-isolation
 # !pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 --no-build-isolation
@@ -55,20 +54,23 @@ get_ipython().system('whichgpu')
 
 # FUTURE ITERATIONS:
 # 1. properly incorporate tabular data
-# 2. change evaluation metrics (aoc roc, f1, confusion matrix)
 
 
-# ## Insidoors Text Classification Model for Proxy Access Logs
-# *Version: 2*
+# ## Insidoors Text Classification Model for PC Access, Building Access, and Proxy Logs
+# *Version: 3*
 # <br>
-# This notebook details the second iteration of a binary text classification model that identifies suspicious proxy access cases
+# This notebook details the third iteration of a binary text classification model that identifies suspicious employee activity. For ease of development, all models are currently built and trained in this notebook. In the future, a separate notebook will be created for each model.
+# 
 # * Implemented custom class weights to handle class imbalance
+# * Added models for PC and Building Access logs
 
 # In[ ]:
 
 
 PRETRAINED_MODEL = 'distilbert-base-uncased'
-MODEL_NAME = 'insidoors_proxy_v2'
+PC_MODEL_NAME = 'insidoors_pc_v3'
+BUILDING_MODEL_NAME = 'insidoors_building_v3'
+PROXY_MODEL_NAME = 'insidoors_proxy_v3'
 
 
 # ### Load data from MySQL
@@ -104,36 +106,79 @@ from sqlalchemy import create_engine
 
 # FOR GOOGLE COLAB & SMU GPU CLUSTER: COMMENT OUT CODE ABOVE AND USE THE FOLLOWING
 
-df = pd.read_csv('proxy_data.csv', sep=';', header=0)
+pc_df = pd.read_csv('pc_data_2k.csv', sep=';', header=0)
+building_df = pd.read_csv('building_data_2k.csv', sep=';', header=0)
+proxy_df = pd.read_csv('proxy_data_2k.csv', sep=';', header=0)
 
-display(df)
+print('PC Access logs:')
+display(pc_df)
 
+print('Building Access logs:')
+display(building_df)
 
-# In[ ]:
-
-
-# Display distribution of suspect cases
-
-print(df['suspect'].value_counts())
-display(df['suspect'].value_counts().plot(kind='bar', rot=0))
-
-
-# In[ ]:
-
-
-# Display distribution of machines and url categories
-
-print(df['machine_name'].value_counts())
-print()
-print(df['category'].value_counts())
+print('Proxy logs:')
+display(proxy_df)
 
 
 # In[ ]:
 
 
-# Display suspect cases
+# Display distribution of suspect PC Access logs
 
-display(df[df['suspect'] == 6])
+print('Distribution of suspect PC Access logs:')
+print(pc_df['suspect'].value_counts())
+display(pc_df['suspect'].value_counts().plot(kind='bar', rot=0))
+
+
+# In[ ]:
+
+
+# Display suspect PC Access logs
+
+pc_cases = [1, 2, 3, 5]
+
+print('Suspect PC Access logs:')
+display(pc_df[pc_df['suspect'].isin(pc_cases)])
+
+
+# In[ ]:
+
+
+# Display distribution of suspect Building Access logs
+
+print('Distribution of suspect Building Access logs:')
+print(building_df['suspect'].value_counts())
+display(building_df['suspect'].value_counts().plot(kind='bar', rot=0))
+
+
+# In[ ]:
+
+
+# Display suspect Building Access logs
+
+building_cases = [3, 4, 5]
+
+print('Suspect Building Access logs:')
+display(building_df[building_df['suspect'].isin(building_cases)])
+
+
+# In[ ]:
+
+
+# Display distribution of suspect Proxy logs
+
+print('Distribution of suspect Proxy logs:')
+print(proxy_df['suspect'].value_counts())
+display(proxy_df['suspect'].value_counts().plot(kind='bar', rot=0))
+
+
+# In[ ]:
+
+
+# Display suspect Proxy logs
+
+print('Suspect Proxy logs:')
+display(proxy_df[proxy_df['suspect'] == 6])
 
 
 # ### Preprocess data
@@ -150,55 +195,172 @@ from transformers import DataCollatorWithPadding
 # In[ ]:
 
 
-# Prepare 'suspect' column for binary classification
+# Prepare 'suspect' column of PC Access logs for binary classification
 
-df.loc[df['suspect'] == 6, 'suspect'] = 1
+pc_df.loc[pc_df['suspect'].isin(pc_cases), 'suspect'] = 1
 
-print(df['suspect'].value_counts())
-
-
-# In[ ]:
-
-
-# Concatenate input columns into a single string
-
-df = df.astype(str)
-df['suspect'] = df['suspect'].astype(int) # Keep 'suspect' column as int
-df['input'] = df[['user_id', 'access_date_time', 'machine_name',
-                  'url', 'category', 'bytes_in', 'bytes_out']].agg(', '.join, axis=1)
-
-display(df)
+print('New distribution of suspect PC Access logs:')
+print(pc_df['suspect'].value_counts())
 
 
 # In[ ]:
 
 
-# Split dataset into train, validation, and test
+# Prepare 'suspect' column of Building Access logs for binary classification
+
+building_df.loc[building_df['suspect'].isin(building_cases), 'suspect'] = 1
+
+print('New distribution of suspect Building Access logs:')
+print(building_df['suspect'].value_counts())
+
+
+# In[ ]:
+
+
+# Prepare 'suspect' column of Proxy logs for binary classification
+
+proxy_df.loc[proxy_df['suspect'] == 6, 'suspect'] = 1
+
+print('New distribution of suspect Proxy logs:')
+print(proxy_df['suspect'].value_counts())
+
+
+# In[ ]:
+
+
+# Concatenate input columns of PC Access logs into a single string
+
+pc_df = pc_df.astype(str)
+pc_df['suspect'] = pc_df['suspect'].astype(int) # Keep 'suspect' column as int
+pc_df['input'] = pc_df[['user_id', 'access_date_time', 'log_on_off',
+                        'machine_name', 'machine_location']].agg(', '.join, axis=1)
+
+display(pc_df)
+
+
+# In[ ]:
+
+
+# Concatenate input columns of Building Access logs into a single string
+
+building_df = building_df.astype(str)
+building_df['suspect'] = building_df['suspect'].astype(int) # Keep 'suspect' column as int
+building_df['input'] = building_df[['user_id', 'access_date_time', 'direction',
+                                    'status', 'office_location']].agg(', '.join, axis=1)
+
+display(building_df)
+
+
+# In[ ]:
+
+
+# Concatenate input columns of Proxy logs into a single string
+
+proxy_df = proxy_df.astype(str)
+proxy_df['suspect'] = proxy_df['suspect'].astype(int) # Keep 'suspect' column as int
+proxy_df['input'] = proxy_df[['user_id', 'access_date_time', 'machine_name',
+                              'url', 'category', 'bytes_in', 'bytes_out']].agg(', '.join, axis=1)
+
+display(proxy_df)
+
+
+# In[ ]:
+
+
+# Split PC dataset into train, validation, and test
 # 60% train, 20% validation, 20% test
 
-train, val, test = np.split(df.sample(frac=1, random_state=480),
-                            [int(0.6 * len(df)), int(0.8 * len(df))])
+pc_train, pc_val, pc_test = np.split(pc_df.sample(frac=1, random_state=480),
+                                     [int(0.6 * len(pc_df)), int(0.8 * len(pc_df))])
 
-print(train.shape)
-print(val.shape)
-print(test.shape)
+print('PC dataframe splits:')
+print(pc_train.shape)
+print(pc_val.shape)
+print(pc_test.shape)
 
 
 # In[ ]:
 
 
-# Select a curated sample from the test dataset to use during evaluation
+# Split Building dataset into train, validation, and test
+# 60% train, 20% validation, 20% test
+
+building_train, building_val, building_test = np.split(building_df.sample(frac=1, random_state=480),
+                                                       [int(0.6 * len(building_df)), int(0.8 * len(building_df))])
+
+print('Building dataframe splits:')
+print(building_train.shape)
+print(building_val.shape)
+print(building_test.shape)
+
+
+# In[ ]:
+
+
+# Split Proxy dataset into train, validation, and test
+# 60% train, 20% validation, 20% test
+
+proxy_train, proxy_val, proxy_test = np.split(proxy_df.sample(frac=1, random_state=480),
+                                              [int(0.6 * len(proxy_df)), int(0.8 * len(proxy_df))])
+
+print('Proxy dataframe splits:')
+print(proxy_train.shape)
+print(proxy_val.shape)
+print(proxy_test.shape)
+
+
+# In[ ]:
+
+
+# Select a curated sample from the PC test dataset to use during evaluation
 # 50% suspect, 50% non-suspect
 
-suspect = test.loc[test['suspect'] == 1]
-nonsuspect = test.loc[test['suspect'] == 0]
+pc_suspect = pc_test.loc[pc_test['suspect'] == 1]
+pc_nonsuspect = pc_test.loc[pc_test['suspect'] == 0]
 
-sample_nonsuspect = nonsuspect.sample(n=suspect.shape[0], random_state=48)
+pc_sample_nonsuspect = pc_nonsuspect.sample(n=pc_suspect.shape[0], random_state=48)
 
-curated = pd.concat([suspect, sample_nonsuspect])
-curated = curated.sample(frac=1)
+pc_curated = pd.concat([pc_suspect, pc_sample_nonsuspect])
+pc_curated = pc_curated.sample(frac=1)
 
-display(curated)
+print('Curated sample of PC Access logs:')
+display(pc_curated)
+
+
+# In[ ]:
+
+
+# Select a curated sample from the Building test dataset to use during evaluation
+# 50% suspect, 50% non-suspect
+
+building_suspect = building_test.loc[building_test['suspect'] == 1]
+building_nonsuspect = building_test.loc[building_test['suspect'] == 0]
+
+building_sample_nonsuspect = building_nonsuspect.sample(n=building_suspect.shape[0], random_state=48)
+
+building_curated = pd.concat([building_suspect, building_sample_nonsuspect])
+building_curated = building_curated.sample(frac=1)
+
+print('Curated sample of Building Access logs:')
+display(building_curated)
+
+
+# In[ ]:
+
+
+# Select a curated sample from the Proxy test dataset to use during evaluation
+# 50% suspect, 50% non-suspect
+
+proxy_suspect = proxy_test.loc[proxy_test['suspect'] == 1]
+proxy_nonsuspect = proxy_test.loc[proxy_test['suspect'] == 0]
+
+proxy_sample_nonsuspect = proxy_nonsuspect.sample(n=proxy_suspect.shape[0], random_state=48)
+
+proxy_curated = pd.concat([proxy_suspect, proxy_sample_nonsuspect])
+proxy_curated = proxy_curated.sample(frac=1)
+
+print('Curated sample of Proxy logs:')
+display(proxy_curated)
 
 
 # In[ ]:
@@ -208,10 +370,20 @@ display(curated)
 
 tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL)
 
-train_encodings = tokenizer(train['input'].tolist(), padding=True, truncation=True)
-val_encodings = tokenizer(val['input'].tolist(), padding=True, truncation=True)
-test_encodings = tokenizer(test['input'].tolist(), padding=True, truncation=True)
-curated_encodings = tokenizer(curated['input'].tolist(), padding=True, truncation=True)
+pc_train_encodings = tokenizer(pc_train['input'].tolist(), padding=True, truncation=True)
+pc_val_encodings = tokenizer(pc_val['input'].tolist(), padding=True, truncation=True)
+pc_test_encodings = tokenizer(pc_test['input'].tolist(), padding=True, truncation=True)
+pc_curated_encodings = tokenizer(pc_curated['input'].tolist(), padding=True, truncation=True)
+
+building_train_encodings = tokenizer(building_train['input'].tolist(), padding=True, truncation=True)
+building_val_encodings = tokenizer(building_val['input'].tolist(), padding=True, truncation=True)
+building_test_encodings = tokenizer(building_test['input'].tolist(), padding=True, truncation=True)
+building_curated_encodings = tokenizer(building_curated['input'].tolist(), padding=True, truncation=True)
+
+proxy_train_encodings = tokenizer(proxy_train['input'].tolist(), padding=True, truncation=True)
+proxy_val_encodings = tokenizer(proxy_val['input'].tolist(), padding=True, truncation=True)
+proxy_test_encodings = tokenizer(proxy_test['input'].tolist(), padding=True, truncation=True)
+proxy_curated_encodings = tokenizer(proxy_curated['input'].tolist(), padding=True, truncation=True)
 
 
 # In[ ]:
@@ -227,7 +399,7 @@ data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 # Define class for PyTorch dataset, to be used as model input
 
-class ProxyDataset(torch.utils.data.Dataset):
+class PyTorchDataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels):
         self.encodings = encodings
         self.labels = labels
@@ -246,10 +418,20 @@ class ProxyDataset(torch.utils.data.Dataset):
 
 # Create PyTorch datasets
 
-train_dataset = ProxyDataset(train_encodings, train['suspect'].tolist())
-val_dataset = ProxyDataset(val_encodings, val['suspect'].tolist())
-test_dataset = ProxyDataset(test_encodings, test['suspect'].tolist())
-curated_dataset = ProxyDataset(curated_encodings, curated['suspect'].tolist())
+pc_train_dataset = PyTorchDataset(pc_train_encodings, pc_train['suspect'].tolist())
+pc_val_dataset = PyTorchDataset(pc_val_encodings, pc_val['suspect'].tolist())
+pc_test_dataset = PyTorchDataset(pc_test_encodings, pc_test['suspect'].tolist())
+pc_curated_dataset = PyTorchDataset(pc_curated_encodings, pc_curated['suspect'].tolist())
+
+building_train_dataset = PyTorchDataset(building_train_encodings, building_train['suspect'].tolist())
+building_val_dataset = PyTorchDataset(building_val_encodings, building_val['suspect'].tolist())
+building_test_dataset = PyTorchDataset(building_test_encodings, building_test['suspect'].tolist())
+building_curated_dataset = PyTorchDataset(building_curated_encodings, building_curated['suspect'].tolist())
+
+proxy_train_dataset = PyTorchDataset(proxy_train_encodings, proxy_train['suspect'].tolist())
+proxy_val_dataset = PyTorchDataset(proxy_val_encodings, proxy_val['suspect'].tolist())
+proxy_test_dataset = PyTorchDataset(proxy_test_encodings, proxy_test['suspect'].tolist())
+proxy_curated_dataset = PyTorchDataset(proxy_curated_encodings, proxy_curated['suspect'].tolist())
 
 
 # ### Prepare evaluation metrics
@@ -263,9 +445,9 @@ import evaluate
 # In[ ]:
 
 
-# Load accuracy metric
+# Load accuracy, f1, precision, and recall metrics
 
-accuracy = evaluate.load('accuracy')
+metrics = evaluate.combine(['accuracy', 'f1', 'precision', 'recall'])
 
 
 # In[ ]:
@@ -277,7 +459,7 @@ def compute_metrics(results):
     predictions, labels = results
     predictions = np.argmax(predictions, axis=1)
     
-    return accuracy.compute(predictions=predictions, references=labels)
+    return metrics.compute(predictions=predictions, references=labels)
 
 
 # ### Handle class imbalance
@@ -293,28 +475,90 @@ from transformers import Trainer
 # In[ ]:
 
 
-# Create class weights for imbalanced data
+# Create class weights for imbalanced PC Access log data
 
-class_weights = class_weight.compute_class_weight(
+pc_class_weights = class_weight.compute_class_weight(
     class_weight='balanced',
-    classes=np.unique(train['suspect']),
-    y=train['suspect']
+    classes=np.unique(pc_train['suspect']),
+    y=pc_train['suspect']
 )
 
-print(class_weights)
+print(pc_class_weights)
 
 
 # In[ ]:
 
 
-# Define custom trainer to override the loss function
+# Define custom PC model trainer to override the loss function
 
-class CustomTrainer(Trainer):
+class CustomPCTrainer(Trainer):
   def compute_loss(self, model, inputs, return_outputs=False):
     labels = inputs.pop("labels")
     outputs = model(**inputs)
     logits = outputs.get("logits")
-    weight = torch.tensor(class_weights, dtype=torch.float, device=model.device)
+    weight = torch.tensor(pc_class_weights, dtype=torch.float, device=model.device)
+    loss_fct = nn.CrossEntropyLoss(weight=weight)
+    loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
+    
+    return (loss, outputs) if return_outputs else loss
+
+
+# In[ ]:
+
+
+# Create class weights for imbalanced Building Access log data
+
+building_class_weights = class_weight.compute_class_weight(
+    class_weight='balanced',
+    classes=np.unique(building_train['suspect']),
+    y=building_train['suspect']
+)
+
+print(building_class_weights)
+
+
+# In[ ]:
+
+
+# Define custom Building model trainer to override the loss function
+
+class CustomBuildingTrainer(Trainer):
+  def compute_loss(self, model, inputs, return_outputs=False):
+    labels = inputs.pop("labels")
+    outputs = model(**inputs)
+    logits = outputs.get("logits")
+    weight = torch.tensor(building_class_weights, dtype=torch.float, device=model.device)
+    loss_fct = nn.CrossEntropyLoss(weight=weight)
+    loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
+    
+    return (loss, outputs) if return_outputs else loss
+
+
+# In[ ]:
+
+
+# Create class weights for imbalanced Proxy log data
+
+proxy_class_weights = class_weight.compute_class_weight(
+    class_weight='balanced',
+    classes=np.unique(proxy_train['suspect']),
+    y=proxy_train['suspect']
+)
+
+print(proxy_class_weights)
+
+
+# In[ ]:
+
+
+# Define custom Proxy model trainer to override the loss function
+
+class CustomProxyTrainer(Trainer):
+  def compute_loss(self, model, inputs, return_outputs=False):
+    labels = inputs.pop("labels")
+    outputs = model(**inputs)
+    logits = outputs.get("logits")
+    weight = torch.tensor(proxy_class_weights, dtype=torch.float, device=model.device)
     loss_fct = nn.CrossEntropyLoss(weight=weight)
     loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
     
@@ -334,16 +578,23 @@ from transformers import AutoModelForSequenceClassification, TrainingArguments
 
 # Load pretrained DistilBERT model
 
-model = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+pc_model = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+pc_model_with_custom_weights = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+
+building_model = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+building_model_with_custom_weights = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+
+proxy_model = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+proxy_model_with_custom_weights = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
 
 
 # In[ ]:
 
 
-# Define training hyperparameters
+# Set training hyperparameters
 
 training_args = TrainingArguments(
-    output_dir='training_output_proxy',
+    output_dir='training_output',
     learning_rate=0.00002,
     per_device_train_batch_size=128,
     per_device_eval_batch_size=128,
@@ -358,23 +609,23 @@ training_args = TrainingArguments(
 # In[ ]:
 
 
-# Define trainers
+# Initilise PC model trainers
 
-trainer = Trainer(
-    model=model,
+pc_trainer = Trainer(
+    model=pc_model,
     args=training_args,
-    train_dataset=train_dataset,
-    eval_dataset=val_dataset,
+    train_dataset=pc_train_dataset,
+    eval_dataset=pc_val_dataset,
     tokenizer=tokenizer,
     data_collator=data_collator,
     compute_metrics=compute_metrics
 )
 
-trainer_with_custom_weights = CustomTrainer(
-    model=model,
+pc_trainer_with_custom_weights = CustomPCTrainer(
+    model=pc_model_with_custom_weights,
     args=training_args,
-    train_dataset=train_dataset,
-    eval_dataset=val_dataset,
+    train_dataset=pc_train_dataset,
+    eval_dataset=pc_val_dataset,
     tokenizer=tokenizer,
     data_collator=data_collator,
     compute_metrics=compute_metrics
@@ -384,10 +635,101 @@ trainer_with_custom_weights = CustomTrainer(
 # In[ ]:
 
 
-# Train models
+# Initialise Building model trainers
 
-trainer.train()
-trainer_with_custom_weights.train()
+building_trainer = Trainer(
+    model=building_model,
+    args=training_args,
+    train_dataset=building_train_dataset,
+    eval_dataset=building_val_dataset,
+    tokenizer=tokenizer,
+    data_collator=data_collator,
+    compute_metrics=compute_metrics
+)
+
+building_trainer_with_custom_weights = CustomBuildingTrainer(
+    model=building_model_with_custom_weights,
+    args=training_args,
+    train_dataset=building_train_dataset,
+    eval_dataset=building_val_dataset,
+    tokenizer=tokenizer,
+    data_collator=data_collator,
+    compute_metrics=compute_metrics
+)
+
+
+# In[ ]:
+
+
+# Initialise Proxy model trainers
+
+proxy_trainer = Trainer(
+    model=proxy_model,
+    args=training_args,
+    train_dataset=proxy_train_dataset,
+    eval_dataset=proxy_val_dataset,
+    tokenizer=tokenizer,
+    data_collator=data_collator,
+    compute_metrics=compute_metrics
+)
+
+proxy_trainer_with_custom_weights = CustomProxyTrainer(
+    model=proxy_model_with_custom_weights,
+    args=training_args,
+    train_dataset=proxy_train_dataset,
+    eval_dataset=proxy_val_dataset,
+    tokenizer=tokenizer,
+    data_collator=data_collator,
+    compute_metrics=compute_metrics
+)
+
+
+# In[ ]:
+
+
+# Train base PC model
+
+pc_trainer.train()
+
+
+# In[ ]:
+
+
+# Train PC model with custom class weights
+
+pc_trainer_with_custom_weights.train()
+
+
+# In[ ]:
+
+
+# Train base Building model
+
+building_trainer.train()
+
+
+# In[ ]:
+
+
+# Train Building model with custom class weights
+
+building_trainer_with_custom_weights.train()
+
+
+# In[ ]:
+
+
+# Train base Proxy model
+
+proxy_trainer.train()
+
+
+# In[ ]:
+
+
+# Train PC model with custom class weights
+
+proxy_trainer_with_custom_weights.train()
 
 
 # ### Evaluate model
@@ -401,17 +743,17 @@ from evaluate import evaluator
 # In[ ]:
 
 
-# Define trainers for evaluation
+# Initialise PC model trainers for evaluation
 
-eval_trainer = Trainer(
-    model=model,
-    eval_dataset=curated_dataset,
+pc_eval_trainer = Trainer(
+    model=pc_model,
+    eval_dataset=pc_curated_dataset,
     compute_metrics=compute_metrics
 )
 
-eval_trainer_with_custom_weights = CustomTrainer(
-    model=model,
-    eval_dataset=curated_dataset,
+pc_eval_trainer_with_custom_weights = CustomPCTrainer(
+    model=pc_model_with_custom_weights,
+    eval_dataset=pc_curated_dataset,
     compute_metrics=compute_metrics
 )
 
@@ -419,19 +761,91 @@ eval_trainer_with_custom_weights = CustomTrainer(
 # In[ ]:
 
 
-# Evaluate base model
+# Initialise Building model trainers for evaluation
 
-print('Base model evaluation:')
-eval_trainer.evaluate()
+building_eval_trainer = Trainer(
+    model=building_model,
+    eval_dataset=building_curated_dataset,
+    compute_metrics=compute_metrics
+)
+
+building_eval_trainer_with_custom_weights = CustomBuildingTrainer(
+    model=building_model_with_custom_weights,
+    eval_dataset=building_curated_dataset,
+    compute_metrics=compute_metrics
+)
 
 
 # In[ ]:
 
 
-# Evaluate model with custom class weights
+# Initialise Proxy model trainers for evaluation
 
-print('Model w/ custom weights evaluation:')
-eval_trainer_with_custom_weights.evaluate()
+proxy_eval_trainer = Trainer(
+    model=proxy_model,
+    eval_dataset=proxy_curated_dataset,
+    compute_metrics=compute_metrics
+)
+
+proxy_eval_trainer_with_custom_weights = CustomProxyTrainer(
+    model=proxy_model_with_custom_weights,
+    eval_dataset=proxy_curated_dataset,
+    compute_metrics=compute_metrics
+)
+
+
+# In[ ]:
+
+
+# Evaluate base PC model
+
+print('Base PC model evaluation:')
+pc_eval_trainer.evaluate()
+
+
+# In[ ]:
+
+
+# Evaluate PC model with custom class weights
+
+print('PC model w/ custom weights evaluation:')
+pc_eval_trainer_with_custom_weights.evaluate()
+
+
+# In[ ]:
+
+
+# Evaluate base Building model
+
+print('Base Building model evaluation:')
+building_eval_trainer.evaluate()
+
+
+# In[ ]:
+
+
+# Evaluate Building model with custom class weights
+
+print('Building model w/ custom weights evaluation:')
+building_eval_trainer_with_custom_weights.evaluate()
+
+
+# In[ ]:
+
+
+# Evaluate base Proxy model
+
+print('Base Proxy model evaluation:')
+proxy_eval_trainer.evaluate()
+
+
+# In[ ]:
+
+
+# Evaluate Proxy model with custom class weights
+
+print('Proxy model w/ custom weights evaluation:')
+proxy_eval_trainer_with_custom_weights.evaluate()
 
 
 # In[ ]:
@@ -439,31 +853,85 @@ eval_trainer_with_custom_weights.evaluate()
 
 # Save model
 
-trainer_with_custom_weights.save_model(MODEL_NAME)
+pc_trainer_with_custom_weights.save_model(PC_MODEL_NAME)
+building_trainer_with_custom_weights.save_model(BUILDING_MODEL_NAME)
+proxy_trainer_with_custom_weights.save_model(PROXY_MODEL_NAME)
 
 
 # In[ ]:
 
 
-# Show model predictions on a few test inputs
+# Show PC model predictions on a few test inputs
 
-test_suspect = suspect['input'].sample(n=3).tolist()
-test_nonsuspect = nonsuspect['input'].sample(n=3).tolist()
-test_input = test_suspect + test_nonsuspect
+pc_test_suspect = pc_suspect['input'].sample(n=3).tolist()
+pc_test_nonsuspect = pc_nonsuspect['input'].sample(n=3).tolist()
+pc_test_input = pc_test_suspect + pc_test_nonsuspect
 
-print('Sample input:')
-display(test_input)
+print('Sample PC Access log input:')
+display(pc_test_input)
 
-saved_tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-saved_model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
-test_input = saved_tokenizer(test_input, padding=True, truncation=True, return_tensors="pt")
+pc_saved_tokenizer = AutoTokenizer.from_pretrained(PC_MODEL_NAME)
+pc_saved_model = AutoModelForSequenceClassification.from_pretrained(PC_MODEL_NAME)
+pc_test_input = pc_saved_tokenizer(pc_test_input, padding=True, truncation=True, return_tensors="pt")
 
 with torch.no_grad():
-    logits = saved_model(**test_input).logits
+    pc_logits = pc_saved_model(**pc_test_input).logits
 
 print()
-print('Model predictions:')
+print('PC model predictions:')
 
-for tensor in logits:
+for tensor in pc_logits:
+  print(tensor.argmax().item())
+
+
+# In[ ]:
+
+
+# Show Building model predictions on a few test inputs
+
+building_test_suspect = building_suspect['input'].sample(n=3).tolist()
+building_test_nonsuspect = building_nonsuspect['input'].sample(n=3).tolist()
+building_test_input = building_test_suspect + building_test_nonsuspect
+
+print('Sample Building Access log input:')
+display(building_test_input)
+
+building_saved_tokenizer = AutoTokenizer.from_pretrained(BUILDING_MODEL_NAME)
+building_saved_model = AutoModelForSequenceClassification.from_pretrained(BUILDING_MODEL_NAME)
+building_test_input = building_saved_tokenizer(building_test_input, padding=True, truncation=True, return_tensors="pt")
+
+with torch.no_grad():
+    building_logits = building_saved_model(**building_test_input).logits
+
+print()
+print('Building model predictions:')
+
+for tensor in building_logits:
+  print(tensor.argmax().item())
+
+
+# In[ ]:
+
+
+# Show Proxy model predictions on a few test inputs
+
+proxy_test_suspect = proxy_suspect['input'].sample(n=3).tolist()
+proxy_test_nonsuspect = proxy_nonsuspect['input'].sample(n=3).tolist()
+proxy_test_input = proxy_test_suspect + proxy_test_nonsuspect
+
+print('Sample Proxy log input:')
+display(proxy_test_input)
+
+proxy_saved_tokenizer = AutoTokenizer.from_pretrained(PROXY_MODEL_NAME)
+proxy_saved_model = AutoModelForSequenceClassification.from_pretrained(PROXY_MODEL_NAME)
+proxy_test_input = proxy_saved_tokenizer(proxy_test_input, padding=True, truncation=True, return_tensors="pt")
+
+with torch.no_grad():
+    proxy_logits = proxy_saved_model(**proxy_test_input).logits
+
+print()
+print('Proxy model predictions:')
+
+for tensor in proxy_logits:
   print(tensor.argmax().item())
 
