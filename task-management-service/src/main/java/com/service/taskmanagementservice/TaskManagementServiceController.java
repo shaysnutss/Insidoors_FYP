@@ -10,15 +10,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "/api/v1")
 public class TaskManagementServiceController {
     
-    @Autowired
-    private TaskManagementServiceRepository tMServiceRepo;
+    private final TaskManagementServiceRepository tMServiceRepo;
 
     @GetMapping("/tasks")
     public List<TaskManagementService> getAllTasks(){
@@ -32,12 +38,12 @@ public class TaskManagementServiceController {
 
     @GetMapping("/tasks/employee/{id}")
     public List<TaskManagementService> getTaskByEmployeeId(@PathVariable int id){
-        return tMServiceRepo.findByEmployeeId(id);
+        return tMServiceRepo.findAllByEmployeeId(id);
     }
 
     @GetMapping("/tasks/account/{id}")
     public List<TaskManagementService> getTaskByAccountId(@PathVariable int id){
-        return tMServiceRepo.findByAccountId(id);
+        return tMServiceRepo.findAllByAccountId(id);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -60,6 +66,7 @@ public class TaskManagementServiceController {
     }
 
     @DeleteMapping("/tasks/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable Long id){
         try {
             tMServiceRepo.deleteById(id);

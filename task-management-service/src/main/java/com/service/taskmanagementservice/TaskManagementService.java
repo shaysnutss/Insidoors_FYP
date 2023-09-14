@@ -2,6 +2,7 @@ package com.service.taskmanagementservice;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -38,6 +39,6 @@ public class TaskManagementService {
     private int accountId;
 
     @Column(name="date_assigned")
-    private Date dateAssigned;
+    private LocalDate dateAssigned;
 
 }
