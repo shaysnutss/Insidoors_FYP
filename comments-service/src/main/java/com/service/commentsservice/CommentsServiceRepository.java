@@ -8,9 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommentsServiceRepository extends JpaRepository<CommentsService, Long> {
     
-    List<CommentsService> findByTaskManagementId(Long taskManagementId);
+    List<CommentsService> findAllByTaskManagementId(int taskManagementId);
 
-    List<CommentsService> findByAccountId(Long accountId);
-
+    List<CommentsService> findAllByAccountId(int accountId);
 
 }

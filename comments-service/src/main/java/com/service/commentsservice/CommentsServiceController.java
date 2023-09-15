@@ -10,15 +10,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 
 @RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "/api/v1")
 public class CommentsServiceController {
 
-    @Autowired
-    private CommentsServiceRepository commentsServiceRepo;
+    private final CommentsServiceRepository commentsServiceRepo;
 
     @GetMapping("/comments")
     public List<CommentsService> getAllComments(){
@@ -31,13 +36,13 @@ public class CommentsServiceController {
     }
 
     @GetMapping("/comments/taskManagement/{id}") 
-    public List<CommentsService> getCommentsByTaskManagementId(@PathVariable Long id) {     
-        return commentsServiceRepo.findByTaskManagementId(id);
+    public List<CommentsService> getCommentsByTaskManagementId(@PathVariable int id) {     
+        return commentsServiceRepo.findAllByTaskManagementId(id);
     }
 
     @GetMapping("/comments/account/{id}") 
-    public List<CommentsService> getCommentsByAccountId(@PathVariable Long id) {     
-        return commentsServiceRepo.findByAccountId(id);
+    public List<CommentsService> getCommentsByAccountId(@PathVariable int id) {     
+        return commentsServiceRepo.findAllByAccountId(id);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -62,6 +67,7 @@ public class CommentsServiceController {
     }
     
     @DeleteMapping("/comments/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable Long id){
         try {
             commentsServiceRepo.deleteById(id);

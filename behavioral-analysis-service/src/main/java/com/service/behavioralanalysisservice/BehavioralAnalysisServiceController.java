@@ -2,7 +2,6 @@ package com.service.behavioralanalysisservice;
 
 import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,15 +9,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 
 @RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "/api/v1")
 public class BehavioralAnalysisServiceController {
     
-    @Autowired
-    private BehavioralAnalysisServiceRepository bAServiceRepo;
+    private final BehavioralAnalysisServiceRepository bAServiceRepo;
 
     @GetMapping("/behavioralanalysis")
     public List<BehavioralAnalysisService> getAllBehavioralAnalysis(){
@@ -58,8 +62,8 @@ public class BehavioralAnalysisServiceController {
         return bAServiceRepo.save(ba);
     }
 
-    @PutMapping("/riskrating/{id}")
-    public BehavioralAnalysisService updateRiskRatingByEmployeeId(@PathVariable int id, @RequestBody BehavioralAnalysisService baNew){
+    @PutMapping("/behavioralanalysis/{id}")
+    public BehavioralAnalysisService updateByEmployeeId(@PathVariable int id, @RequestBody BehavioralAnalysisService baNew){
         BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
         
         if (ba == null) {
@@ -69,26 +73,12 @@ public class BehavioralAnalysisServiceController {
         ba.setId(ba.getId());
         ba.setEmployeeId(id);
         ba.setRiskRating(baNew.getRiskRating());
-        ba.setSuspectedCases(ba.getSuspectedCases());
-        return bAServiceRepo.save(ba);
-    }
-
-    @PutMapping("/suspectedcases/{id}")
-    public BehavioralAnalysisService updateSuspectedCasesByEmployeeId(@PathVariable int id, @RequestBody BehavioralAnalysisService baNew){
-        BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
-        
-        if (ba == null) {
-            throw new BehavioralAnalysisNotFoundException(id);
-        }
-        
-        ba.setId(ba.getId());
-        ba.setEmployeeId(id);
-        ba.setRiskRating(ba.getRiskRating());
         ba.setSuspectedCases(baNew.getSuspectedCases());
         return bAServiceRepo.save(ba);
     }
 
     @DeleteMapping("/behavioralanalysis/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBehavioralAnalysis(@PathVariable Long id){
         try {
             bAServiceRepo.deleteById(id);
