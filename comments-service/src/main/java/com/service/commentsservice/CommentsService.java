@@ -19,12 +19,12 @@ public class CommentsService {
     private String commentDescription;
     
     @Column(name="task_management_id")
-    private Long taskManagementId;
+    private int taskManagementId;
 
     @Column(name="account_id")
-    private Long accountId;
+    private int accountId;
 
-    public CommentsService(String commentDescription, Long taskManagementId, Long accountId) {
+    public CommentsService(String commentDescription, int taskManagementId, int accountId) {
         this.commentDescription = commentDescription;
         this.taskManagementId = taskManagementId;
         this.accountId = accountId;
