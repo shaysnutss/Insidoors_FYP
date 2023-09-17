@@ -20,6 +20,8 @@ on:
     paths:
       - 'task-management-service/**'
       - '.github/workflows/**'
+permissions:
+  contents: read and write
     
 
 jobs:
