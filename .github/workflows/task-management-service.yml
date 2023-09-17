@@ -46,8 +46,8 @@ jobs:
         name: task-management-service-Unit-Test-Results
         path: "task-management-service/**/surefire-reports/*.xml"
         reporter: java-junit
-    - name: Analyze with sonar cloud
-      if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    - name: Build and analyze
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f task-management-service
+      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=shaysnutss_Insidoors_FYP/task-management-service
