@@ -15,11 +15,6 @@ on:
     paths:
       - 'comments-service/**'
       - '.github/workflows/**'
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - 'comments-service/**'
-      - '.github/workflows/**'
 
 
 jobs:
