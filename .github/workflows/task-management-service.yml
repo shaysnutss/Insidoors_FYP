@@ -44,7 +44,7 @@ jobs:
       if: success() || failure()
       with:
         name: task-management-service-Unit-Test-Results
-        path: "product/**/surefire-reports/*.xml"
+        path: "task-management-service/**/surefire-reports/*.xml"
         reporter: java-junit
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
