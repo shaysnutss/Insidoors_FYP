@@ -44,5 +44,5 @@ jobs:
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BEHAVIOUR_ANALYSIS_SERVICE }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f behavioral-analysis-service -Dsonar.projectKey=shaysnutss_behavioural_analysis_service
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BEHAVIORAL_ANALYSIS_SERVICE }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f behavioral-analysis-service -Dsonar.projectKey=shaysnutss_behavioral_analysis_service
