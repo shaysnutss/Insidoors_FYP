@@ -49,5 +49,5 @@ jobs:
     - name: Build and analyze
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn -B clean verify -Pcoverage -f task-management-service ,sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_TASK_MANAGEMENT_SERVICE }}
+      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f task-management-service -Dsonar.projectKey=shaysnutss_task-management-service
