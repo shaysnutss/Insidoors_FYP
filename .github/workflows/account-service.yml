@@ -15,11 +15,6 @@ on:
     paths:
       - 'account-service/**'
       - '.github/workflows/**'
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - 'account-service/**'
-      - '.github/workflows/**'
 
 
 jobs:
