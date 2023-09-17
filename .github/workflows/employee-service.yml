@@ -45,4 +45,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_EMPLOYEE_SERVICE }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f employee-service
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f employee-service -Dsonar.projectKey=shaysnutss_employee-service
