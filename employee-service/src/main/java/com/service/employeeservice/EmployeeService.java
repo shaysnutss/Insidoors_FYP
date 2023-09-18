@@ -2,8 +2,7 @@ package com.service.employeeservice;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.*;
 
@@ -14,7 +13,7 @@ import jakarta.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-@Table(name = "employees", schema = "employees")
+@Table(name = "employee_service", schema = "employees")
 public class EmployeeService {
     
     private @Id @Column(name="id") @GeneratedValue (strategy = GenerationType.IDENTITY) Long id;
@@ -35,10 +34,10 @@ public class EmployeeService {
     private String businessUnit;
 
     @Column(name="joined_date")
-    private Date joinedDate;
+    private LocalDate joinedDate;
 
     @Column(name="terminated_date")
-    private Date terminatedDate;
+    private LocalDate terminatedDate;
 
     @Column(name="location")
     private String location;
