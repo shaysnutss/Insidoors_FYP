@@ -37,14 +37,8 @@ public class Account implements UserDetails {
     @Column(name = "password", length = 70, nullable = false)
     private String password;
 
-    @Column(name = "department", length = 50, nullable = false)
-    private String department;
-
     @Column(name = "role", length = 50, nullable = false)
     private String role;
-
-    @Column(name = "number", length = 50)
-    private int number;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -74,6 +68,12 @@ public class Account implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public static Account accountNoPassword(Account account){
+        Account toReturn = account;
+        toReturn.setPassword("");
+        return toReturn;
     }
 
 }
