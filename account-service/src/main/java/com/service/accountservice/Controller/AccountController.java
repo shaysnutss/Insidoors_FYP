@@ -4,6 +4,8 @@ import com.service.accountservice.exception.AccountNotFoundException;
 import com.service.accountservice.model.Account;
 import com.service.accountservice.repository.AccountServiceRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +21,6 @@ import java.util.Optional;
 public class AccountController {
 
     private final AccountServiceRepository accountServiceRepository;
-
 
     /**
      * Find all accounts
