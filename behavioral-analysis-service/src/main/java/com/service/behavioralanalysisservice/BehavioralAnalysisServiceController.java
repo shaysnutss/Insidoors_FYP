@@ -2,6 +2,9 @@ package com.service.behavioralanalysisservice;
 
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.*;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,18 +65,57 @@ public class BehavioralAnalysisServiceController {
         return bAServiceRepo.save(ba);
     }
 
-    @PutMapping("/behavioralanalysis/{id}")
-    public BehavioralAnalysisService updateByEmployeeId(@PathVariable int id, @RequestBody BehavioralAnalysisService baNew){
+    @PutMapping("/updateRiskRating/{id}")
+    public BehavioralAnalysisService updateRiskRatingByEmployeeId(@PathVariable int id, @RequestBody String baNew){
         BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
+
+        try {       
+            if (ba == null) {
+                throw new BehavioralAnalysisNotFoundException(id);
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(baNew);
+
+            ba.setId(ba.getId());
+            ba.setEmployeeId(id);
+            ba.setRiskRating(ba.getRiskRating() + jsonNode.get("riskRating").asInt());
         
-        if (ba == null) {
-            throw new BehavioralAnalysisNotFoundException(id);
+        } catch (JsonMappingException e) {
+            
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            
+            e.printStackTrace();
         }
         
-        ba.setId(ba.getId());
-        ba.setEmployeeId(id);
-        ba.setRiskRating(baNew.getRiskRating());
-        ba.setSuspectedCases(baNew.getSuspectedCases());
+        return bAServiceRepo.save(ba);
+    }
+
+    @PutMapping("/updateSuspectedCases/{id}")
+    public BehavioralAnalysisService updateSuspectedCasesByEmployeeId(@PathVariable int id, @RequestBody String baNew){
+        BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
+
+        try {       
+            if (ba == null) {
+                throw new BehavioralAnalysisNotFoundException(id);
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(baNew);
+
+            ba.setId(ba.getId());
+            ba.setEmployeeId(id);
+            ba.setSuspectedCases(jsonNode.get("suspectedCases").asInt());
+        
+        } catch (JsonMappingException e) {
+            
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            
+            e.printStackTrace();
+        }
+        
         return bAServiceRepo.save(ba);
     }
 
