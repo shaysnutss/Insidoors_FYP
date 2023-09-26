@@ -2,7 +2,6 @@ package com.service.commentsservice;
 
 import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,16 +52,14 @@ public class CommentsServiceController {
 
     @PutMapping("/comments/{id}")
     public CommentsService updateComment(@PathVariable Long id, @RequestBody CommentsService commentNew){
-        CommentsService comment = commentsServiceRepo.findById(id).orElse(null);
+        Optional<CommentsService> comment = commentsServiceRepo.findById(id);
 
         if (comment == null) {
             throw new CommentNotFoundException(id);
         } 
-        comment.setId(id);
-        comment.setAccountId(commentNew.getAccountId());
-        comment.setCommentDescription(commentNew.getCommentDescription());
-        comment.setTaskManagementId(commentNew.getTaskManagementId());
-        return commentsServiceRepo.save(comment);
+        comment.get().setId(id);
+        comment.get().setCommentDescription(commentNew.getCommentDescription());
+        return commentsServiceRepo.save(comment.get());
         
     }
     
