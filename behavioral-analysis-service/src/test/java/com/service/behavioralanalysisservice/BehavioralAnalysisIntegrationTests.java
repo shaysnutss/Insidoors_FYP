@@ -2,16 +2,31 @@ package com.service.behavioralanalysisservice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaxxer.hikari.HikariDataSource;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+
+import jakarta.activation.DataSource;
 
 import java.util.*;
 
@@ -20,10 +35,29 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-test.properties")
+@Testcontainers
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BehavioralAnalysisIntegrationTests {
+
+    private static DataSource dataSource;
     
     @LocalServerPort
     private int port;
+
+    @Container
+    public static MySQLContainer<?> mySQLContainer = new MySQLContainer<>(DockerImageName.parse("mysql:8.0.26"))
+        .withDatabaseName("behavioral_analysis")
+        .withUsername("test")
+        .withPassword("test")
+        .waitingFor(Wait.forListeningPort())
+        .withEnv("MYSQL_ROOT_HOST", "%");
+
+    @DynamicPropertySource
+    static void registerPgProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", mySQLContainer::getJdbcUrl);
+        registry.add("spring.datasource.password", mySQLContainer::getPassword);
+        registry.add("spring.datasource.username", mySQLContainer::getUsername);
+    }
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -41,13 +75,20 @@ public class BehavioralAnalysisIntegrationTests {
         headers.setContentType(MediaType.APPLICATION_JSON);
     }
 
+    @AfterAll
+    static void tearDown() {
+        if (dataSource instanceof HikariDataSource) {
+            ((HikariDataSource) dataSource).close();
+        }
+    }
+
     private String createURLWithPort() {
         return "http://localhost:" + port + "/api/v1";
     }
 
     @Test
+    @Order(1)
     @Sql(statements = "INSERT INTO behavioral_analysis_service (ba_id, employee_id, risk_rating, suspected_cases) values (1, 23, 120, 12)", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(statements = "DELETE FROM behavioral_analysis_service", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void testBAList() {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<List<BehavioralAnalysisService>> response = restTemplate.exchange(
@@ -56,11 +97,11 @@ public class BehavioralAnalysisIntegrationTests {
         assertNotNull(bAList);
         assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(bAList.size(), bAServiceRepo.findAll().size());
+        assertEquals(1, bAServiceRepo.findAll().size());
     }
 
     @Test
-    @Sql(statements = "INSERT INTO behavioral_analysis_service (ba_id, employee_id, risk_rating, suspected_cases) values (1, 23, 120, 12)", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(statements = "DELETE FROM behavioral_analysis_service", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Order(2)
     public void testBAById() {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<Optional<BehavioralAnalysisService>> response = restTemplate.exchange(
@@ -69,16 +110,13 @@ public class BehavioralAnalysisIntegrationTests {
 
         assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(bAItem, bAServiceRepo.findById(1L));
+        assertEquals(120, bAServiceRepo.findById(1L).get().getRiskRating());
     }
 
-    // test for getting risk rating by employee id
-    
-    // test for getting suspected cases by employee id
-
     @Test
-    @Sql(statements = "DELETE FROM behavioral_analysis_service", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Order(3)
     public void testCreateBA() throws JsonProcessingException {
-        BehavioralAnalysisService bA = new BehavioralAnalysisService(1L, 23, 120, 12);
+        BehavioralAnalysisService bA = new BehavioralAnalysisService(2L, 24, 130, 14);
 
         HttpEntity<String> entity = new HttpEntity<>(objectMapper.writeValueAsString(bA), headers);
         ResponseEntity<BehavioralAnalysisService> response = restTemplate.exchange(
@@ -87,13 +125,12 @@ public class BehavioralAnalysisIntegrationTests {
         assertEquals(response.getStatusCode(), HttpStatus.CREATED);
         BehavioralAnalysisService baRes = Objects.requireNonNull(response.getBody());
         assertEquals(baRes.getRiskRating(), bAServiceRepo.save(bA).getRiskRating());
+        assertEquals(130, bAServiceRepo.save(bA).getRiskRating());
     }
 
     @Test
-    @Sql(statements = "INSERT INTO behavioral_analysis_service (ba_id, employee_id, risk_rating, suspected_cases) values (1, 23, 120, 12)", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(statements = "DELETE FROM behavioral_analysis_service", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Order(4)
     public void testUpdateRiskRating() throws JsonProcessingException {
-        // Modify some properties of the initialBA object to simulate an update
         BehavioralAnalysisService bA = new BehavioralAnalysisService();
         bA.setRiskRating(30);
         bA.setId(1L);
@@ -113,10 +150,8 @@ public class BehavioralAnalysisIntegrationTests {
     }
 
     @Test
-    @Sql(statements = "INSERT INTO behavioral_analysis_service (ba_id, employee_id, risk_rating, suspected_cases) values (1, 23, 120, 12)", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(statements = "DELETE FROM behavioral_analysis_service", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Order(5)
     public void testUpdateSuspectedCases() throws JsonProcessingException {
-        // Modify some properties of the initialBA object to simulate an update
         BehavioralAnalysisService bA = new BehavioralAnalysisService();
         bA.setSuspectedCases(30);
         bA.setId(1L);
@@ -136,7 +171,7 @@ public class BehavioralAnalysisIntegrationTests {
     }
 
     @Test
-    @Sql(statements = "INSERT INTO behavioral_analysis_service (ba_id, employee_id, risk_rating, suspected_cases) values (1, 23, 120, 12)", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Order(6)
     public void testDeleteBA() {
         ResponseEntity<Void> response = restTemplate.exchange(
             (createURLWithPort() + "/behavioralanalysis/1"), HttpMethod.DELETE, null, Void.class);
