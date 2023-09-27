@@ -19,7 +19,7 @@ user profile 2 --> 9am - 6pm any day
 user profile 3 --> 12 hour shift any day (8am-8pm or 8pm-8am)
 """
 
-NUM_OF_EMPLOYEES = 2000
+NUM_OF_EMPLOYEES = 5000
 START_DATE = date(2023, 1, 1)
 END_DATE = date(2023, 1, 31)
 
@@ -145,7 +145,7 @@ def generate_pc_access_log():
                     session.add(pc_access)
 
                 # suspect case 1 - after hour login for profile 1
-                if (random.randint(0, 400)) == 0:
+                if (random.randint(0, 40)) == 0:
                     pc_access = PC_Access(user_id=employee.id, access_date_time=odd_hour_login_time(current_date),
                                           log_on_off="Log On", machine_name="PC_" + str(employee.id),
                                           machine_location=employee.location, suspect=1)
@@ -173,7 +173,7 @@ def generate_pc_access_log():
                     session.add(pc_access)
 
                 # suspect case 1 - after hour login for profile 2
-                if (random.randint(0, 400)) == 0:
+                if (random.randint(0, 40)) == 0:
                     login_datetime = odd_hour_login_time_ex_weekend(current_date)
                     pc_access = PC_Access(user_id=employee.id, access_date_time=login_datetime,
                                           log_on_off="Log On", machine_name="PC_" + str(employee.id),
@@ -210,7 +210,7 @@ def generate_pc_access_log():
 
                     # suspect case 1 - after hour login for profile 3
                     # log in again after shit is over within 1-4 hours and stay for 1-2 hours
-                    if (random.randint(0, 400)) == 0:
+                    if (random.randint(0, 40)) == 0:
                         login_datetime = logout_anytime(logout_datetime, random.randrange(1, 4, 1))
                         logout_datetime = logout_anytime(login_datetime, random.randrange(1, 2, 1))
                         pc_access = PC_Access(user_id=employee.id, access_date_time=login_datetime, log_on_off="Log On",
@@ -225,7 +225,7 @@ def generate_pc_access_log():
                         session.add(employee)
 
             # suspect case 2-impossible traveller
-            elif terminated_on_curr_day == "NO" and (random.randint(0, 500)) == 0:
+            elif terminated_on_curr_day == "NO" and (random.randint(0, 50)) == 0:
                 location2 = random.choice(location_list)
                 while location2 == employee.location:  # get a different second location
                     location2 = random.choice(location_list)
@@ -247,7 +247,7 @@ def generate_pc_access_log():
 
             # terminated employee and 1 in 150 chance
             # suspect case 3 - terminated employee login
-            elif terminated_on_curr_day == "YES" and (random.randint(0, 800)) == 0:
+            elif terminated_on_curr_day == "YES" and (random.randint(0, 80)) == 0:
                 login_datetime = login_anytime(current_date)
                 pc_access = PC_Access(user_id=employee.id, access_date_time=login_datetime,
                                       log_on_off="Log On", machine_name="PC_" + str(employee.id),
@@ -322,11 +322,11 @@ def generate_proxy_log():
                 bytes_out = random.randint(10000, 9000000)
                 suspect = 0
                 # suspect case 6 - potential data exfiltration
-                if random.randint(0, 50) == 0 and pc_access.suspect != 0:
+                if random.randint(0, 5) == 0 and pc_access.suspect != 0:
                     #employee already a suspect
                     bytes_out = random.randint(10000000, 1000000000)
                     suspect = 6
-                elif random.randint(0, 500) == 0 and pc_access.suspect == 0:
+                elif random.randint(0, 50) == 0 and pc_access.suspect == 0:
                     #employee is not a suspect yet
                     bytes_out = random.randint(10000000, 1000000000)
                     suspect = 6
