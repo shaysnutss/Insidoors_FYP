@@ -38,7 +38,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: behavioral-analysis-service-Unit-Test-Results
+          name: behavioral-analysis-service-Unit and Integration-Test-Results
           path: "behavioral-analysis-service/**/surefire-reports/*.xml"
           reporter: java-junit
       - name: Build and analyze
