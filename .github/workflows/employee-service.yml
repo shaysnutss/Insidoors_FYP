@@ -38,7 +38,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: employee-service-Unit-Test-Results
+          name: employee-service-Unit and Integration-Test-Results
           path: "employee-service/**/surefire-reports/*.xml"
           reporter: java-junit
       - name: Build and analyze
