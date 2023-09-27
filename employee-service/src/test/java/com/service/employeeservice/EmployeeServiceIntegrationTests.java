@@ -1,10 +1,11 @@
 package com.service.employeeservice;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -21,7 +22,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.*;
 import java.util.*;
 
 import javax.sql.DataSource;
@@ -34,9 +34,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-test.properties")
 @Testcontainers
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class EmployeeServiceIntegrationTests {
     
-    @Autowired
+
     private static DataSource dataSource;
 
     @LocalServerPort
@@ -68,7 +69,7 @@ public class EmployeeServiceIntegrationTests {
     @BeforeAll
     public static void init() {
         headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setContentType(MediaType.APPLICATION_JSON);    
     }
 
     @AfterAll
@@ -83,13 +84,9 @@ public class EmployeeServiceIntegrationTests {
     }
 
     @Test
-    //@Sql(statements = "INSERT INTO employees (id, firstname, lastname, email, gender, business_unit, joined_date, terminated_date, location) values (23, \"Mary\", \"Elizabeth\", \"marye@gmail.com\", \"female\", \"Asset Management\", null, null, \"Seattle\")", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    //@Sql(statements = "DELETE FROM employees", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Order(1)
+    @Sql(statements = "INSERT INTO employees (id, firstname, lastname, email, gender, business_unit, joined_date, terminated_date, location) values (1, \"Mary\", \"Elizabeth\", \"marye@gmail.com\", \"female\", \"Asset Management\", null, null, \"Seattle\")", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testEmployeeList() {
-        List<EmployeeService> mockEmployees = new ArrayList<>(
-            Arrays.asList(new EmployeeService(1L, "Mary", "Elizabeth", "marye@gmail.com", "female", "Asset Management", LocalDate.of(2017,Month.FEBRUARY,3), null, "Seattle"),
-            new EmployeeService(2L, "Sean", "Henry", "seanh@gmail.com", "male", "Asset Management", LocalDate.of(2017,Month.FEBRUARY,3), null, "London")));
-    
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<List<EmployeeService>> response = restTemplate.exchange(
             (createURLWithPort() + "/employees"), HttpMethod.GET, entity, new ParameterizedTypeReference<List<EmployeeService>>(){});
@@ -100,18 +97,17 @@ public class EmployeeServiceIntegrationTests {
     }
 
     @Test
-    //@Sql(statements = "INSERT INTO employees (id, firstname, lastname, email, gender, business_unit, joined_date, terminated_date, location) values (23, \"Mary\", \"Elizabeth\", \"marye@gmail.com\", \"female\", \"Asset Management\", null, null, \"Seattle\")", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    //@Sql(statements = "DELETE FROM employees", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Order(2)
+    @Sql(statements = "INSERT INTO employees (id, firstname, lastname, email, gender, business_unit, joined_date, terminated_date, location) values (2, \"Shelly\", \"Rose\", \"shel@gmail.com\", \"female\", \"Asset Management\", null, null, \"Seattle\")", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testEmployeeById() {
-        EmployeeService mockEmployee = new EmployeeService(1L, "Mary", "Elizabeth", "marye@gmail.com", "female", "Asset Management", LocalDate.of(2017,Month.FEBRUARY,3), null, "Seattle");
-
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<Optional<EmployeeService>> response = restTemplate.exchange(
-            (createURLWithPort() + "/employees/1"), HttpMethod.GET, entity, new ParameterizedTypeReference<Optional<EmployeeService>>(){});
+            (createURLWithPort() + "/employees/2"), HttpMethod.GET, entity, new ParameterizedTypeReference<Optional<EmployeeService>>(){});
         Optional<EmployeeService> employee = response.getBody();
 
         assertEquals(response.getStatusCode(), HttpStatus.OK);
-        assertEquals(employee, empServiceRepo.findById(1L));
+        assertEquals(employee, empServiceRepo.findById(2L));
+        assertEquals("Shelly", empServiceRepo.findById(2L).get().getFirstname());
     }
 
 }
