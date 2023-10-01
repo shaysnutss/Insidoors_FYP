@@ -86,3 +86,15 @@ services:
      - "dev.env"
     ports:
       - "30009:8080"
+  ###################################
+  # Atomic Microservice: task-management-composite
+  ####################################
+  task-management-composite:
+    build:
+      context: ./task-management-composite
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30010:8080"
