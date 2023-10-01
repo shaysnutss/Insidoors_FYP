@@ -2,8 +2,7 @@ package com.service.employeeservice;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.*;
 
@@ -35,10 +34,10 @@ public class EmployeeService {
     private String businessUnit;
 
     @Column(name="joined_date")
-    private Date joinedDate;
+    private LocalDate joinedDate;
 
     @Column(name="terminated_date")
-    private Date terminatedDate;
+    private LocalDate terminatedDate;
 
     @Column(name="location")
     private String location;

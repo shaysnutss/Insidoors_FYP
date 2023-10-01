@@ -18,7 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(BehavioralAnalysisServiceController.class)
-public class BehavioralAnalysisServiceTests {
+public class BehavioralAnalysisServiceUnitTests {
 
     @MockBean private BehavioralAnalysisServiceRepository bAServiceRepo;
     @Autowired private MockMvc mockMvc;
@@ -87,16 +87,36 @@ public class BehavioralAnalysisServiceTests {
     }
 
     @Test
-    void shouldUpdateBA() throws Exception {
+    void shouldUpdateRiskRating() throws Exception {
         long id = 1L;
 
         BehavioralAnalysisService mockBA = new BehavioralAnalysisService(id, 23, 200, 12);
-        BehavioralAnalysisService mockBAUpdate = new BehavioralAnalysisService(id, 23, 170, 8);
+        BehavioralAnalysisService mockBAUpdate = new BehavioralAnalysisService(id, 23, 170, 12);
 
         when(bAServiceRepo.findByEmployeeId(anyInt())).thenReturn(mockBA);
         when(bAServiceRepo.save(any(BehavioralAnalysisService.class))).thenReturn(mockBAUpdate);
 
-        mockMvc.perform(put("/api/v1/behavioralanalysis/23").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/v1/updateRiskRating/23").contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(mockBAUpdate)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.employeeId").value(mockBAUpdate.getEmployeeId()))
+            .andExpect(jsonPath("$.riskRating").value(mockBAUpdate.getRiskRating()))
+            .andExpect(jsonPath("$.suspectedCases").value(mockBAUpdate.getSuspectedCases()))
+            .andDo(print());
+    }
+
+    @Test
+    void shouldUpdateSuspectedCases() throws Exception {
+        long id = 1L;
+
+        BehavioralAnalysisService mockBA = new BehavioralAnalysisService(id, 23, 200, 12);
+        BehavioralAnalysisService mockBAUpdate = new BehavioralAnalysisService(id, 23, 200, 8);
+
+        when(bAServiceRepo.findByEmployeeId(anyInt())).thenReturn(mockBA);
+        when(bAServiceRepo.save(any(BehavioralAnalysisService.class))).thenReturn(mockBAUpdate);
+
+        mockMvc.perform(put("/api/v1/updateSuspectedCases/23").contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mockBAUpdate)))
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json"))

@@ -2,7 +2,11 @@ package com.service.taskmanagementservice;
 
 import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,16 +55,53 @@ public class TaskManagementServiceController {
         return tMServiceRepo.save(tm);
     }
 
-    @PutMapping("/tasks/{id}")
-    public TaskManagementService updateTaskStatus(@PathVariable Long id, @RequestBody TaskManagementService tmNew){
+    @PutMapping("/statusUpdate/{id}")
+    public TaskManagementService updateTaskStatus(@PathVariable Long id, @RequestBody String tmNew){
         Optional<TaskManagementService> tm = tMServiceRepo.findById(id);
+        try {       
+            if (tm == null) {
+                throw new TaskManagementNotFoundException(id);
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(tmNew);
+
+            tm.get().setId(id);
+            tm.get().setStatus(jsonNode.get("status").asText());
         
-        if (tm == null) {
-            throw new TaskManagementNotFoundException(id);
+        } catch (JsonMappingException e) {
+            
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            
+            e.printStackTrace();
         }
         
-        tm.get().setId(id);
-        tm.get().setStatus(tmNew.getStatus());
+        return tMServiceRepo.save(tm.get());
+    }
+
+    @PutMapping("/accountUpdate/{id}")
+    public TaskManagementService updateTaskAccountId(@PathVariable Long id, @RequestBody String tmNew){
+        Optional<TaskManagementService> tm = tMServiceRepo.findById(id);
+        try {       
+            if (tm == null) {
+                throw new TaskManagementNotFoundException(id);
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(tmNew);
+
+            tm.get().setId(id);
+            tm.get().setAccountId(jsonNode.get("accountId").asInt());
+        
+        } catch (JsonMappingException e) {
+            
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            
+            e.printStackTrace();
+        }
+        
         return tMServiceRepo.save(tm.get());
     }
 
