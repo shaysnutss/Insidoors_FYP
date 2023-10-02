@@ -1,6 +1,6 @@
 import { Route, Routes, BrowserRouter, Link } from 'react-router-dom'
 import './App.css';
-import { Login, Dashboard } from './components'
+import { Login, Dashboard, Case } from './components'
 
 function App() {
     return (
@@ -17,6 +17,10 @@ function App() {
                 <Route
                     path="/auth/login"
                     element={<Login />}
+                />
+                <Route
+                    path="/main/case"
+                    element={<Case />}
                 />
             </Routes>
         </BrowserRouter>

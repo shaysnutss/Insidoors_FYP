@@ -9,7 +9,6 @@
 .dashboard .div {
     background-color: #ffffff;
     height: 1024px;
-    overflow: hidden;
     position: relative;
     width: 1440px;
 }
@@ -44,6 +43,11 @@
     margin-top: 10px;
     margin-left: 70px;
     width: 281px;
+}
+
+.dashboard .visual {
+    margin-top: 100px;
+    margin-left: 70px;
 }
 
 .dashboard .overlap-group {
@@ -109,7 +113,7 @@
 
 .dashboard .text-wrapper-5 {
     color: #000000;
-    font-family: "Poppins-Medium", Helvetica;
+    font-family: "Poppins-Bold", Helvetica;
     font-size: 22px;
     font-weight: 500;
     height: 80px;
