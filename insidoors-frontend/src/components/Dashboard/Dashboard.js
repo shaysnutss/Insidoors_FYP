@@ -6,25 +6,33 @@ import { useNavigate } from "react-router-dom";
 import Tableau from "tableau-react";
 
 const Dashboard = () => {
-  //const [privatePosts, setPrivatePosts] = useState([]);
+  const [cases, setCases] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    userService.getAccountById().then(
-      (response) => {
-        console.log("successful");
-      },
-      (error) => {
-        console.log("Private page", error.response);
-        // Invalid token
-        if (error.response && error.response.status === 403) {
-          authService.logout();
-          navigate("/auth/login");
-          window.location.reload();
+
+  const fetchCases = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = userService.getAccountById().then(
+        () => {
+          const cases = data;
+          setCases(cases);
+          console.log(cases)
+        },
+        (error) => {
+          console.log("Private page", error.response);
+          // Invalid token
+          if (error.response && error.response.status === 403) {
+            authService.logout();
+            navigate("/auth/login");
+            window.location.reload();
+          }
         }
-      }
-    );
-  }, []);
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <div className="dashboard">
