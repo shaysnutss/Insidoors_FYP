@@ -1,0 +1,130 @@
+.ticket-high-priority {
+    background-color: #ffffff;
+    border: 1px solid;
+    border-color: #032539;
+    border-radius: 20px;
+    height: 140px;
+    position: relative;
+    width: 273px;
+  }
+  
+  .ticket-high-priority .line {
+    height: 2px;
+    left: 0;
+    position: absolute;
+    top: 99px;
+    width: 271px;
+  }
+  
+  .ticket-high-priority .overlap {
+    height: 81px;
+    left: 6px;
+    position: absolute;
+    top: 10px;
+    width: 257px;
+  }
+  
+  .ticket-high-priority .overlap-group {
+    height: 27px;
+    left: 177px;
+    position: absolute;
+    top: 3px;
+    width: 80px;
+  }
+  
+  .ticket-high-priority .rectangle {
+    background-color: #f0bdbd;
+    border: 1px solid;
+    border-color: #032539;
+    border-radius: 10px;
+    height: 25px;
+    left: 3px;
+    position: absolute;
+    top: 2px;
+    width: 72px;
+  }
+  
+  .ticket-high-priority .text-wrapper {
+    color: #9a0707;
+    font-family: "Poppins-SemiBold", Helvetica;
+    font-size: 15px;
+    font-weight: 600;
+    height: 27px;
+    left: 0;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 80px;
+  }
+  
+  .ticket-high-priority .div {
+    height: 81px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 256px;
+  }
+  
+  .ticket-high-priority .text-wrapper-2 {
+    color: #000000;
+    font-family: "Poppins-Medium", Helvetica;
+    font-size: 11px;
+    font-weight: 500;
+    height: 26px;
+    left: 0;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 26px;
+    width: 112px;
+  }
+  
+  .ticket-high-priority .text-wrapper-3 {
+    color: #002c3e;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 27px;
+    font-weight: 700;
+    height: 33px;
+    left: 21px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    width: 109px;
+  }
+  
+  .ticket-high-priority .p {
+    color: #000000;
+    font-family: "Poppins-Light", Helvetica;
+    font-size: 11px;
+    font-weight: 300;
+    height: 32px;
+    left: 21px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 49px;
+    width: 235px;
+  }
+  
+  .ticket-high-priority .image {
+    height: 26px;
+    left: 226px;
+    object-fit: cover;
+    position: absolute;
+    top: 106px;
+    width: 26px;
+  }
+  
+  .ticket-high-priority .img {
+    height: 26px;
+    left: 13px;
+    object-fit: cover;
+    position: absolute;
+    top: 106px;
+    width: 26px;
+  }
+  
