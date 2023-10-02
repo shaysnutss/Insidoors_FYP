@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(TaskManagementServiceController.class)
-public class TaskManagementServiceTests {
+public class TaskManagementServiceUnitTests {
     
     @MockBean private TaskManagementServiceRepository tMServiceRepo;
     @Autowired private MockMvc mockMvc;
@@ -103,7 +103,31 @@ public class TaskManagementServiceTests {
         when(tMServiceRepo.findById(id)).thenReturn(Optional.of(mockTask));
         when(tMServiceRepo.save(any(TaskManagementService.class))).thenReturn(mockTaskUpdate);
 
-        mockMvc.perform(put("/api/v1/tasks/1").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/v1/statusUpdate/1").contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(mockTaskUpdate)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.incidentTitle").value(mockTaskUpdate.getIncidentTitle()))
+            .andExpect(jsonPath("$.incidentTimestamp").value(mockTaskUpdate.getIncidentTimestamp().toString()))
+            .andExpect(jsonPath("$.employeeId").value(mockTaskUpdate.getEmployeeId()))
+            .andExpect(jsonPath("$.severity").value(mockTaskUpdate.getSeverity()))
+            .andExpect(jsonPath("$.status").value(mockTaskUpdate.getStatus()))
+            .andExpect(jsonPath("$.accountId").value(mockTaskUpdate.getAccountId()))
+            .andExpect(jsonPath("$.dateAssigned").value(mockTaskUpdate.getDateAssigned().toString()))
+            .andDo(print());
+    }
+
+    @Test
+    void shouldUpdateTaskSOC() throws Exception {
+        long id = 1L;
+
+        TaskManagementService mockTask = new TaskManagementService(id, "first", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 12, LocalDate.of(2017,Month.FEBRUARY,3));
+        TaskManagementService mockTaskUpdate = new TaskManagementService(id, "new", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 8, LocalDate.of(2017,Month.FEBRUARY,3));
+
+        when(tMServiceRepo.findById(id)).thenReturn(Optional.of(mockTask));
+        when(tMServiceRepo.save(any(TaskManagementService.class))).thenReturn(mockTaskUpdate);
+
+        mockMvc.perform(put("/api/v1/accountUpdate/1").contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mockTaskUpdate)))
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json"))

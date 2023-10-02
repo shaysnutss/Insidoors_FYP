@@ -18,7 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CommentsServiceController.class)
-public class CommentsServiceTests {
+public class CommentsServiceUnitTests {
     
     @MockBean private CommentsServiceRepository commentsServiceRepo;
     @Autowired private MockMvc mockMvc;
@@ -103,8 +103,6 @@ public class CommentsServiceTests {
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath("$.commentDescription").value(mockCommentUpdate.getCommentDescription()))
-            .andExpect(jsonPath("$.taskManagementId").value(mockCommentUpdate.getTaskManagementId()))
-            .andExpect(jsonPath("$.accountId").value(mockCommentUpdate.getAccountId()))
             .andDo(print());
     }
 

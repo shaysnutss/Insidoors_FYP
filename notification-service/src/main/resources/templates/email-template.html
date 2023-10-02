@@ -1,0 +1,55 @@
+<!DOCTYPE>
+<html html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Task Assignment</title>
+    <link rel="stylesheet" type="text/css" href="/styles/your-styles.css">
+</head>
+<body>
+    <img src=https://insidoorsfypbucket.s3.ap-southeast-2.amazonaws.com/Red+White+Simple+Stay+Connected+Email+Header.png>
+    <p>Hello SOC officer <span th:text="${name}">, </span> </p>
+    <p>You have been assigned a new task to investigate. The incident details are as follows:</p>
+    <hr>
+    <p> <b>Incident that occurred: </b> <span th:text="${incidentTitle}"></span></p>
+    <p> <b>Severity: </b> <span th:text="${severity}"></span></p>
+
+    <div th:switch="${severity}">
+        <div th:case="1">
+            <p> <b>Notes: </b> Given that the severity level is <span th:text="${severity}"></span>, you can prioritize working on cases with a higher severity. </p>
+        </div>
+        <div th:case="2">
+            <p> <b>Notes: </b> Given that the severity level is <span th:text="${severity}"></span>, you can prioritize working on cases with a higher severity.</p>
+        </div>
+        <div th:case="3">
+            <p> <b>Notes: </b> Given that the severity level is <span th:text="${severity}"></span>, you can prioritize working on cases with a higher severity.
+            Consider coming back to this task when more severe tasks are handled.</p>
+        </div>
+        <div th:case="4">
+            <p> <b>Notes: </b> Given that the severity level is <span th:text="${severity}"></span>,, you can prioritize working on cases with a higher severity.
+            Consider coming back to this task first when more severe tasks are handled.</p>
+        </div>
+        <div th:case="5">
+            <p> <b>Notes: </b> Given that the severity level is th:text="${severity}", prioritize handling this task.</p>
+        </div>
+        <div th:case="6">
+            <p> <b>Notes: </b> Given that the severity level is th:text="${severity}", prioritize handling this task <b>urgently</b>.</p>
+        </div>
+    </div>
+    <div>
+        Thank you.
+    </div>
+    <div>
+
+    </div>
+
+    <div>
+        Warm Regards,
+    </div>
+    <div>
+        Incident Management Team
+    </div>
+
+
+
+<p></p>
+</body>
+</html>

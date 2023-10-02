@@ -13,6 +13,7 @@
 # - torch
 # - transformers[torch]
 # - scikit-learn
+# - imbalanced-learn
 # - evaluate
 
 
@@ -27,6 +28,7 @@
 # !pip install torch
 # !pip install transformers[torch]
 # !pip install scikit-learn
+# !pip install imbalanced-learn
 # !pip install evaluate
 
 
@@ -40,6 +42,7 @@
 # !pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 --no-build-isolation
 # !pip install transformers[torch] --no-build-isolation
 # !pip install scikit-learn --no-build-isolation
+# !pip install imbalanced-learn --no-build-isolation
 # !pip install evaluate --no-build-isolation
 
 
@@ -53,16 +56,18 @@ get_ipython().system('whichgpu')
 
 
 # FUTURE ITERATIONS:
-# 1. implement over/undersampling
-# 2. properly incorporate tabular data
+# 1. properly incorporate tabular data
 
 
 # ## Insidoors Text Classification Model for PC Access, Building Access, and Proxy Logs
-# This notebook details the fourth iteration of a binary text classification model that identifies suspicious employee activity. For ease of development, all models are currently built and trained in this notebook. In the future, a separate notebook will be created for each model.
+# This notebook details the fifth iteration of a binary text classification model that identifies suspicious employee activity. For ease of development, all models are currently built and trained in this notebook. In the future, a separate notebook will be created for each model.
 # 
 # #### Changelog
 # 
-# *Version: 4 (Current)*
+# *Version: 5 (Current)*
+# * Implemented undersampling and oversampling to better handle class imbalance
+# 
+# *Version: 4*
 # * Replaced binary classification with multiclass classification
 # 
 # *Version: 3*
@@ -78,9 +83,9 @@ get_ipython().system('whichgpu')
 
 
 PRETRAINED_MODEL = 'distilbert-base-uncased'
-PC_MODEL_NAME = 'insidoors_pc_v4'
-BUILDING_MODEL_NAME = 'insidoors_building_v4'
-PROXY_MODEL_NAME = 'insidoors_proxy_v4'
+PC_MODEL_NAME = 'insidoors_pc_v5'
+BUILDING_MODEL_NAME = 'insidoors_building_v5'
+PROXY_MODEL_NAME = 'insidoors_proxy_v5'
 
 
 # ### Load data from MySQL
@@ -117,9 +122,9 @@ from sqlalchemy import create_engine
 
 # FOR GOOGLE COLAB & SMU GPU CLUSTER: COMMENT OUT CODE ABOVE AND USE THE FOLLOWING
 
-pc_df = pd.read_csv('pc_data_10k.csv', sep=';', header=0)
-building_df = pd.read_csv('building_data_10k.csv', sep=';', header=0)
-proxy_df = pd.read_csv('proxy_data_10k.csv', sep=';', header=0)
+pc_df = pd.read_csv('pc_data_5k_modified.csv', sep=';', header=0)
+building_df = pd.read_csv('building_data_5k_modified.csv', sep=';', header=0)
+proxy_df = pd.read_csv('proxy_data_5k_modified.csv', sep=';', header=0)
 
 print('PC Access logs:')
 display(pc_df)
@@ -336,6 +341,150 @@ print(proxy_val.shape)
 print(proxy_test.shape)
 
 
+# ### Handle class imbalance by resampling data
+
+# In[ ]:
+
+
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.over_sampling import RandomOverSampler
+
+
+# In[ ]:
+
+
+# Create new distribution for PC Access data
+# Undersample majority class to 75% of original
+# Let majority class take up 50% of the total resampled distribution
+# Oversample minority class be evenly split among the remaining 50%
+
+pc_dist = pc_train['label'].value_counts().to_dict()
+print('Original distribution of PC Access logs:')
+display(pc_dist)
+
+undersample_pc_dist = pc_dist.copy()
+pc_majority = int(undersample_pc_dist[0] * 0.75)
+undersample_pc_dist[0] = pc_majority
+print('Target undersampled distribution of PC Access logs:')
+display(undersample_pc_dist)
+
+oversample_pc_dist = undersample_pc_dist.copy()
+pc_minority = pc_majority // (len(pc_cases) - 1)
+
+for key in oversample_pc_dist.keys():
+    if key != 0:
+        oversample_pc_dist[key] = pc_minority
+
+print('Target oversampled distribution of PC Access logs:')
+display(oversample_pc_dist)
+
+
+# In[ ]:
+
+
+# Resample PC Access data
+
+pc_undersample = RandomUnderSampler(sampling_strategy=undersample_pc_dist, random_state=480)
+pc_oversample = RandomOverSampler(sampling_strategy=oversample_pc_dist, random_state=480)
+
+pc_x, pc_y = pc_undersample.fit_resample(pc_train[['input']], pc_train['label'])
+print('Distribution after undersampling:')
+print(pc_y.value_counts())
+
+pc_x, pc_y = pc_oversample.fit_resample(pc_x, pc_y)
+print('Distribution after oversampling:')
+print(pc_y.value_counts())
+
+
+# In[ ]:
+
+
+# Create new distribution for Building Access data
+# Undersample majority class to 75% of original
+# Let majority class take up 50% of the total resampled distribution
+# Oversample minority class be evenly split among the remaining 50%
+
+building_dist = building_train['label'].value_counts().to_dict()
+print('Original distribution of Building Access logs:')
+display(building_dist)
+
+undersample_building_dist = building_dist.copy()
+building_majority = int(undersample_building_dist[0] * 0.75)
+undersample_building_dist[0] = building_majority
+print('Target undersampled distribution of Building Access logs:')
+display(undersample_building_dist)
+
+oversample_building_dist = undersample_building_dist.copy()
+building_minority = building_majority // (len(building_cases) - 1)
+
+for key in oversample_building_dist.keys():
+    if key != 0:
+        oversample_building_dist[key] = building_minority
+
+print('Target oversampled distribution of Building Access logs:')
+display(oversample_building_dist)
+
+
+# In[ ]:
+
+
+# Resample Building Access data
+
+building_undersample = RandomUnderSampler(sampling_strategy=undersample_building_dist, random_state=480)
+building_oversample = RandomOverSampler(sampling_strategy=oversample_building_dist, random_state=480)
+
+building_x, building_y = building_undersample.fit_resample(building_train[['input']], building_train['label'])
+print('Distribution after undersampling:')
+print(building_y.value_counts())
+
+building_x, building_y = building_oversample.fit_resample(building_x, building_y)
+print('Distribution after oversampling:')
+print(building_y.value_counts())
+
+
+# In[ ]:
+
+
+# Create new distribution for Proxy data
+# Undersample majority class to 75% of original
+# Oversample minority class to 25%
+proxy_dist = proxy_train['label'].value_counts().to_dict()
+print('Original distribution of Proxy logs:')
+display(proxy_dist)
+
+undersample_proxy_dist = proxy_dist.copy()
+proxy_majority = int(undersample_proxy_dist[0] * 0.75)
+undersample_proxy_dist[0] = proxy_majority
+print('Target undersampled distribution of Proxy logs:')
+display(undersample_proxy_dist)
+
+oversample_proxy_dist = undersample_proxy_dist.copy()
+proxy_minority = int(proxy_majority * 0.25)
+oversample_proxy_dist[1] = proxy_minority
+
+print('Target oversampled distribution of Proxy logs:')
+display(oversample_proxy_dist)
+
+
+# In[ ]:
+
+
+# Resample Proxy data
+
+proxy_undersample = RandomUnderSampler(sampling_strategy=undersample_proxy_dist, random_state=480)
+proxy_oversample = RandomOverSampler(sampling_strategy=oversample_proxy_dist, random_state=480)
+
+proxy_x, proxy_y = proxy_undersample.fit_resample(proxy_train[['input']], proxy_train['label'])
+print('Distribution after undersampling:')
+print(proxy_y.value_counts())
+
+proxy_x, proxy_y = proxy_oversample.fit_resample(proxy_x, proxy_y)
+print('Distribution after oversampling:')
+print(proxy_y.value_counts())
+
+
+# ### Preprocess data (cont.)
+
 # In[ ]:
 
 
@@ -344,14 +493,17 @@ print(proxy_test.shape)
 tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL)
 
 pc_train_encodings = tokenizer(pc_train['input'].tolist(), padding=True, truncation=True)
+pc_train_encodings_balanced = tokenizer(pc_x['input'].tolist(), padding=True, truncation=True)
 pc_val_encodings = tokenizer(pc_val['input'].tolist(), padding=True, truncation=True)
 pc_test_encodings = tokenizer(pc_test['input'].tolist(), padding=True, truncation=True)
 
 building_train_encodings = tokenizer(building_train['input'].tolist(), padding=True, truncation=True)
+building_train_encodings_balanced = tokenizer(building_x['input'].tolist(), padding=True, truncation=True)
 building_val_encodings = tokenizer(building_val['input'].tolist(), padding=True, truncation=True)
 building_test_encodings = tokenizer(building_test['input'].tolist(), padding=True, truncation=True)
 
 proxy_train_encodings = tokenizer(proxy_train['input'].tolist(), padding=True, truncation=True)
+proxy_train_encodings_balanced = tokenizer(proxy_x['input'].tolist(), padding=True, truncation=True)
 proxy_val_encodings = tokenizer(proxy_val['input'].tolist(), padding=True, truncation=True)
 proxy_test_encodings = tokenizer(proxy_test['input'].tolist(), padding=True, truncation=True)
 
@@ -389,14 +541,17 @@ class PyTorchDataset(torch.utils.data.Dataset):
 # Create PyTorch datasets
 
 pc_train_dataset = PyTorchDataset(pc_train_encodings, pc_train['label'].tolist())
+pc_train_dataset_balanced = PyTorchDataset(pc_train_encodings_balanced, pc_y.tolist())
 pc_val_dataset = PyTorchDataset(pc_val_encodings, pc_val['label'].tolist())
 pc_test_dataset = PyTorchDataset(pc_test_encodings, pc_test['label'].tolist())
 
 building_train_dataset = PyTorchDataset(building_train_encodings, building_train['label'].tolist())
+building_train_dataset_balanced = PyTorchDataset(building_train_encodings_balanced, building_y.tolist())
 building_val_dataset = PyTorchDataset(building_val_encodings, building_val['label'].tolist())
 building_test_dataset = PyTorchDataset(building_test_encodings, building_test['label'].tolist())
 
 proxy_train_dataset = PyTorchDataset(proxy_train_encodings, proxy_train['label'].tolist())
+proxy_train_dataset_balanced = PyTorchDataset(proxy_train_encodings_balanced, proxy_y.tolist())
 proxy_val_dataset = PyTorchDataset(proxy_val_encodings, proxy_val['label'].tolist())
 proxy_test_dataset = PyTorchDataset(proxy_test_encodings, proxy_test['label'].tolist())
 
@@ -438,7 +593,7 @@ def compute_metrics(eval_pred):
     return results
 
 
-# ### Handle class imbalance
+# ### Handle class imbalance by adjusting class weights
 
 # In[ ]:
 
@@ -456,7 +611,7 @@ from transformers import Trainer
 pc_class_weights = class_weight.compute_class_weight(
     class_weight='balanced',
     classes=list(pc_label2case.keys()),
-    y=pc_train['label']
+    y=pc_y
 )
 
 print(pc_class_weights)
@@ -487,7 +642,7 @@ class CustomPCTrainer(Trainer):
 building_class_weights = class_weight.compute_class_weight(
     class_weight='balanced',
     classes=list(building_label2case.keys()),
-    y=building_train['label']
+    y=building_y
 )
 
 print(building_class_weights)
@@ -518,7 +673,7 @@ class CustomBuildingTrainer(Trainer):
 proxy_class_weights = class_weight.compute_class_weight(
     class_weight='balanced',
     classes=list(proxy_label2case.keys()),
-    y=proxy_train['label']
+    y=proxy_y
 )
 
 print(proxy_class_weights)
@@ -560,7 +715,7 @@ pc_model = AutoModelForSequenceClassification.from_pretrained(
     id2label=pc_label2case,
     label2id=pc_case2label
 )
-pc_model_with_custom_weights = AutoModelForSequenceClassification.from_pretrained(
+pc_model_balanced = AutoModelForSequenceClassification.from_pretrained(
     PRETRAINED_MODEL,
     num_labels=len(pc_cases),
     id2label=pc_label2case,
@@ -573,7 +728,7 @@ building_model = AutoModelForSequenceClassification.from_pretrained(
     id2label=building_label2case,
     label2id=building_case2label
 )
-building_model_with_custom_weights = AutoModelForSequenceClassification.from_pretrained(
+building_model_balanced = AutoModelForSequenceClassification.from_pretrained(
     PRETRAINED_MODEL,
     num_labels=len(building_cases),
     id2label=building_label2case,
@@ -586,7 +741,7 @@ proxy_model = AutoModelForSequenceClassification.from_pretrained(
     id2label=proxy_label2case,
     label2id=proxy_case2label
 )
-proxy_model_with_custom_weights = AutoModelForSequenceClassification.from_pretrained(
+proxy_model_balanced = AutoModelForSequenceClassification.from_pretrained(
     PRETRAINED_MODEL,
     num_labels=len(proxy_cases),
     id2label=proxy_label2case,
@@ -608,6 +763,7 @@ training_args = TrainingArguments(
     weight_decay=0.01,
     evaluation_strategy='epoch',
     save_strategy='epoch',
+    save_total_limit=5,
     load_best_model_at_end=True
 )
 
@@ -627,10 +783,10 @@ pc_trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
-pc_trainer_with_custom_weights = CustomPCTrainer(
-    model=pc_model_with_custom_weights,
+pc_trainer_balanced = CustomPCTrainer(
+    model=pc_model_balanced,
     args=training_args,
-    train_dataset=pc_train_dataset,
+    train_dataset=pc_train_dataset_balanced,
     eval_dataset=pc_val_dataset,
     tokenizer=tokenizer,
     data_collator=data_collator,
@@ -653,10 +809,10 @@ building_trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
-building_trainer_with_custom_weights = CustomBuildingTrainer(
-    model=building_model_with_custom_weights,
+building_trainer_balanced = CustomBuildingTrainer(
+    model=building_model_balanced,
     args=training_args,
-    train_dataset=building_train_dataset,
+    train_dataset=building_train_dataset_balanced,
     eval_dataset=building_val_dataset,
     tokenizer=tokenizer,
     data_collator=data_collator,
@@ -679,10 +835,10 @@ proxy_trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
-proxy_trainer_with_custom_weights = CustomProxyTrainer(
-    model=proxy_model_with_custom_weights,
+proxy_trainer_balanced = CustomProxyTrainer(
+    model=proxy_model_balanced,
     args=training_args,
-    train_dataset=proxy_train_dataset,
+    train_dataset=proxy_train_dataset_balanced,
     eval_dataset=proxy_val_dataset,
     tokenizer=tokenizer,
     data_collator=data_collator,
@@ -701,9 +857,9 @@ pc_trainer.train()
 # In[ ]:
 
 
-# Train PC model with custom class weights
+# Train balanced PC model
 
-pc_trainer_with_custom_weights.train()
+pc_trainer_balanced.train()
 
 
 # In[ ]:
@@ -717,9 +873,9 @@ building_trainer.train()
 # In[ ]:
 
 
-# Train Building model with custom class weights
+# Train balanced Building model
 
-building_trainer_with_custom_weights.train()
+building_trainer_balanced.train()
 
 
 # In[ ]:
@@ -733,9 +889,9 @@ proxy_trainer.train()
 # In[ ]:
 
 
-# Train PC model with custom class weights
+# Train balanced Proxy model
 
-proxy_trainer_with_custom_weights.train()
+proxy_trainer_balanced.train()
 
 
 # ### Evaluate model
@@ -757,8 +913,8 @@ pc_eval_trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
-pc_eval_trainer_with_custom_weights = CustomPCTrainer(
-    model=pc_model_with_custom_weights,
+pc_eval_trainer_balanced = CustomPCTrainer(
+    model=pc_model_balanced,
     eval_dataset=pc_test_dataset,
     compute_metrics=compute_metrics
 )
@@ -775,8 +931,8 @@ building_eval_trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
-building_eval_trainer_with_custom_weights = CustomBuildingTrainer(
-    model=building_model_with_custom_weights,
+building_eval_trainer_balanced = CustomBuildingTrainer(
+    model=building_model_balanced,
     eval_dataset=building_test_dataset,
     compute_metrics=compute_metrics
 )
@@ -793,8 +949,8 @@ proxy_eval_trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
-proxy_eval_trainer_with_custom_weights = CustomProxyTrainer(
-    model=proxy_model_with_custom_weights,
+proxy_eval_trainer_balanced = CustomProxyTrainer(
+    model=proxy_model_balanced,
     eval_dataset=proxy_test_dataset,
     compute_metrics=compute_metrics
 )
@@ -812,10 +968,10 @@ pc_eval_trainer.evaluate()
 # In[ ]:
 
 
-# Evaluate PC model with custom class weights
+# Evaluate balanced PC model
 
-print('PC model w/ custom weights evaluation:')
-pc_eval_trainer_with_custom_weights.evaluate()
+print('Balanced PC model evaluation:')
+pc_eval_trainer_balanced.evaluate()
 
 
 # In[ ]:
@@ -830,10 +986,10 @@ building_eval_trainer.evaluate()
 # In[ ]:
 
 
-# Evaluate Building model with custom class weights
+# Evaluate balanced Building model
 
-print('Building model w/ custom weights evaluation:')
-building_eval_trainer_with_custom_weights.evaluate()
+print('Balanced Building model evaluation:')
+building_eval_trainer_balanced.evaluate()
 
 
 # In[ ]:
@@ -848,10 +1004,10 @@ proxy_eval_trainer.evaluate()
 # In[ ]:
 
 
-# Evaluate Proxy model with custom class weights
+# Evaluate balanced Proxy model
 
-print('Proxy model w/ custom weights evaluation:')
-proxy_eval_trainer_with_custom_weights.evaluate()
+print('Balanced Proxy model evaluation:')
+proxy_eval_trainer_balanced.evaluate()
 
 
 # In[ ]:
@@ -859,9 +1015,9 @@ proxy_eval_trainer_with_custom_weights.evaluate()
 
 # Save model
 
-pc_trainer_with_custom_weights.save_model(PC_MODEL_NAME)
-building_trainer_with_custom_weights.save_model(BUILDING_MODEL_NAME)
-proxy_trainer_with_custom_weights.save_model(PROXY_MODEL_NAME)
+pc_trainer_balanced.save_model(PC_MODEL_NAME)
+building_trainer_balanced.save_model(BUILDING_MODEL_NAME)
+proxy_trainer_balanced.save_model(PROXY_MODEL_NAME)
 
 
 # In[ ]:
@@ -870,12 +1026,20 @@ proxy_trainer_with_custom_weights.save_model(PROXY_MODEL_NAME)
 # Show PC model predictions on a few test inputs
 
 pc_test_input = []
+pc_expected_output = []
 
 for case in pc_cases:
     pc_test_input += pc_test[pc_test['suspect'] == case]['input'].sample(n=3).tolist()
+    pc_expected_output += [case] * 3
 
 print('Sample PC Access log input:')
 display(pc_test_input)
+
+print()
+print('Expected output:')
+
+for item in pc_expected_output:
+    print(item)
 
 pc_saved_tokenizer = AutoTokenizer.from_pretrained(PC_MODEL_NAME)
 pc_saved_model = AutoModelForSequenceClassification.from_pretrained(PC_MODEL_NAME)
@@ -898,12 +1062,20 @@ for logits in pc_logits:
 # Show Building model predictions on a few test inputs
 
 building_test_input = []
+building_expected_output = []
 
 for case in building_cases:
     building_test_input += building_test[building_test['suspect'] == case]['input'].sample(n=2).tolist()
+    building_expected_output += [case] * 2
 
 print('Sample Building Access log input:')
 display(building_test_input)
+
+print()
+print('Expected output:')
+
+for item in building_expected_output:
+    print(item)
 
 building_saved_tokenizer = AutoTokenizer.from_pretrained(BUILDING_MODEL_NAME)
 building_saved_model = AutoModelForSequenceClassification.from_pretrained(BUILDING_MODEL_NAME)
@@ -926,12 +1098,20 @@ for logits in building_logits:
 # Show Proxy model predictions on a few test inputs
 
 proxy_test_input = []
+proxy_expected_output = []
 
 for case in proxy_cases:
     proxy_test_input += proxy_test[proxy_test['suspect'] == case]['input'].sample(n=3).tolist()
+    proxy_expected_output += [case] * 3
 
 print('Sample Proxy log input:')
 display(proxy_test_input)
+
+print()
+print('Expected output:')
+
+for item in proxy_expected_output:
+    print(item)
 
 proxy_saved_tokenizer = AutoTokenizer.from_pretrained(PROXY_MODEL_NAME)
 proxy_saved_model = AutoModelForSequenceClassification.from_pretrained(PROXY_MODEL_NAME)

@@ -18,7 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(EmployeeServiceController.class)
-public class EmployeeServiceTests {
+public class EmployeeServiceUnitTests {
 
     @MockBean private EmployeeServiceRepository employeeServiceRepo;
     @Autowired private MockMvc mockMvc;

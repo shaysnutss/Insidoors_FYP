@@ -1,0 +1,9 @@
+hr {
+    border: 1px solid black;
+    margin: 7px 0;
+}
+
+img {
+    width: 50%; /* Set the width to 50% of the original size */
+    height: auto; /* Maintain the aspect ratio */
+}

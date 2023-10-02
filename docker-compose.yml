@@ -74,3 +74,27 @@ services:
     #   - "user_dev.env"
     ports:
       - "30008:3000"
+  ####################################
+  # Composite Microservice: notification-service
+  ####################################
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+     - "dev.env"
+    ports:
+      - "30009:8080"
+  ###################################
+  # Atomic Microservice: task-management-composite
+  ####################################
+  task-management-composite:
+    build:
+      context: ./task-management-composite
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30010:8080"
