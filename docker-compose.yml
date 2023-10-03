@@ -5,27 +5,27 @@ services:
   ####################################
   # Atomic Microservice: account-service
   ####################################
-#  account-service:
-#    build:
-#      context: ./account-service
-#      dockerfile: Dockerfile
-#    restart: always
-#    # env_file:
-#    #   - "user_dev.env"
-#    ports:
-#      - "30000:8080"
+  account-service:
+    build:
+      context: ./account-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30000:8080"
   ####################################
   # Atomic Microservice: task-management-service
   ####################################
-#  task-management-service:
-#    build:
-#      context: ./task-management-service
-#      dockerfile: Dockerfile
-#    restart: always
-#    # env_file:
-#    #   - "user_dev.env"
-#    ports:
-#      - "30001:8080"
+  task-management-service:
+    build:
+      context: ./task-management-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30001:8081"
   ####################################
   # Atomic Microservice: employee-service
   ####################################
@@ -41,15 +41,15 @@ services:
   ####################################
   # Atomic Microservice: comments-service
   ####################################
-#  comments-service:
-#    build:
-#      context: ./comments-service
-#      dockerfile: Dockerfile
-#    restart: always
-#    # env_file:
-#    #   - "user_dev.env"
-#    ports:
-#      - "30004:8080"
+  comments-service:
+    build:
+      context: ./comments-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30004:8083"
   ####################################
   # Atomic Microservice: behavioral-analysis-service
   ####################################
@@ -61,40 +61,40 @@ services:
     # env_file:
     #   - "user_dev.env"
     ports:
-      - "30007:8085"
+      - "30007:8084"
   ####################################
   # Atomic Microservice: insidoors-frontend
   ####################################
-#  insidoors-frontend:
-#    build:
-#      context: ./insidoors-frontend
-#      dockerfile: Dockerfile
-#    restart: always
-#    # env_file:
-#    #   - "user_dev.env"
-#    ports:
-#      - "30008:3000"
+  insidoors-frontend:
+    build:
+      context: ./insidoors-frontend
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "user_dev.env"
+    ports:
+      - "30008:3000"
   ####################################
   # Composite Microservice: notification-service
   ####################################
-#  notification-service:
-#    build:
-#      context: ./notification-service
-#      dockerfile: Dockerfile
-#    restart: always
-#    env_file:
-#     - "dev.env"
-#    ports:
-#      - "30009:8080"
+  # notification-service:
+  #   build:
+  #     context: ./notification-service
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   env_file:
+  #    - "dev.env"
+  #   ports:
+  #     - "30009:8080"
+  ###################################
+  # Atomic Microservice: task-management-composite
   ####################################
-  # Composite Microservice: behavioral-analysis-composite-service
-  ####################################
-  behavioral-analysis-composite-service:
+  task-management-composite:
     build:
-      context: ./behavioral-analysis-composite-service
+      context: ./task-management-composite
       dockerfile: Dockerfile
     restart: always
-    env_file:
-      - "dev.env"
+    # env_file:
+    #   - "user_dev.env"
     ports:
-      - "30010:8080"
+      - "30010:8085"
