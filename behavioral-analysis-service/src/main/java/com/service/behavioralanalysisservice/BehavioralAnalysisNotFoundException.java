@@ -8,7 +8,7 @@ public class BehavioralAnalysisNotFoundException extends RuntimeException {
     
     private static final long serialVersionUID = 1L;
 
-    public BehavioralAnalysisNotFoundException(int id) {
+    public BehavioralAnalysisNotFoundException(Long id) {
         super("Could not find the behavioral analysis with employee id: " + id);
     }
 }
