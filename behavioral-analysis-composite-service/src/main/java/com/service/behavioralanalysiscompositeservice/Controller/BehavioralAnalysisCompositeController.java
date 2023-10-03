@@ -31,14 +31,11 @@ public class BehavioralAnalysisCompositeController {
 
     public final BehavioralAnalysisCompositeService behavioralAnalysisCompositeService;
 
-    /*
-    *1. Showing all employees
-    1. Api request to behave comp (actually account but I so this later)
-    2. Get all employees api request to employee service
-    3. Get all behav analysis to behave analysis atomic
-    4. Put the severity rating of each employee tgt w rest of each employee info
-    5. Send response back to frontend
-    * */
+    /**
+     * Find all employees with their behaviour analysis
+     *
+     * @return list of all employees with their behaviour analysis
+     */
 
     @GetMapping("/viewAllEmployees")
     public ResponseEntity<?> viewAllEmployees(){
@@ -73,6 +70,7 @@ public class BehavioralAnalysisCompositeController {
         return ResponseEntity.ok(toReturn);
 
     }
+
 
 
 
