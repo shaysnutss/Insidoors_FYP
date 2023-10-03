@@ -37,7 +37,7 @@ public class TaskManagementCompositeController {
         try {
             objectMapper.findAndRegisterModules();
 
-            HttpGet httpgetTask = new HttpGet("http://task-management-service:8080/api/v1/tasks");
+            HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks");
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
 
             if (responseBodyTask.getStatusLine().getStatusCode() == 200) {
@@ -57,7 +57,7 @@ public class TaskManagementCompositeController {
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
 
                     // employee items
-                    HttpGet httpgetEmployee = new HttpGet("http://employee-service:8080/api/v1/employees/" + jsonNodeTask.get(i).path("employeeId"));
+                    HttpGet httpgetEmployee = new HttpGet("http://employee-service:8082/api/v1/employees/" + jsonNodeTask.get(i).path("employeeId"));
                     CloseableHttpResponse responseBodyEmployee = httpclient.execute(httpgetEmployee);
                     String jsonContentEmployee = EntityUtils.toString(responseBodyEmployee.getEntity(), "UTF-8");
                     JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
@@ -94,7 +94,7 @@ public class TaskManagementCompositeController {
         try {
             objectMapper.findAndRegisterModules();
 
-            HttpGet httpgetTask = new HttpGet("http://task-management-service:8080/api/v1/tasks/account/" + id);
+            HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/account/" + id);
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
 
             //System.out.println(jsonNodeTask);
@@ -115,7 +115,7 @@ public class TaskManagementCompositeController {
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
 
                     // employee items
-                    HttpGet httpgetEmployee = new HttpGet("http://employee-service:8080/api/v1/employees/" + jsonNodeTask.get(i).path("employeeId"));
+                    HttpGet httpgetEmployee = new HttpGet("http://employee-service:8082/api/v1/employees/" + jsonNodeTask.get(i).path("employeeId"));
                     CloseableHttpResponse responseBodyEmployee = httpclient.execute(httpgetEmployee);
                     String jsonContentEmployee = EntityUtils.toString(responseBodyEmployee.getEntity(), "UTF-8");
                     JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
@@ -152,7 +152,7 @@ public class TaskManagementCompositeController {
         try {
             objectMapper.findAndRegisterModules();
 
-            HttpGet httpgetComments = new HttpGet("http://comments-service:8080/api/v1/comments/taskManagement/" + id);
+            HttpGet httpgetComments = new HttpGet("http://comments-service:8083/api/v1/comments/taskManagement/" + id);
             CloseableHttpResponse responseBodyComments = httpclient.execute(httpgetComments);
 
             //System.out.println(jsonNodeTask);
@@ -236,7 +236,7 @@ public class TaskManagementCompositeController {
             objectMapper.findAndRegisterModules();
 
             if (newData != null) {
-                HttpPut httpPutNewAccountId = new HttpPut("http://task-management-service:8080/api/v1/accountUpdate/" + id);
+                HttpPut httpPutNewAccountId = new HttpPut("http://task-management-service:8081/api/v1/accountUpdate/" + id);
                 httpPutNewAccountId.setHeader("Accept", "application/json");
                 httpPutNewAccountId.setHeader("Content-type", "application/json");
                 StringEntity stringEntity = new StringEntity(newData);
@@ -276,7 +276,7 @@ public class TaskManagementCompositeController {
             objectMapper.findAndRegisterModules();
 
             if (newData != null) {
-                HttpPut httpPutNewStatus = new HttpPut("http://task-management-service:8080/api/v1/statusUpdate/" + id);
+                HttpPut httpPutNewStatus = new HttpPut("http://task-management-service:8081/api/v1/statusUpdate/" + id);
                 httpPutNewStatus.setHeader("Accept", "application/json");
                 httpPutNewStatus.setHeader("Content-type", "application/json");
                 StringEntity stringEntity = new StringEntity(newData);
@@ -315,13 +315,13 @@ public class TaskManagementCompositeController {
         try {
             objectMapper.findAndRegisterModules();
 
-            HttpGet httpgetTask = new HttpGet("http://task-management-service:8080/api/v1/tasks/account/" + id);
+            HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/" + id);
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
             String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(), "UTF-8");
             JsonNode jsonNodeTask = objectMapper.readTree(jsonContentTask);
             
             if (newData != null) {
-                HttpPut httpPutNewRiskRating = new HttpPut("http://behavioral-analysis-service:8080/api/v1/updateRiskRating/" + jsonNodeTask.get("employeeId"));
+                HttpPut httpPutNewRiskRating = new HttpPut("http://behavioral-analysis-service:8084/api/v1/updateRiskRating/" + jsonNodeTask.get("employeeId"));
                 httpPutNewRiskRating.setHeader("Accept", "application/json");
                 httpPutNewRiskRating.setHeader("Content-type", "application/json");
                 StringEntity stringEntity = new StringEntity(newData); // send 0 in json if no change, send new risk rating in json if there is a change
@@ -342,7 +342,7 @@ public class TaskManagementCompositeController {
                     }
                 });
 
-                HttpPut httpPutStatus = new HttpPut("http://task-management-service:8080/api/v1/statusUpdate/" + id);
+                HttpPut httpPutStatus = new HttpPut("http://task-management-service:8081/api/v1/statusUpdate/" + id);
                 httpPutStatus.setHeader("Accept", "application/json");
                 httpPutStatus.setHeader("Content-type", "application/json");
                 httpPutStatus.setEntity(stringEntity); // json must have status closed
