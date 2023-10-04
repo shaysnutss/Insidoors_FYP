@@ -41,51 +41,51 @@ services:
   ####################################
   # Atomic Microservice: comments-service
   ####################################
-#  comments-service:
-#    build:
-#      context: ./comments-service
-#      dockerfile: Dockerfile
-#    restart: always
-#    # env_file:
-#    #   - "dev.env"
-#    ports:
-#      - "30004:8083"
+  comments-service:
+    build:
+      context: ./comments-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    ports:
+      - "30004:8083"
   ####################################
   # Atomic Microservice: behavioral-analysis-service
   ####################################
-#  behavioral-analysis-service:
-#    build:
-#      context: ./behavioral-analysis-service
-#      dockerfile: Dockerfile
-#    restart: always
-#    # env_file:
-#    #   - "dev.env"
-#    ports:
-#      - "30007:8084"
+  behavioral-analysis-service:
+    build:
+      context: ./behavioral-analysis-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    ports:
+      - "30007:8084"
   ####################################
   # Atomic Microservice: insidoors-frontend
   ####################################
-#  insidoors-frontend:
-#    build:
-#      context: ./insidoors-frontend
-#      dockerfile: Dockerfile
-#    restart: always
-#    # env_file:
-#    #   - "dev.env"
-#    ports:
-#      - "30008:3000"
+  insidoors-frontend:
+    build:
+      context: ./insidoors-frontend
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    ports:
+      - "30008:3000"
   ####################################
   # Composite Microservice: notification-service
   ####################################
-  # notification-service:
-  #   build:
-  #     context: ./notification-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   env_file:
-  #    - "dev.env"
-  #   ports:
-  #     - "30009:8080"
+  notification-service:
+     build:
+       context: ./notification-service
+       dockerfile: Dockerfile
+     restart: always
+     env_file:
+      - "dev.env"
+     ports:
+       - "30009:8080"
   ###################################
   # Composite Microservice: task-management-composite
   ####################################
