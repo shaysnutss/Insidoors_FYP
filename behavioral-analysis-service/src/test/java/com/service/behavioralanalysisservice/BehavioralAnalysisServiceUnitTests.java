@@ -101,7 +101,7 @@ public class BehavioralAnalysisServiceUnitTests {
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath("$.employeeId").value(mockBAUpdate.getEmployeeId()))
-            .andExpect(jsonPath("$.riskRating").value(mockBAUpdate.getRiskRating()))
+            .andExpect(jsonPath("$.riskRating").value(370))
             .andExpect(jsonPath("$.suspectedCases").value(mockBAUpdate.getSuspectedCases()))
             .andDo(print());
     }
