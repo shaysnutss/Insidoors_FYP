@@ -4,6 +4,7 @@ package com.service.notificationservice.Controller;
 import com.service.notificationservice.Email.AmazonSES;
 import com.service.notificationservice.Service.NotificationService;
 import jakarta.mail.MessagingException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,9 @@ public class NotificationController {
     public final NotificationService notificationService;
 
     private final AmazonSES amazonSES;
+
+    @Value("${ACCOUNT_API_BASE_URL}")
+    private String accountApiBaseUrl;
 
     public NotificationController(NotificationService notificationService, AmazonSES amazonSES) {
         this.notificationService = notificationService;
@@ -34,7 +38,7 @@ public class NotificationController {
         String incidentTitle = (String) taskData.get("incidentTitle");
 
         // Sending GET request to account service to get account name
-        String accountServiceUrl = "http://account-service:8080/api/v1/account/getAccountById/" + accountID;
+        String accountServiceUrl = accountApiBaseUrl + "/getAccountById/" + accountID;
         Map <String, Object> accountData = notificationService.getAccount(accountServiceUrl);
 
         if(accountData != null && ((amazonSES.sendEmail((String) accountData.get("name"), "insidoorsfyp@gmail.com",
