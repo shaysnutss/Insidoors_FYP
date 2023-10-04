@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.service.behavioralanalysiscompositeservice.Service.BehavioralAnalysisCompositeService;
@@ -28,6 +29,9 @@ public class BehavioralAnalysisCompositeController {
 
     @Value("${BHATOMIC_API_BASE_URL}")
     private String bhApiBaseUrl;
+
+    @Value("${TASK_COMP_API_BASE_URL}")
+    private String taskMCompApiBaseUrl;
 
     public final BehavioralAnalysisCompositeService behavioralAnalysisCompositeService;
 
@@ -68,6 +72,16 @@ public class BehavioralAnalysisCompositeController {
 
         }
         return ResponseEntity.ok(toReturn);
+
+    }
+
+    @GetMapping("/viewIncidentsByEmployeeId/{id}")
+    public ResponseEntity<?> viewAllEmployees(@PathVariable(value = "id") long id){
+
+        //Get all tasks by employee ic
+        List<Map<String, Object>> incidentsByEmployee = behavioralAnalysisCompositeService.getMethod( taskMCompApiBaseUrl + "/viewAllTasksByEmployeeId/" + id);
+        return ResponseEntity.ok(incidentsByEmployee);
+
 
     }
 

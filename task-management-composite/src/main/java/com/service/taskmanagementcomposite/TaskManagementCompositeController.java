@@ -372,4 +372,53 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @GetMapping("/viewAllTasksByEmployeeId/{id}")
+    public ResponseEntity<?> viewAllTasksByEmployeeId(@PathVariable int id) {
+        try {
+            objectMapper.findAndRegisterModules();
+
+            HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/employee/" + id);
+            CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
+
+            //System.out.println(jsonNodeTask);
+            if (responseBodyTask.getStatusLine().getStatusCode() == 200) {
+                String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(), "UTF-8");
+                JsonNode jsonNodeTask = objectMapper.readTree(jsonContentTask);
+
+                List<Map<String, Object>> taskManagementList = new ArrayList<>();
+                for (int i = 0; i < jsonNodeTask.size(); i++) {
+                    Map<String, Object> item = new HashMap<>();
+
+                    // task management items
+                    item.put("id", jsonNodeTask.get(i).path("id"));
+                    item.put("incidentTitle", jsonNodeTask.get(i).path("incidentTitle"));
+                    item.put("incidentTimestamp", jsonNodeTask.get(i).path("incidentTimestamp"));
+                    item.put("severity", jsonNodeTask.get(i).path("severity"));
+                    item.put("status", jsonNodeTask.get(i).path("status"));
+                    item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
+
+                    // soc account items
+                    HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAccountById/" + jsonNodeTask.get(i).path("accountId"));
+                    CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
+                    String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
+                    JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
+
+                    item.put("socName", jsonNodeAccount.get("name"));
+
+                    // Add the item to the list
+                    taskManagementList.add(item);
+                }
+
+                return ResponseEntity.ok(taskManagementList);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task management list not found.");
+            }
+        } catch (HttpServerErrorException e) {
+            return ResponseEntity.status(e.getStatusCode()).body("Error in retrieving task management list.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error.");
+        }
+    }
+
 }
