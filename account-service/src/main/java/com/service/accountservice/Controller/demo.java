@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/v1/demo-controller")
 public class demo {
-    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping
     public ResponseEntity<String> sayHello() {
         return ResponseEntity.ok("access granted");

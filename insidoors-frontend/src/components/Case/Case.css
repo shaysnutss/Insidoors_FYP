@@ -4,25 +4,25 @@
     flex-direction: row;
     justify-content: center;
     width: 100%;
-}
-
-.case .div-2 {
+  }
+  
+  .case .div {
     background-color: #ffffff;
     height: 1024px;
     overflow: hidden;
     position: relative;
     width: 1440px;
-}
-
-.case .overlap-2 {
+  }
+  
+  .case .overlap {
     height: 61px;
     left: 51px;
     position: absolute;
     top: 43px;
     width: 281px;
-}
-
-.case .ellipse {
+  }
+  
+  .case .ellipse {
     background-color: #002c3e;
     border-radius: 20px;
     height: 40px;
@@ -30,9 +30,9 @@
     position: absolute;
     top: 11px;
     width: 40px;
-}
-
-.case .text-wrapper-4 {
+  }
+  
+  .case .text-wrapper {
     color: #002c3e;
     font-family: "Poppins-Bold", Helvetica;
     font-size: 30px;
@@ -41,74 +41,20 @@
     left: 0;
     letter-spacing: 0;
     line-height: normal;
-    position: absolute;
-    text-align: center;
-    top: 0;
+    margin-top: 10px;
+    margin-left: 70px;
     width: 281px;
-}
-
-.case .overlap-3 {
-    height: 80px;
-    left: 357px;
-    position: absolute;
-    top: 37px;
-    width: 675px;
-}
-
-.case .text-wrapper-5 {
-    color: #000000;
-    font-family: "Poppins-Medium", Helvetica;
-    font-size: 22px;
-    font-weight: 700;
-    height: 80px;
-    left: 0;
-    letter-spacing: 0;
-    line-height: normal;
-    position: absolute;
-    text-align: center;
-    top: 0;
-    width: 240px;
-}
-
-.case .text-wrapper-6 {
-    color: #78bcc4;
-    font-family: "Poppins-Bold", Helvetica;
-    font-size: 22px;
-    font-weight: 500;
-    height: 80px;
-    left: 183px;
-    letter-spacing: 0;
-    line-height: normal;
-    position: absolute;
-    text-align: center;
-    top: 0;
-    width: 240px;
-}
-
-.case .text-wrapper-7 {
-    color: #000000;
-    font-family: "Poppins-Medium", Helvetica;
-    font-size: 22px;
-    font-weight: 500;
-    height: 80px;
-    left: 363px;
-    letter-spacing: 0;
-    line-height: normal;
-    position: absolute;
-    text-align: center;
-    top: 0;
-    width: 312px;
-}
-
-.case .overlap-4 {
+  }
+  
+  .case .overlap-group {
     height: 80px;
     left: 1100px;
     position: absolute;
     top: 37px;
     width: 360px;
-}
-
-.case .text-wrapper-8 {
+  }
+  
+  .case .text-wrapper-2 {
     color: #000000;
     font-family: "Poppins-Medium", Helvetica;
     font-size: 22px;
@@ -121,9 +67,9 @@
     text-align: center;
     top: 0;
     width: 240px;
-}
-
-.case .text-wrapper-9 {
+  }
+  
+  .case .text-wrapper-3 {
     color: #000000;
     font-family: "Poppins-Medium", Helvetica;
     font-size: 22px;
@@ -136,101 +82,96 @@
     text-align: center;
     top: 0;
     width: 240px;
-}
-
-.case .overlap-5 {
-    height: 926px;
-    left: 94px;
-    position: absolute;
-    top: 192px;
-    width: 278px;
-}
-
-.case .frame {
-    height: 849px;
-    left: 6px;
-    overflow: hidden;
-    position: absolute;
-    top: 77px;
-    width: 272px;
-}
-
-.case .text-wrapper-10 {
-    color: #000000;
-    font-family: "Poppins-Bold", Helvetica;
-    font-size: 20px;
-    font-weight: 700;
+  }
+  
+  .case .overlap-2 {
     height: 80px;
-    left: 0;
+    left: 357px;
+    position: absolute;
+    top: 37px;
+    width: 676px;
+  }
+  
+  .case .text-wrapper-4 {
+    color: #000000;
+    font-family: "Poppins-Medium", Helvetica;
+    font-size: 22px;
+    font-weight: 500;
+    height: 80px;
+    left: 183px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
     text-align: center;
     top: 0;
-    width: 188px;
-}
-
-.case .image-2 {
-    height: 24px;
-    left: 6px;
-    object-fit: cover;
+    width: 240px;
+  }
+  
+  .case .text-wrapper-5 {
+    color: #78bcc4;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 22px;
+    font-weight: 700;
+    height: 80px;
+    left: 364px;
+    letter-spacing: 0;
+    line-height: normal;
     position: absolute;
-    top: 29px;
-    width: 24px;
-}
-
-.case .overlap-6 {
+    text-align: center;
+    top: 0;
+    width: 312px;
+  }
+  
+  .case .overlap-3 {
     height: 926px;
-    left: 404px;
+    left: 94px;
     position: absolute;
     top: 192px;
-    width: 292px;
-}
-
-.case .ticket-high-priority-wrapper {
+    width: 278px;
+  }
+  
+  .case .frame {
     height: 849px;
-    left: 19px;
-    overflow: hidden;
+    left: 6px;
     position: absolute;
     top: 77px;
     width: 272px;
-}
-
-.case .ticket-high-priority-2 {
+  }
+  
+  .case .ticket-high-priority {
     background-color: #ffffff;
     border: 1px solid;
     border-color: #032539;
     border-radius: 20px;
     height: 140px;
     position: relative;
-    width: 273px;
-}
-
-.case .line-2 {
+  }
+  
+  .case .line {
     height: 2px;
     left: 0;
     position: absolute;
     top: 99px;
-    width: 271px;
-}
-
-.case .overlap-7 {
+    width: 270px;
+  }
+  
+  .case .overlap-4 {
     height: 81px;
     left: 6px;
     position: absolute;
     top: 10px;
-    width: 257px;
-}
-
-.case .overlap-group-2 {
+    width: 256px;
+  }
+  
+  .case .overlap-group-2 {
     height: 27px;
-    left: 177px;
+    left: 176px;
     position: absolute;
     top: 3px;
     width: 80px;
-}
-
-.case .rectangle-2 {
+  }
+  
+  .case .rectangle {
     background-color: #f0bdbd;
     border: 1px solid;
     border-color: #032539;
@@ -240,9 +181,9 @@
     position: absolute;
     top: 2px;
     width: 72px;
-}
-
-.case .text-wrapper-11 {
+  }
+  
+  .case .text-wrapper-6 {
     color: #9a0707;
     font-family: "Poppins-SemiBold", Helvetica;
     font-size: 15px;
@@ -253,34 +194,19 @@
     line-height: normal;
     position: absolute;
     text-align: center;
-    top: 0;
+    top: 5px;
     width: 80px;
-}
-
-.case .overlap-group-3 {
+  }
+  
+  .case .overlap-group-3 {
     height: 81px;
     left: 0;
     position: absolute;
     top: 0;
-    width: 256px;
-}
-
-.case .text-wrapper-12 {
-    color: #000000;
-    font-family: "Poppins-Medium", Helvetica;
-    font-size: 11px;
-    font-weight: 500;
-    height: 26px;
-    left: 0;
-    letter-spacing: 0;
-    line-height: normal;
-    position: absolute;
-    text-align: center;
-    top: 26px;
-    width: 112px;
-}
-
-.case .text-wrapper-13 {
+    width: 255px;
+  }
+  
+  .case .text-wrapper-8 {
     color: #002c3e;
     font-family: "Poppins-Bold", Helvetica;
     font-size: 27px;
@@ -292,110 +218,150 @@
     position: absolute;
     top: 0;
     width: 109px;
-}
-
-.case .text-wrapper-14 {
+  }
+  
+  .case .p {
     color: #000000;
     font-family: "Poppins-Light", Helvetica;
     font-size: 11px;
-    font-weight: 300;
+    font-weight: 400;
     height: 32px;
     left: 21px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 49px;
-    width: 235px;
-}
-
-.case .image-3 {
+    top: 35px;
+    width: 234px;
+  }
+  
+  .case .image {
     height: 26px;
-    left: 226px;
-    object-fit: cover;
+    left: 225px;
     position: absolute;
     top: 106px;
     width: 26px;
-}
-
-.case .image-4 {
+  }
+  
+  .case .img {
     height: 26px;
     left: 13px;
-    object-fit: cover;
-    position: absolute;
+    position:relative;
     top: 106px;
     width: 26px;
-}
-
-.case .image-5 {
+  }
+  
+  .case .text-wrapper-9 {
+    color: #000000;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 20px;
+    font-weight: 700;
+    height: 80px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 28px;
+    width: 188px;
+  }
+  
+  .case .image-2 {
+    height: 24px;
+    left: 6px;
+    object-fit: cover;
+    position: absolute;
+    top: 29px;
+    width: 24px;
+  }
+  
+  .case .overlap-5 {
+    height: 926px;
+    left: 404px;
+    position: absolute;
+    top: 192px;
+    width: 292px;
+  }
+  
+  .case .ticket-high-priority-wrapper {
+    height: 849px;
+    left: 19px;
+    position: absolute;
+    top: 77px;
+    width: 272px;
+  }
+  
+  .case .image-3 {
     height: 24px;
     left: 19px;
     object-fit: cover;
     position: absolute;
     top: 29px;
     width: 24px;
-}
-
-.case .overlap-8 {
+  }
+  
+  .case .overlap-6 {
     height: 926px;
     left: 728px;
     position: absolute;
     top: 192px;
     width: 290px;
-}
-
-.case .div-wrapper {
+  }
+  
+  .case .div-wrapper {
     height: 849px;
     left: 18px;
-    overflow: hidden;
     position: absolute;
     top: 77px;
     width: 272px;
-}
-
-.case .image-6 {
+  }
+  
+  .case .image-4 {
     height: 24px;
     left: 18px;
     object-fit: cover;
     position: absolute;
     top: 29px;
     width: 24px;
-}
-
-.case .overlap-9 {
+  }
+  
+  .case .overlap-7 {
     height: 926px;
     left: 1037px;
     position: absolute;
     top: 192px;
     width: 304px;
-}
-
-.case .frame-2 {
+  }
+  
+  .case .frame-2 {
     height: 849px;
     left: 32px;
-    overflow: hidden;
     position: absolute;
     top: 77px;
     width: 272px;
-}
-
-.case .image-7 {
+  }
+  
+  .case .image-5 {
     height: 24px;
     left: 32px;
     object-fit: cover;
     position: absolute;
     top: 29px;
     width: 24px;
-}
-
-.case .overlap-10 {
+  }
+  
+  .case .overlap-8 {
     height: 48px;
     left: 1093px;
     position: absolute;
     top: 144px;
     width: 288px;
-}
-
-.case .rectangle-3 {
+  }
+  
+  .case .rectangle-2 {
+    align-items: flex-start;
+    color: #535151;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 20px;
+    font-weight: 400;
     background-color: #ffffff;
     border: 1px solid;
     border-color: #032539;
@@ -405,19 +371,5 @@
     position: absolute;
     top: 5px;
     width: 275px;
-}
-
-.case .text-wrapper-15 {
-    color: #000000;
-    font-family: "Poppins-Light", Helvetica;
-    font-size: 20px;
-    font-weight: 300;
-    height: 48px;
-    left: 0;
-    letter-spacing: 0;
-    line-height: normal;
-    position: absolute;
-    text-align: center;
-    top: 0;
-    width: 151px;
-}
+  }
+  
