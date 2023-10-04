@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,35 +29,47 @@ public class BehavioralAnalysisServiceController {
     private final BehavioralAnalysisServiceRepository bAServiceRepo;
 
     @GetMapping("/behavioralanalysis")
-    public List<BehavioralAnalysisService> getAllBehavioralAnalysis(){
-        return bAServiceRepo.findAll();
+    public ResponseEntity<List<BehavioralAnalysisService>> getAllBehavioralAnalysis() {
+        List<BehavioralAnalysisService> analysisList = bAServiceRepo.findAll();
+
+        if (analysisList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } else {
+            return ResponseEntity.ok(analysisList);
+        }
     }
 
     @GetMapping("/behavioralanalysis/{id}")
-    public Optional<BehavioralAnalysisService> getBehavioralAnalysisById(@PathVariable Long id){
-        return bAServiceRepo.findById(id);
+    public ResponseEntity<BehavioralAnalysisService> getBehavioralAnalysisById(@PathVariable Long id) {
+        Optional<BehavioralAnalysisService> analysisOptional = bAServiceRepo.findById(id);
+
+        if (analysisOptional.isPresent()) {
+            return ResponseEntity.ok(analysisOptional.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @GetMapping("/riskrating/{id}")
-    public int getRiskRatingByEmployeeId(@PathVariable int id){
+    public ResponseEntity<Integer> getRiskRatingByEmployeeId(@PathVariable int id) {
         BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
-        
-        if (ba == null) {
-            throw new BehavioralAnalysisNotFoundException(id);
+
+        if (ba != null) {
+            return ResponseEntity.ok(ba.getRiskRating());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        
-        return ba.getRiskRating();
     }
 
     @GetMapping("/suspectedcases/{id}")
-    public int getSuspectedCasesByEmployeeId(@PathVariable int id){
+    public ResponseEntity<Integer> getSuspectedCasesByEmployeeId(@PathVariable int id){
         BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
         
-        if (ba == null) {
-            throw new BehavioralAnalysisNotFoundException(id);
+        if (ba != null) {
+            return ResponseEntity.ok(ba.getSuspectedCases());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        
-        return ba.getSuspectedCases();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -66,12 +79,12 @@ public class BehavioralAnalysisServiceController {
     }
 
     @PutMapping("/updateRiskRating/{id}")
-    public BehavioralAnalysisService updateRiskRatingByEmployeeId(@PathVariable int id, @RequestBody String baNew){
+    public ResponseEntity<BehavioralAnalysisService> updateRiskRatingByEmployeeId(@PathVariable int id, @RequestBody String baNew){
         BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
 
         try {       
             if (ba == null) {
-                throw new BehavioralAnalysisNotFoundException(id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             }
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -82,23 +95,25 @@ public class BehavioralAnalysisServiceController {
             ba.setRiskRating(ba.getRiskRating() + jsonNode.get("riskRating").asInt());
         
         } catch (JsonMappingException e) {
-            
             e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+
         } catch (JsonProcessingException e) {
-            
             e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         }
         
-        return bAServiceRepo.save(ba);
+        bAServiceRepo.save(ba);
+        return ResponseEntity.ok(ba);
     }
 
     @PutMapping("/updateSuspectedCases/{id}")
-    public BehavioralAnalysisService updateSuspectedCasesByEmployeeId(@PathVariable int id, @RequestBody String baNew){
+    public ResponseEntity<BehavioralAnalysisService> updateSuspectedCasesByEmployeeId(@PathVariable int id, @RequestBody String baNew){
         BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
 
         try {       
             if (ba == null) {
-                throw new BehavioralAnalysisNotFoundException(id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             }
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -109,14 +124,15 @@ public class BehavioralAnalysisServiceController {
             ba.setSuspectedCases(jsonNode.get("suspectedCases").asInt());
         
         } catch (JsonMappingException e) {
-            
             e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         } catch (JsonProcessingException e) {
-            
             e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         }
         
-        return bAServiceRepo.save(ba);
+        bAServiceRepo.save(ba);
+        return ResponseEntity.ok(ba);
     }
 
     @DeleteMapping("/behavioralanalysis/{id}")
@@ -125,7 +141,7 @@ public class BehavioralAnalysisServiceController {
         try {
             bAServiceRepo.deleteById(id);
         } catch(EmptyResultDataAccessException e) {
-            // error message
+            throw new BehavioralAnalysisNotFoundException(id);
         }
     }
 
