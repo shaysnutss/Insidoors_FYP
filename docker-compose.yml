@@ -10,8 +10,8 @@ services:
       context: ./account-service
       dockerfile: Dockerfile
     restart: always
-    # env_file:
-    #   - "dev.env"
+    env_file:
+      - "dev.env"
     ports:
       - "30000:8080"
   ####################################

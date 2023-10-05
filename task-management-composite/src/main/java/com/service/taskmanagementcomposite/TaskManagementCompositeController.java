@@ -242,12 +242,13 @@ public class TaskManagementCompositeController {
                 StringEntity stringEntity = new StringEntity(newData);
                 httpPutNewAccountId.setEntity(stringEntity);
 
+                /*
                 RequestConfig requestConfig = RequestConfig.custom()
                     .setConnectTimeout(5000) // Connection timeout in milliseconds
                     .setSocketTimeout(5000)  // Socket timeout in milliseconds
                     .build();
                 httpPutNewAccountId.setConfig(requestConfig);
-
+                    */
                 // Perform the PUT request asynchronously
                 CompletableFuture<CloseableHttpResponse> accountResponseFuture = CompletableFuture.supplyAsync(() -> {
                     try {
@@ -282,11 +283,11 @@ public class TaskManagementCompositeController {
                 StringEntity stringEntity = new StringEntity(newData);
                 httpPutNewStatus.setEntity(stringEntity);
 
-                RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout(5000) // Connection timeout in milliseconds
-                    .setSocketTimeout(5000)  // Socket timeout in milliseconds
-                    .build();
-                httpPutNewStatus.setConfig(requestConfig);
+//                RequestConfig requestConfig = RequestConfig.custom()
+//                    .setConnectTimeout(5000) // Connection timeout in milliseconds
+//                    .setSocketTimeout(5000)  // Socket timeout in milliseconds
+//                    .build();
+//                httpPutNewStatus.setConfig(requestConfig);
 
                 // Perform the PUT request asynchronously
                 CompletableFuture<CloseableHttpResponse> statusResponseFuture = CompletableFuture.supplyAsync(() -> {
@@ -327,11 +328,11 @@ public class TaskManagementCompositeController {
                 StringEntity stringEntity = new StringEntity(newData); // send 0 in json if no change, send new risk rating in json if there is a change
                 httpPutNewRiskRating.setEntity(stringEntity);
 
-                RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout(5000) // Connection timeout in milliseconds
-                    .setSocketTimeout(5000)  // Socket timeout in milliseconds
-                    .build();
-                httpPutNewRiskRating.setConfig(requestConfig);
+//                RequestConfig requestConfig = RequestConfig.custom()
+//                    .setConnectTimeout(5000) // Connection timeout in milliseconds
+//                    .setSocketTimeout(5000)  // Socket timeout in milliseconds
+//                    .build();
+//                httpPutNewRiskRating.setConfig(requestConfig);
 
                 // Perform the PUT request asynchronously
                 CompletableFuture<CloseableHttpResponse> ratingResponseFuture = CompletableFuture.supplyAsync(() -> {
@@ -347,7 +348,7 @@ public class TaskManagementCompositeController {
                 httpPutStatus.setHeader("Content-type", "application/json");
                 httpPutStatus.setEntity(stringEntity); // json must have status closed
 
-                httpPutStatus.setConfig(requestConfig);
+//                httpPutStatus.setConfig(requestConfig);
 
                 // Perform the PUT request asynchronously
                 CompletableFuture<CloseableHttpResponse> statusResponseFuture = CompletableFuture.supplyAsync(() -> {
