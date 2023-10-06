@@ -147,7 +147,7 @@ public class CommentsServiceIntegrationTest {
             (createURLWithPort() + "/comments/account/300"), HttpMethod.GET, entity, new ParameterizedTypeReference<List<CommentsService>>(){});
         List<CommentsService> comments = response.getBody();
 
-        assertEquals(comments.size(), commentsServiceRepo.findAllByAccountId(300).size());
+        assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
         assertEquals(0, commentsServiceRepo.findAllByAccountId(300).size());
     }
 
