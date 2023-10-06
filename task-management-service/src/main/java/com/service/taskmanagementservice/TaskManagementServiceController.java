@@ -3,7 +3,6 @@ package com.service.taskmanagementservice;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,23 +30,47 @@ public class TaskManagementServiceController {
     private final TaskManagementServiceRepository tMServiceRepo;
 
     @GetMapping("/tasks")
-    public List<TaskManagementService> getAllTasks(){
-        return tMServiceRepo.findAll();
+    public ResponseEntity<List<TaskManagementService>> getAllTasks() {
+        List<TaskManagementService> tasks = tMServiceRepo.findAll();
+
+        if (!tasks.isEmpty()) {
+            return ResponseEntity.ok(tasks);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @GetMapping("/tasks/{id}")
-    public Optional<TaskManagementService> getTaskById(@PathVariable Long id){
-        return tMServiceRepo.findById(id);
+    public ResponseEntity<TaskManagementService> getTaskById(@PathVariable Long id) {
+        Optional<TaskManagementService> taskOptional = tMServiceRepo.findById(id);
+
+        if (taskOptional.isPresent()) {
+            return ResponseEntity.ok(taskOptional.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @GetMapping("/tasks/employee/{id}")
-    public List<TaskManagementService> getTaskByEmployeeId(@PathVariable int id){
-        return tMServiceRepo.findAllByEmployeeId(id);
+    public ResponseEntity<List<TaskManagementService>> getTaskByEmployeeId(@PathVariable int id) {
+        List<TaskManagementService> tasks = tMServiceRepo.findAllByEmployeeId(id);
+
+        if (!tasks.isEmpty()) {
+            return ResponseEntity.ok(tasks);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @GetMapping("/tasks/account/{id}")
-    public List<TaskManagementService> getTaskByAccountId(@PathVariable int id){
-        return tMServiceRepo.findAllByAccountId(id);
+    public ResponseEntity<List<TaskManagementService>> getTaskByAccountId(@PathVariable int id) {
+        List<TaskManagementService> tasks = tMServiceRepo.findAllByAccountId(id);
+
+        if (!tasks.isEmpty()) {
+            return ResponseEntity.ok(tasks);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -56,53 +80,53 @@ public class TaskManagementServiceController {
     }
 
     @PutMapping("/statusUpdate/{id}")
-    public TaskManagementService updateTaskStatus(@PathVariable Long id, @RequestBody String tmNew){
-        Optional<TaskManagementService> tm = tMServiceRepo.findById(id);
-        try {       
-            if (tm == null) {
-                throw new TaskManagementNotFoundException(id);
-            }
+    public ResponseEntity<TaskManagementService> updateTaskStatus(@PathVariable Long id, @RequestBody String tmNew) {
+        Optional<TaskManagementService> optionalTask = tMServiceRepo.findById(id);
 
+        if (optionalTask.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        TaskManagementService existingTask = optionalTask.get();
+
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(tmNew);
 
-            tm.get().setId(id);
-            tm.get().setStatus(jsonNode.get("status").asText());
-        
-        } catch (JsonMappingException e) {
-            
-            e.printStackTrace();
+            existingTask.setId(id);
+            existingTask.setStatus(jsonNode.get("status").asText());
         } catch (JsonProcessingException e) {
-            
             e.printStackTrace();
+            return ResponseEntity.badRequest().body(null); 
         }
-        
-        return tMServiceRepo.save(tm.get());
+
+        TaskManagementService updatedTask = tMServiceRepo.save(existingTask);
+        return ResponseEntity.ok(updatedTask);
     }
 
     @PutMapping("/accountUpdate/{id}")
-    public TaskManagementService updateTaskAccountId(@PathVariable Long id, @RequestBody String tmNew){
-        Optional<TaskManagementService> tm = tMServiceRepo.findById(id);
-        try {       
-            if (tm == null) {
-                throw new TaskManagementNotFoundException(id);
-            }
+    public ResponseEntity<TaskManagementService> updateTaskAccountId(@PathVariable Long id, @RequestBody String tmNew) {
+        Optional<TaskManagementService> optionalTask = tMServiceRepo.findById(id);
 
+        if (optionalTask.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        TaskManagementService existingTask = optionalTask.get();
+
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(tmNew);
 
-            tm.get().setId(id);
-            tm.get().setAccountId(jsonNode.get("accountId").asInt());
-        
-        } catch (JsonMappingException e) {
-            
-            e.printStackTrace();
+            existingTask.setId(id);
+            existingTask.setAccountId(jsonNode.get("accountId").asInt());
         } catch (JsonProcessingException e) {
-            
             e.printStackTrace();
+            return ResponseEntity.badRequest().body(null); 
         }
-        
-        return tMServiceRepo.save(tm.get());
+
+        TaskManagementService updatedTask = tMServiceRepo.save(existingTask);
+        return ResponseEntity.ok(updatedTask);
     }
 
     @DeleteMapping("/tasks/{id}")
