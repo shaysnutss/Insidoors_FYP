@@ -6,7 +6,9 @@ import "./Case.css"
 import { openCases, assigned, inReview, closed, plus, message, line } from "../../assets"
 
 const Case = () => {
+
   const navigate = useNavigate();
+
   const [cases, setCases] = useState([]);
 
   const fetchCases = async (e) => {
