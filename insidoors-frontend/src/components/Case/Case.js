@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { Logo} from "..";
+import { useNavigate } from "react-router-dom";
 import userService from "../../services/user.service";
 import "./Case.css"
 import { openCases, assigned, inReview, closed, plus, message, line } from "../../assets"
 
 const Case = () => {
+  const navigate = useNavigate();
   const [cases, setCases] = useState([]);
 
   const fetchCases = async (e) => {
@@ -19,140 +22,128 @@ const Case = () => {
 
   return (
     <div className="case">
-      <div className="div">
-        <div className="overlap">
-          <div className="ellipse" />
-          <div className="text-wrapper">Insidoors</div>
+      <div className="screen">
+        <div className="logo">
+          <Logo></Logo>
         </div>
-        <div className="overlap-group">
-          <div className="text-wrapper-2">Logout</div>
-          <div className="text-wrapper-3">Alerts</div>
+        <div className="navigation-tab">
+          <div>
+            <button className="dashboard-tab" onClick={() =>
+              navigate("/main/dashboard")}>Dashboard</button>
+          </div>
+          <div>
+            <button className="employee-tab">Employees</button>
+          </div>
+          <div>
+            <button className="case-tab" onClick={() =>
+              navigate("/main/case")}>Case Management</button>
+          </div>
         </div>
-        <div className="overlap-2">
-          <div className="text-wrapper-4">Employees</div>
-          <div className="text-wrapper-5">Case Management</div>
-          <div className="text-wrapper-3">Dashboard</div>
+        <div className="extra-tab">
+          <div>
+            <button className="alert-tab">Alerts</button>
+          </div>
+          <div className="logout">
+          </div>
         </div>
-        <div className="overlap-3">
-          <div className="frame">
+        <div className="open-cases">
+          <div className="open-cases-container">
             <div>
               {cases.map((cases) => (
                 <p key={cases.id}>
                   {
-                    <div className="ticket-high-priority">
-                      <img className="line" alt="Line" src={line} />
-                      <div className="overlap-4">
-                        <div className="overlap-group-2">
-                          <div className="rectangle" />
-                          <div className="text-wrapper-6">High</div>
-                        </div>
-                        <div className="overlap-group-3">
-                          <div className="text-wrapper-8">{cases.incidentTitle}</div>
-                          <p className="p">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
-                        </div>
+                    <div className="ticket">
+                      <img className="line" alt="" src={line} />
+                      <div className="ticket-body">
+                        <div className="priority">High</div>
+                        <div className="title">{cases.title}</div>
+                        <p className="description">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
                       </div>
-                      <img className="image" alt="" src={message} />
-                      <img className="img" alt="" src={plus} />
+                      <img className="person" alt="" src={message} />
+                      <img className="message" alt="" src={plus} />
                     </div>
                   }
                 </p>
               ))}
             </div>
           </div>
-          <div className="text-wrapper-9">Open Cases</div>
-          <img className="image-2" alt="" src={openCases} />
+          <div className="text">Open Cases</div>
+          <img className="pic" alt="" src={openCases} />
         </div>
-        <div className="overlap-5">
-          <div className="ticket-high-priority-wrapper">
-          <div>
+        <div className="assigned-cases">
+          <div className="assigned-cases-container">
+            <div>
               {cases.map((cases) => (
                 <p key={cases.id}>
-                  {cases.id === 3 &&
-                    <div className="ticket-high-priority">
-                      <img className="line" alt="Line" src={line} />
-                      <div className="overlap-4">
-                        <div className="overlap-group-2">
-                          <div className="rectangle" />
-                          <div className="text-wrapper-6">High</div>
-                        </div>
-                        <div className="overlap-group-3">
-                          <div className="text-wrapper-8">{cases.incidentTitle}</div>
-                          <p className="p">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
-                        </div>
+                  {
+                    <div className="ticket">
+                      <img className="line" alt="" src={line} />
+                      <div className="ticket-body">
+                        <div className="priority">High</div>
+                        <div className="title">{cases.title}</div>
+                        <p className="description">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
                       </div>
-                      <img className="image" alt="" src={message} />
-                      <img className="img" alt="" src={plus} />
+                      <img className="person" alt="" src={message} />
+                      <img className="message" alt="" src={plus} />
                     </div>
                   }
                 </p>
               ))}
             </div>
           </div>
-          <div className="text-wrapper-9">Assigned</div>
-          <img className="image-3" alt="" src={assigned} />
+          <div className="text">Assigned</div>
+          <img className="pic" alt="" src={assigned} />
         </div>
-        <div className="overlap-6">
-          <div className="div-wrapper">
-          <div>
+        <div className="review-cases">
+          <div className="review-cases-container">
+            <div>
               {cases.map((cases) => (
                 <p key={cases.id}>
-                  {cases.status == "Closed" &&
-                    <div className="ticket-high-priority">
-                      <img className="line" alt="Line" src={line} />
-                      <div className="overlap-4">
-                        <div className="overlap-group-2">
-                          <div className="rectangle" />
-                          <div className="text-wrapper-6">High</div>
-                        </div>
-                        <div className="overlap-group-3">
-                          <div className="text-wrapper-8">{cases.incidentTitle}</div>
-                          <p className="p">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
-                        </div>
+                  {
+                    <div className="ticket">
+                      <img className="line" alt="" src={line} />
+                      <div className="ticket-body">
+                        <div className="priority">High</div>
+                        <div className="title">{cases.title}</div>
+                        <p className="description">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
                       </div>
-                      <img className="image" alt="" src={message} />
-                      <img className="img" alt="" src={plus} />
+                      <img className="person" alt="" src={message} />
+                      <img className="message" alt="" src={plus} />
                     </div>
                   }
                 </p>
               ))}
             </div>
           </div>
-          <div className="text-wrapper-9">In Review</div>
-          <img className="image-4" alt="" src={inReview} />
+          <div className="text">In Review</div>
+          <img className="pic" alt="" src={inReview} />
         </div>
-        <div className="overlap-7">
-          <div className="frame-2">
-          <div>
+        <div className="closed-cases">
+          <div className="closed-cases-container">
+            <div>
               {cases.map((cases) => (
                 <p key={cases.id}>
-                  {cases.status == "Open" &&
-                    <div className="ticket-high-priority">
-                      <img className="line" alt="Line" src={line} />
-                      <div className="overlap-4">
-                        <div className="overlap-group-2">
-                          <div className="rectangle" />
-                          <div className="text-wrapper-6">High</div>
-                        </div>
-                        <div className="overlap-group-3">
-                          <div className="text-wrapper-8">{cases.incidentTitle}</div>
-                          <p className="p">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
-                        </div>
+                  {
+                    <div className="ticket">
+                      <img className="line" alt="" src={line} />
+                      <div className="ticket-body">
+                        <div className="priority">High</div>
+                        <div className="title">{cases.title}</div>
+                        <p className="description">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
                       </div>
-                      <img className="image" alt="" src={message} />
-                      <img className="img" alt="" src={plus} />
+                      <img className="person" alt="" src={message} />
+                      <img className="message" alt="" src={plus} />
                     </div>
                   }
                 </p>
               ))}
             </div>
           </div>
-          <div className="text-wrapper-9">Closed</div>
-          <img className="image-5" alt="" src={closed} />
+          <div className="text">Closed</div>
+          <img className="pic" alt="" src={closed} />
         </div>
-        <div className="overlap-8">
-          <div>
-            <input type="text" className="rectangle-2" placeholder="Search" />
-          </div>
+        <div>
+          <input type="text" className="searchbar" placeholder="Search" />
         </div>
       </div>
     </div>
