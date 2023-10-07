@@ -1,23 +1,18 @@
 import "./Dashboard.css";
-import React, { useState, useEffect } from "react";
+import { useEffect } from "react";
 import userService from "../../services/user.service";
 import authService from "../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 import Tableau from "tableau-react";
 
 const Dashboard = () => {
-  const [cases, setCases] = useState([]);
   const navigate = useNavigate();
 
-
-  const fetchCases = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
     try {
-      const { data } = userService.getAccountById().then(
+      userService.getAccountById().then(
         () => {
-          const cases = data;
-          setCases(cases);
-          console.log(cases)
+          console.log("ok");
         },
         (error) => {
           console.log("Private page", error.response);
@@ -31,8 +26,9 @@ const Dashboard = () => {
       );
     } catch (err) {
       console.log(err);
+      navigate("/auth/login");
     }
-  };
+  });
 
   return (
     <div className="dashboard">

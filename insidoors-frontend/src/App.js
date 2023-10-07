@@ -3,6 +3,7 @@ import './App.css';
 import { Login, Dashboard, Case } from './components'
 
 function App() {
+    
     return (
         <BrowserRouter>
             <Routes>
