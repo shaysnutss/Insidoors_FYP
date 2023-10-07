@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import com.service.accountservice.Service.accountService;
 
 @RestController
-@RequestMapping(path = "/api/v1/account/Tasks")
+@CrossOrigin(origins = "http://localhost:30008")
+@RequestMapping(path = "/api/v1/accountByTasks")
 public class TaskCompositeController {
 
     private accountService accountService;
@@ -67,11 +68,4 @@ public class TaskCompositeController {
     public ResponseEntity<?> viewAllTasksByEmployeeId(@PathVariable int id){
         return accountService.getMethod(taskMCompApiBaseUrl + "/viewAllTasksByEmployeeId/" + id);
     }
-
-
-
-
-
-
-
 }
