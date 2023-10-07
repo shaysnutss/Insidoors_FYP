@@ -9,7 +9,9 @@ class userService{
   };
 
   getAllCases = () => {
-    return axios.get("http://localhost:30000/api/v1/accountByTasks/viewAllTasks", { headers: authHeader() })
+    return axios.get("https://jsonplaceholder.typicode.com/todos/")
+  // return axios.get("http://localhost:30000/api/v1/accountByTasks/viewAllTasks", { headers: authHeader() })
+
   }
 
   

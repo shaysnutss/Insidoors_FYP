@@ -1,4 +1,5 @@
 import "./Dashboard.css";
+import { Logo} from ".."
 import { useEffect } from "react";
 import userService from "../../services/user.service";
 import authService from "../../services/auth.service";
@@ -7,6 +8,11 @@ import Tableau from "tableau-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+
+  const options = {
+    height: 768,
+    width: 1366,
+  };
 
   useEffect(() => {
     try {
@@ -32,23 +38,34 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <div className="div">
-        <div className="overlap">
-          <div className="ellipse" />
-          <div className="text-wrapper">Insidoors</div>
+      <div className="screen">
+        <div className="logo">
+          <Logo></Logo>
         </div>
-        <div className="overlap-group">
-          <div className="text-wrapper-2">Dashboard</div>
-          <div className="text-wrapper-3">Employees</div>
-          <div className="text-wrapper-4">Case Management</div>
+        <div className="navigation-tab">
+          <div>
+            <button className="dashboard-tab" onClick={() =>
+              navigate("/main/dashboard")}>Dashboard</button>
+          </div>
+          <div>
+            <button className="employee-tab">Employees</button>
+          </div>
+          <div>
+            <button className="case-tab" onClick={() =>
+              navigate("/main/case")}>Case Management</button>
+          </div>
         </div>
-        <div className="overlap-2">
-          <div className="text-wrapper-5">Logout</div>
-          <div className="text-wrapper-6">Alerts</div>
+        <div className="extra-tab">
+          <div>
+            <button className="alert-tab">Alerts</button>
+          </div>
+          <div>
+          </div>
         </div>
         <div className="visual">
           <Tableau
             url="https://public.tableau.com/views/Dashboard-PCAccessLogs/PCAccessLogs?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link"
+            options={options}
           />
         </div>
       </div>

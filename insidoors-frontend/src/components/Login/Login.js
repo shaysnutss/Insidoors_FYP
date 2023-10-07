@@ -1,10 +1,11 @@
 import { loginPic } from "../../assets"
+import { Logo } from "..";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../../services/auth.service";
 import "./Login.css";
 
-export const Login = () => {
+const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,25 +32,23 @@ export const Login = () => {
   return (
     <form onSubmit={handleLogin}>
       <div className="login">
-        <div className="div">
-          <div className="overlap-group">
-            <div className="ellipse" />
-            <div className="text-wrapper">Insidoors</div>
+        <div className="screen">
+          <div className="logo">
+          <Logo></Logo>
           </div>
-          <div className="overlap">
-            <div className="overlap-2">
-              <div className="text-wrapper-2">Log in.</div>
-              <img className="login-cuate" alt="Login cuate" src={loginPic} />
-            </div>
-
-            <div>
-              <button type="submit" className="input-button">Log in</button>
+          <div className="page">
+            <div className="title">
+              <div className="title-text">Log in.</div>
+              <img className="image" alt="" src={loginPic} />
             </div>
             <div>
-              <input type="text" className="input-text" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <input type="text" className="input-email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div>
-              <input type="password" className="text-input-wrapper" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input type="password" className="input-password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            <div>
+              <button type="submit" className="submit-button">Log in</button>
             </div>
           </div>
         </div>

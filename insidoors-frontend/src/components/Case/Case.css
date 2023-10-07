@@ -6,378 +6,256 @@
   width: 100%;
 }
 
-.case .div {
+.case .screen {
   background-color: #ffffff;
-  height: 1024px;
-  overflow: hidden;
+  height: 768px;
   position: relative;
-  width: 1440px;
+  width: 1366px;
 }
 
-.case .overlap {
-  height: 61px;
-  left: 51px;
+.case .logo {
+  left: 50px;
   position: absolute;
-  top: 43px;
-  width: 281px;
+  top: 40px;
 }
 
-.case .ellipse {
-  background-color: #002c3e;
-  border-radius: 20px;
-  height: 40px;
-  left: 16px;
+.case .navigation-tab {
+  left: 360px;
   position: absolute;
-  top: 11px;
-  width: 40px;
+  top: 50px;
 }
 
-.case .text-wrapper {
-  color: #002c3e;
+.case .dashboard-tab {
+  color: #000000;
+  background-color: #ffffff;
+  border: none;
   font-family: "Poppins-Bold", Helvetica;
-  font-size: 30px;
-  font-weight: 700;
-  height: 61px;
-  left: 0;
-  letter-spacing: 0;
-  line-height: normal;
-  margin-top: 10px;
-  margin-left: 70px;
-  width: 281px;
-}
-
-.case .overlap-group {
-  height: 80px;
-  left: 1100px;
+  font-size: 22px;
+  font-weight: 500;
+  left: 80px;
   position: absolute;
-  top: 37px;
-  width: 360px;
 }
 
-.case .text-wrapper-2 {
+.case .employee-tab {
   color: #000000;
+  background-color: #ffffff;
+  border: none;
   font-family: "Poppins-Medium", Helvetica;
   font-size: 22px;
   font-weight: 500;
-  height: 80px;
-  left: 120px;
-  letter-spacing: 0;
-  line-height: normal;
+  left: 260px;
   position: absolute;
-  text-align: center;
-  top: 0;
-  width: 240px;
 }
 
-.case .text-wrapper-3 {
-  color: #000000;
-  font-family: "Poppins-Medium", Helvetica;
-  font-size: 22px;
-  font-weight: 500;
-  height: 80px;
-  left: 0;
-  letter-spacing: 0;
-  line-height: normal;
-  position: absolute;
-  text-align: center;
-  top: 0;
-  width: 240px;
-}
-
-.case .overlap-2 {
-  height: 80px;
-  left: 357px;
-  position: absolute;
-  top: 37px;
-  width: 676px;
-}
-
-.case .text-wrapper-4 {
-  color: #000000;
-  font-family: "Poppins-Medium", Helvetica;
-  font-size: 22px;
-  font-weight: 500;
-  height: 80px;
-  left: 183px;
-  letter-spacing: 0;
-  line-height: normal;
-  position: absolute;
-  text-align: center;
-  top: 0;
-  width: 240px;
-}
-
-.case .text-wrapper-5 {
+.case .case-tab {
   color: #78bcc4;
   font-family: "Poppins-Bold", Helvetica;
   font-size: 22px;
   font-weight: 700;
-  height: 80px;
-  left: 364px;
-  letter-spacing: 0;
-  line-height: normal;
+  background-color: #ffffff;
+  border: none;
+  left: 420px;
   position: absolute;
-  text-align: center;
-  top: 0;
-  width: 312px;
+  width: max-content;
 }
 
-.case .overlap-3 {
-  height: 926px;
-  left: 94px;
+.case .extra-tab {
+  left: 1100px;
   position: absolute;
-  top: 192px;
-  width: 278px;
+  top: 50px;
 }
 
-.case .frame {
-  height: 849px;
-  left: 6px;
+.case .alert-tab {
+  color: #000000;
+  border: none;
+  background-color: #ffffff;
+  font-family: "Poppins-Medium", Helvetica;
+  font-size: 22px;
+  font-weight: 500;
+  left: 100px;
+  position: absolute;
+}
+
+.case .open-cases {
+  height: 1000px;
+  left: 100px;
+  position: absolute;
+  top: 190px;
+}
+
+.case .open-cases-container {
+  height: 1000px;
   position: absolute;
   overflow-y: scroll;
-  top: 77px;
-  width: 272px;
+  top: 80px;
+  width: 270px;
 }
 
-.case .ticket-high-priority {
+.case .ticket {
   background-color: #ffffff;
   border: 1px solid;
   border-color: #032539;
-  border-radius: 20px;
+  border-radius: 10px;
   height: 140px;
   position: relative;
 }
+
 
 .case .line {
   height: 2px;
   left: 0;
   position: absolute;
-  top: 99px;
-  width: 270px;
+  top: 100px;
+  width: 268px;
 }
 
-.case .overlap-4 {
-  height: 81px;
-  left: 6px;
+.case .ticket-body {
   position: absolute;
   top: 10px;
-  width: 256px;
 }
 
-.case .overlap-group-2 {
-  height: 27px;
-  left: 176px;
-  position: absolute;
-  top: 3px;
-  width: 80px;
-}
 
-.case .rectangle {
+.case .priority {
+  color: #9a0707;
   background-color: #f0bdbd;
   border: 1px solid;
-  border-color: #032539;
   border-radius: 10px;
+  border-color: #032539;
   height: 25px;
-  left: 3px;
-  position: absolute;
-  top: 2px;
-  width: 72px;
-}
-
-.case .text-wrapper-6 {
-  color: #9a0707;
   font-family: "Poppins-SemiBold", Helvetica;
   font-size: 15px;
   font-weight: 600;
-  height: 27px;
-  left: 0;
-  letter-spacing: 0;
-  line-height: normal;
+  left: 175px;
   position: absolute;
   text-align: center;
-  top: 5px;
-  width: 80px;
+  line-height: 25px;
+  width: 75px;
 }
 
-.case .overlap-group-3 {
-  height: 81px;
-  left: 0;
-  position: absolute;
-  top: 0;
-  width: 255px;
-}
-
-.case .text-wrapper-8 {
+.case .title {
   color: #002c3e;
   font-family: "Poppins-Bold", Helvetica;
   font-size: 25px;
   overflow-x: hidden;
   font-weight: 700;
-  height: 33px;
-  left: 21px;
-  letter-spacing: 0;
-  line-height: normal;
+  height: 30px;
+  left: 20px;
   position: absolute;
-  top: 0;
-  width: 109px;
+  width: 100px;
 }
 
-.case .p {
+.case .description {
   color: #000000;
   font-family: "Poppins-Light", Helvetica;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
-  height: 32px;
-  left: 21px;
-  letter-spacing: 0;
-  line-height: normal;
+  height: 30px;
+  left: 20px;
   position: absolute;
   top: 35px;
-  width: 234px;
+  width: 240px;
 }
 
-.case .image {
-  height: 26px;
+.case .person {
+  height: 25px;
   left: 225px;
   position: absolute;
-  top: 106px;
-  width: 26px;
+  top: 108px;
+  width: 25px;
 }
 
-.case .img {
-  height: 26px;
-  left: 13px;
+.case .message {
+  height: 25px;
+  left: 15px;
   position: relative;
-  top: 106px;
-  width: 26px;
+  top: 108px;
+  width: 25px;
 }
 
-.case .text-wrapper-9 {
+.case .text {
   color: #000000;
   font-family: "Poppins-Bold", Helvetica;
   font-size: 20px;
   font-weight: 700;
+  left:40px;
   height: 80px;
-  letter-spacing: 0;
-  line-height: normal;
   position: absolute;
   text-align: center;
-  top: 38px;
-  width: 188px;
+  top: 40px;
+  width:max-content;
 }
 
-.case .image-2 {
-  height: 24px;
-  left: 6px;
-  object-fit: cover;
+.case .pic {
+  height: 25px;
+  left: 10px;
   position: absolute;
-  top: 38px;
-  width: 24px;
+  top: 40px;
+  width: 25px;
 }
 
-.case .overlap-5 {
-  height: 926px;
-  left: 404px;
+.case .assigned-cases {
+  height: 1000px;
+  left: 425px;
   position: absolute;
-  top: 192px;
-  width: 292px;
+  top: 190px;
 }
 
-.case .ticket-high-priority-wrapper {
-  height: 849px;
-  left: 19px;
+.case .assigned-cases-container {
+  height: 1000px;
   position: absolute;
   overflow-y: scroll;
-  top: 77px;
-  width: 272px;
+  top: 80px;
+  width: 270px;
 }
 
-.case .image-3 {
-  height: 24px;
-  left: 19px;
-  object-fit: cover;
+.case .review-cases {
+  height: 1000px;
+  left: 740px;
   position: absolute;
-  top: 38px;
-  width: 24px;
+  top: 190px;
 }
 
-.case ::-webkit-scrollbar {
-  display: none;
-}
-
-.case .overlap-6 {
-  height: 926px;
-  left: 728px;
-  position: absolute;
-  top: 192px;
-  width: 290px;
-}
-
-.case .div-wrapper {
-  height: 849px;
-  left: 18px;
+.case .review-cases-container {
+  height: 1000px;
   position: absolute;
   overflow-y: scroll;
-  top: 77px;
-  width: 272px;
+  top: 80px;
+  width: 270px;
 }
 
-.case .image-4 {
-  height: 24px;
-  left: 18px;
-  object-fit: cover;
+.case .closed-cases {
+  height: 1000px;
+  left: 1055px;
   position: absolute;
-  top: 38px;
-  width: 24px;
+  top: 190px;
 }
 
-.case .overlap-7 {
-  height: 926px;
-  left: 1037px;
-  position: absolute;
-  top: 192px;
-  width: 304px;
-}
-
-.case .frame-2 {
-  height: 849px;
-  left: 32px;
+.case .closed-cases-container {
+  height: 1000px;
   position: absolute;
   overflow-y: scroll;
-  top: 77px;
-  width: 272px;
+  top: 80px;
+  width: 270px;
 }
 
-.case .image-5 {
-  height: 24px;
-  left: 32px;
-  object-fit: cover;
-  position: absolute;
-  top: 38px;
-  width: 24px;
-}
-
-.case .overlap-8 {
-  height: 48px;
-  left: 1093px;
-  position: absolute;
-  top: 144px;
-  width: 288px;
-}
-
-.case .rectangle-2 {
+.case .searchbar {
   align-items: flex-start;
   color: #535151;
   font-family: "Poppins-Regular", Helvetica;
   font-size: 20px;
+  height: 50px;
   font-weight: 400;
   background-color: #ffffff;
   border: 1px solid;
   border-color: #032539;
   border-radius: 10px;
   height: 40px;
-  left: 13px;
+  left: 1090px;
   position: absolute;
-  top: 5px;
-  width: 275px;
+  top: 140px;
+  width: 280px;
+}
+
+.case ::-webkit-scrollbar {
+  display: none;
 }
