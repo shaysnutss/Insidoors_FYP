@@ -1,0 +1,10 @@
+.logout .logout-tab {
+    color: #000000;
+    background-color: #ffffff;
+    border: none;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 22px;
+    font-weight: 500;
+    left: 200px;
+    position: absolute;
+}

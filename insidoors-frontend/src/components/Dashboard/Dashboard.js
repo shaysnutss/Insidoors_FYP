@@ -1,5 +1,5 @@
 import "./Dashboard.css";
-import { Logo} from ".."
+import { Logo, Logout } from ".."
 import { useEffect } from "react";
 import userService from "../../services/user.service";
 import authService from "../../services/auth.service";
@@ -60,6 +60,7 @@ const Dashboard = () => {
             <button className="alert-tab">Alerts</button>
           </div>
           <div>
+            <Logout></Logout>
           </div>
         </div>
         <div className="visual">
