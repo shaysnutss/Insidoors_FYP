@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Logo} from "..";
+import { Logo, Logout } from "..";
 import { useNavigate } from "react-router-dom";
 import userService from "../../services/user.service";
 import "./Case.css"
@@ -44,6 +44,7 @@ const Case = () => {
             <button className="alert-tab">Alerts</button>
           </div>
           <div className="logout">
+            <Logout></Logout>
           </div>
         </div>
         <div className="open-cases">
