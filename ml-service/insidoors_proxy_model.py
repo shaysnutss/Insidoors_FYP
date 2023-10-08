@@ -56,7 +56,8 @@ get_ipython().system('whichgpu')
 
 
 # FUTURE ITERATIONS:
-# 1.
+# 1. properly incorporate tabular data
+# 2. add support for online learning
 
 
 # ## Insidoors Text Classification Model for PC Access, Building Access, and Proxy Logs
@@ -125,9 +126,13 @@ from sqlalchemy import create_engine
 
 # FOR GOOGLE COLAB & SMU GPU CLUSTER: COMMENT OUT CODE ABOVE AND USE THE FOLLOWING
 
+employee_df = pd.read_csv('employee_data_5k.csv', sep=';', header=0)
 pc_df = pd.read_csv('pc_data_5k_modified.csv', sep=';', header=0)
 building_df = pd.read_csv('building_data_5k_modified.csv', sep=';', header=0)
 proxy_df = pd.read_csv('proxy_data_5k_modified.csv', sep=';', header=0)
+
+print('Employees:')
+display(employee_df)
 
 print('PC Access logs:')
 display(pc_df)
@@ -142,6 +147,14 @@ display(proxy_df)
 # In[ ]:
 
 
+# Add 'terminated' column to Employee dataframe
+
+employee_df['terminated'] = np.where(employee_df['terminated_date'].notnull(), 'Y', 'N')
+
+
+# In[ ]:
+
+
 # Remove cases 2 and 5 from all logs
 
 to_exclude = [2, 5]
@@ -149,6 +162,21 @@ to_exclude = [2, 5]
 pc_df = pc_df[~pc_df['suspect'].isin(to_exclude)]
 building_df = building_df[~building_df['suspect'].isin(to_exclude)]
 proxy_df = proxy_df[~proxy_df['suspect'].isin(to_exclude)]
+
+
+# In[ ]:
+
+
+# Inner join Employee dataframe with other log dataframes
+
+join_df_pc = employee_df[['id', 'location', 'terminated']].rename(
+    columns={'location': 'user_location'}
+)
+join_df_building_proxy = employee_df[['id', 'terminated']]
+
+pc_df = pc_df.join(join_df_pc.set_index('id'), on='user_id', how='inner')
+building_df = building_df.join(join_df_building_proxy.set_index('id'), on='user_id', how='inner')
+proxy_df = proxy_df.join(join_df_building_proxy.set_index('id'), on='user_id', how='inner')
 
 
 # In[ ]:
@@ -231,8 +259,8 @@ from transformers import DataCollatorWithPadding
 
 pc_df = pc_df.astype(str)
 pc_df['suspect'] = pc_df['suspect'].astype(int) # Keep 'suspect' column as int
-pc_df['input'] = pc_df[['user_id', 'access_date_time', 'log_on_off',
-                        'machine_name', 'machine_location']].agg(', '.join, axis=1)
+pc_df['input'] = pc_df[['user_id', 'access_date_time', 'log_on_off', 'machine_name',
+                        'machine_location', 'user_location', 'terminated']].agg(', '.join, axis=1)
 pc_df['label'] = pc_df['suspect']
 
 display(pc_df)
@@ -245,8 +273,8 @@ display(pc_df)
 
 building_df = building_df.astype(str)
 building_df['suspect'] = building_df['suspect'].astype(int) # Keep 'suspect' column as int
-building_df['input'] = building_df[['user_id', 'access_date_time', 'direction',
-                                    'status', 'office_location']].agg(', '.join, axis=1)
+building_df['input'] = building_df[['user_id', 'access_date_time', 'direction', 'status',
+                                    'office_location', 'terminated']].agg(', '.join, axis=1)
 building_df['label'] = building_df['suspect']
 
 display(building_df)
@@ -259,8 +287,8 @@ display(building_df)
 
 proxy_df = proxy_df.astype(str)
 proxy_df['suspect'] = proxy_df['suspect'].astype(int) # Keep 'suspect' column as int
-proxy_df['input'] = proxy_df[['user_id', 'access_date_time', 'machine_name',
-                              'url', 'category', 'bytes_in', 'bytes_out']].agg(', '.join, axis=1)
+proxy_df['input'] = proxy_df[['user_id', 'access_date_time', 'machine_name', 'url', 'category',
+                              'bytes_in', 'bytes_out', 'terminated']].agg(', '.join, axis=1)
 proxy_df['label'] = proxy_df['suspect']
 
 display(proxy_df)
