@@ -135,13 +135,13 @@
 .case .title {
   color: #002c3e;
   font-family: "Poppins-Bold", Helvetica;
-  font-size: 25px;
+  font-size: 12px;
   overflow-x: hidden;
   font-weight: 700;
   height: 30px;
   left: 20px;
   position: absolute;
-  width: 100px;
+  width: 150px;
 }
 
 .case .description {

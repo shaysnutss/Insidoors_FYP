@@ -4,10 +4,14 @@ import { useEffect } from "react";
 import userService from "../../services/user.service";
 import authService from "../../services/auth.service";
 import { useNavigate } from "react-router-dom";
-import Tableau from "tableau-react";
+import {
+  TableauViz,
+  TableauEventType
+} from 'https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const viz = new TableauViz();
 
   const options = {
     height: 768,
@@ -15,6 +19,14 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    viz.src = 'https://public.tableau.com/views/Dashboard-PCAccessLogs/PCAccessLogs?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link';
+    viz.toolbar = 'hidden';
+    viz.device = 'desktop';
+    viz.width = '1366px';
+    viz.height = '768px';
+
+    document.getElementById('tableauViz').appendChild(viz);
+
     try {
       userService.getAccountById().then(
         () => {
@@ -34,7 +46,17 @@ const Dashboard = () => {
       console.log(err);
       navigate("/auth/login");
     }
-  });
+  }, []);
+
+  const changeViewBuilding = () => {
+    viz.src = 'https://public.tableau.com/views/Dashboard-BuildingAccessLogs/BuildingAccessLogs?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link';
+    document.getElementById('tableauViz').appendChild(viz);
+  }
+
+  const changeViewPC = () => {
+    viz.src = 'https://public.tableau.com/views/Dashboard-PCAccessLogs/PCAccessLogs?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link';
+    document.getElementById('tableauViz').appendChild(viz);
+  }
 
   return (
     <div className="dashboard">
@@ -63,12 +85,9 @@ const Dashboard = () => {
             <Logout></Logout>
           </div>
         </div>
-        <div className="visual">
-          <Tableau
-            url="https://public.tableau.com/views/Dashboard-PCAccessLogs/PCAccessLogs?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link"
-            options={options}
-          />
-        </div>
+        <button className="change-to-pc" onClick={changeViewPC}>PC</button>
+        <button className="change-to-building" onClick={changeViewBuilding}>Building</button>
+        <div className="visual" id="tableauViz" />
       </div>
     </div>
 

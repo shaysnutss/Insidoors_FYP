@@ -27,6 +27,8 @@
 
 .login .title {
   height: 668px;
+  left: 20px;
+  top:10px;
   position: absolute;
   width: 1275px;
 }
@@ -47,6 +49,7 @@
 }
 
 .login .input-email {
+  border: none;
   color: #535151;
   font-family: "Poppins-Regular", Helvetica;
   font-size: 30px;
@@ -61,7 +64,8 @@
   width: 600px;
 }
 
-.login .input-password {  
+.login .input-password {
+  border: none;
   color: #535151;
   font-family: "Poppins-Regular", Helvetica;
   font-size: 30px;
@@ -82,13 +86,13 @@
   border-radius: 20px;
   color: #ffffff;
   font-family: "Poppins-SemiBold", Helvetica;
-  font-size: 40px;
+  font-size: 30px;
   font-weight: 600;
   height: 90px;
   justify-content: center;
-  left: 120px;
+  left: 180px;
   border: none;
   position: absolute;
-  top: 500px;
-  width: 400px;
+  top: 490px;
+  width: 300px;
 }
