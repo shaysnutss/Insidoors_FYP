@@ -87,7 +87,43 @@
     position: absolute;
 }
 
+.dashboard .change-to-pc {
+    align-items: center;
+    background-color:gray;
+    color: #ffffff;
+    font-family: "Poppins-SemiBold", Helvetica;
+    font-size: 12px;
+    font-weight: 600;
+    height: 30px;
+    justify-content: center;
+    left: 82px;
+    border: none;
+    position: absolute;
+    top: 127px;
+    width: 50px;
+}
+
+.dashboard .change-to-building {
+    align-items: center;
+    background-color:gray;
+    color: #ffffff;
+    font-family: "Poppins-SemiBold", Helvetica;
+    font-size: 12px;
+    font-weight: 600;
+    height: 30px;
+    justify-content: center;
+    left: 140px;
+    border: none;
+    position: absolute;
+    top: 127px;
+    width: 70px;
+}
+
 .dashboard .visual {
-    margin-top: 100px;
+    margin-top: 155px;
+    border-style: ridge;
+    border-left: #ffffff;
+    border-right: #ffffff;
+    border-bottom: #ffffff;
     margin-left: 70px;
 }

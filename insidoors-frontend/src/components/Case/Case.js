@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Logo, Logout } from "..";
 import { useNavigate } from "react-router-dom";
+import authService from "../../services/auth.service";
 import userService from "../../services/user.service";
 import "./Case.css"
 import { openCases, assigned, inReview, closed, plus, message, line } from "../../assets"
@@ -18,7 +19,26 @@ const Case = () => {
 
   useEffect(() => {
     fetchCases();
-  }, []);
+    try {
+      userService.getAccountById().then(
+        () => {
+          console.log("ok");
+        },
+        (error) => {
+          console.log("Private page", error.response);
+          // Invalid token
+          if (error.response && error.response.status === 403) {
+            authService.logout();
+            navigate("/auth/login");
+            window.location.reload();
+          }
+        }
+      );
+    } catch (err) {
+      console.log(err);
+      navigate("/auth/login");
+    }
+  },[]);
 
   return (
     <div className="case">
