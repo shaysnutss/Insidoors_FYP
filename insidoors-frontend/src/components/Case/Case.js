@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import authService from "../../services/auth.service";
 import userService from "../../services/user.service";
 import "./Case.css"
-import { openCases, assigned, inReview, closed, plus, message, line } from "../../assets"
+import { openCases, assigned, inReview, closed, plus, message, line, male, female } from "../../assets"
 
 const Case = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const Case = () => {
       console.log(err);
       navigate("/auth/login");
     }
-  },[]);
+  }, []);
 
   return (
     <div className="case">
@@ -72,13 +72,21 @@ const Case = () => {
             <div>
               {cases.map((cases) => (
                 <p key={cases.id}>
-                  {
+                  {cases.status === "Open" &&
                     <div className="ticket">
                       <img className="line" alt="" src={line} />
                       <div className="ticket-body">
-                        <div className="priority">High</div>
-                        <div className="title">{cases.title}</div>
-                        <p className="description">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
+                        {cases.severity === 50 &&
+                          <div className="priority-low">Low</div>
+                        }
+                        {cases.severity === 100 &&
+                          <div className="priority-med">Med</div>
+                        }
+                        {cases.severity === 200 &&
+                          <div className="priority-high">High</div>
+                        }
+                        <div className="title">{cases.incidentTitle}</div>
+                        <p className="description">{cases.employeeFirstname} {cases.employeeLastname}{"\n"}{cases.incidentTimestamp}</p>
                       </div>
                       <img className="person" alt="" src={message} />
                       <img className="message" alt="" src={plus} />
@@ -96,16 +104,24 @@ const Case = () => {
             <div>
               {cases.map((cases) => (
                 <p key={cases.id}>
-                  {
+                  {cases.status === "Assigned" &&
                     <div className="ticket">
                       <img className="line" alt="" src={line} />
                       <div className="ticket-body">
-                        <div className="priority">High</div>
-                        <div className="title">{cases.title}</div>
-                        <p className="description">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
+                        {cases.severity === 50 &&
+                          <div className="priority-low">Low</div>
+                        }
+                        {cases.severity === 100 &&
+                          <div className="priority-med">Med</div>
+                        }
+                        {cases.severity === 200 &&
+                          <div className="priority-high">High</div>
+                        }
+                        <div className="title">{cases.incidentTitle}</div>
+                        <p className="description">{cases.employeeFirstname} {cases.employeeLastname}{"\n"}{cases.incidentTimestamp}</p>
                       </div>
                       <img className="person" alt="" src={message} />
-                      <img className="message" alt="" src={plus} />
+                      <img className="message" alt="" src={male} />
                     </div>
                   }
                 </p>
@@ -120,16 +136,24 @@ const Case = () => {
             <div>
               {cases.map((cases) => (
                 <p key={cases.id}>
-                  {
+                  {cases.status === "In review" &&
                     <div className="ticket">
                       <img className="line" alt="" src={line} />
                       <div className="ticket-body">
-                        <div className="priority">High</div>
-                        <div className="title">{cases.title}</div>
-                        <p className="description">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
+                        {cases.severity === 50 &&
+                          <div className="priority-low">Low</div>
+                        }
+                        {cases.severity === 100 &&
+                          <div className="priority-med">Med</div>
+                        }
+                        {cases.severity === 200 &&
+                          <div className="priority-high">High</div>
+                        }
+                        <div className="title">{cases.incidentTitle}</div>
+                        <p className="description">{cases.employeeFirstname} {cases.employeeLastname}{"\n"}{cases.incidentTimestamp}</p>
                       </div>
                       <img className="person" alt="" src={message} />
-                      <img className="message" alt="" src={plus} />
+                      <img className="message" alt="" src={female} />
                     </div>
                   }
                 </p>
@@ -144,16 +168,24 @@ const Case = () => {
             <div>
               {cases.map((cases) => (
                 <p key={cases.id}>
-                  {
+                  {cases.status === "Closed" &&
                     <div className="ticket">
                       <img className="line" alt="" src={line} />
                       <div className="ticket-body">
-                        <div className="priority">High</div>
-                        <div className="title">{cases.title}</div>
-                        <p className="description">Lorem ipsum dolor sit amet. Consectetur adipiscing elit, sed do eiusmod tempor.</p>
+                        {cases.severity === 50 &&
+                          <div className="priority-low">Low</div>
+                        }
+                        {cases.severity === 100 &&
+                          <div className="priority-med">Med</div>
+                        }
+                        {cases.severity === 200 &&
+                          <div className="priority-high">High</div>
+                        }
+                        <div className="title">{cases.incidentTitle}</div>
+                        <p className="description">{cases.employeeFirstname} {cases.employeeLastname}{"\n"}{cases.incidentTimestamp}</p>
                       </div>
                       <img className="person" alt="" src={message} />
-                      <img className="message" alt="" src={plus} />
+                      <img className="message" alt="" src={male} />
                     </div>
                   }
                 </p>
@@ -167,7 +199,7 @@ const Case = () => {
           <input type="text" className="searchbar" placeholder="Search" />
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

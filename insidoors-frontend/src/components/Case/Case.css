@@ -115,9 +115,43 @@
 }
 
 
-.case .priority {
+.case .priority-high {
   color: #9a0707;
   background-color: #f0bdbd;
+  border: 1px solid;
+  border-radius: 10px;
+  border-color: #032539;
+  height: 25px;
+  font-family: "Poppins-SemiBold", Helvetica;
+  font-size: 15px;
+  font-weight: 600;
+  left: 175px;
+  position: absolute;
+  text-align: center;
+  line-height: 25px;
+  width: 75px;
+}
+
+.case .priority-med {
+  color: #C5700C;
+  background-color: #F0DCBD;
+  border: 1px solid;
+  border-radius: 10px;
+  border-color: #032539;
+  height: 25px;
+  font-family: "Poppins-SemiBold", Helvetica;
+  font-size: 15px;
+  font-weight: 600;
+  left: 175px;
+  position: absolute;
+  text-align: center;
+  line-height: 25px;
+  width: 75px;
+}
+
+.case .priority-low {
+  color: #27A109;
+  background-color: #BEF0BD;
   border: 1px solid;
   border-radius: 10px;
   border-color: #032539;
