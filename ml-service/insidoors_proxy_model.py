@@ -57,7 +57,7 @@ get_ipython().system('whichgpu')
 
 # FUTURE ITERATIONS:
 # 1. properly incorporate tabular data
-# 2. add support for online learning
+# 2. add support for continual learning
 
 
 # ## Insidoors Text Classification Model for PC Access, Building Access, and Proxy Logs
@@ -66,7 +66,7 @@ get_ipython().system('whichgpu')
 # #### Changelog
 # 
 # *Version: 6 (Current)*
-# * Re-implemented binary classification
+# * Re-implemented binary classification with unseen cases
 # 
 # *Version: 5*
 # * Implemented undersampling and oversampling to better handle class imbalance
@@ -155,6 +155,16 @@ employee_df['terminated'] = np.where(employee_df['terminated_date'].notnull(), '
 # In[ ]:
 
 
+# Preparation for testing unseen cases
+# Add 'attempts' column to Building Access dataframe
+
+np.random.seed(480)
+building_df['attempts'] = np.random.randint(1, 6, building_df.shape[0])
+
+
+# In[ ]:
+
+
 # Remove cases 2 and 5 from all logs
 
 to_exclude = [2, 5]
@@ -167,16 +177,15 @@ proxy_df = proxy_df[~proxy_df['suspect'].isin(to_exclude)]
 # In[ ]:
 
 
-# Inner join Employee dataframe with other log dataframes
+# Inner join Employee dataframe with PC Access and Building Access dataframes
 
 join_df_pc = employee_df[['id', 'location', 'terminated']].rename(
     columns={'location': 'user_location'}
 )
-join_df_building_proxy = employee_df[['id', 'terminated']]
+join_df_building = employee_df[['id', 'terminated']]
 
 pc_df = pc_df.join(join_df_pc.set_index('id'), on='user_id', how='inner')
-building_df = building_df.join(join_df_building_proxy.set_index('id'), on='user_id', how='inner')
-proxy_df = proxy_df.join(join_df_building_proxy.set_index('id'), on='user_id', how='inner')
+building_df = building_df.join(join_df_building.set_index('id'), on='user_id', how='inner')
 
 
 # In[ ]:
@@ -274,7 +283,7 @@ display(pc_df)
 building_df = building_df.astype(str)
 building_df['suspect'] = building_df['suspect'].astype(int) # Keep 'suspect' column as int
 building_df['input'] = building_df[['user_id', 'access_date_time', 'direction', 'status',
-                                    'office_location', 'terminated']].agg(', '.join, axis=1)
+                                    'office_location', 'attempts', 'terminated']].agg(', '.join, axis=1)
 building_df['label'] = building_df['suspect']
 
 display(building_df)
@@ -287,8 +296,8 @@ display(building_df)
 
 proxy_df = proxy_df.astype(str)
 proxy_df['suspect'] = proxy_df['suspect'].astype(int) # Keep 'suspect' column as int
-proxy_df['input'] = proxy_df[['user_id', 'access_date_time', 'machine_name', 'url', 'category',
-                              'bytes_in', 'bytes_out', 'terminated']].agg(', '.join, axis=1)
+proxy_df['input'] = proxy_df[['user_id', 'access_date_time', 'machine_name',
+                              'url', 'category', 'bytes_in', 'bytes_out']].agg(', '.join, axis=1)
 proxy_df['label'] = proxy_df['suspect']
 
 display(proxy_df)
@@ -640,6 +649,7 @@ proxy_test_dataset = PyTorchDataset(proxy_test_encodings, proxy_test['label'].to
 
 
 import evaluate
+from scipy.special import softmax
 
 
 # In[ ]:
@@ -651,7 +661,7 @@ accuracy = evaluate.load('accuracy')
 f1 = evaluate.load('f1')
 precision = evaluate.load('precision')
 recall = evaluate.load('recall')
-# roc_auc = evaluate.load('roc_auc')
+roc_auc = evaluate.load('roc_auc')
 
 
 # In[ ]:
@@ -661,6 +671,8 @@ recall = evaluate.load('recall')
 
 def compute_metrics(eval_pred):
     predictions, labels = eval_pred
+    prediction_scores = softmax(predictions, axis=1)
+    prediction_scores = np.max(prediction_scores, axis=1)
     predictions = np.argmax(predictions, axis=1)
 
     results = {}
@@ -668,7 +680,7 @@ def compute_metrics(eval_pred):
     results.update(f1.compute(predictions=predictions, references=labels, average='weighted'))
     results.update(precision.compute(predictions=predictions, references=labels, average='weighted'))
     results.update(recall.compute(predictions=predictions, references=labels, average='weighted'))
-    # results.update(roc_auc.compute(predictions=predictions, references=labels, average='weighted'))
+    results.update(roc_auc.compute(prediction_scores=prediction_scores, references=labels, average='weighted'))
     
     return results
 
@@ -806,9 +818,9 @@ proxy_model_balanced = AutoModelForSequenceClassification.from_pretrained(PRETRA
 
 training_args = TrainingArguments(
     output_dir='training_output',
-    learning_rate=0.00002,
-    per_device_train_batch_size=128,
-    per_device_eval_batch_size=128,
+    learning_rate=0.00005,
+    per_device_train_batch_size=256,
+    per_device_eval_batch_size=256,
     num_train_epochs=20,
     weight_decay=0.01,
     evaluation_strategy='epoch',
@@ -1185,4 +1197,148 @@ print('Proxy model predictions:')
 
 for logits in proxy_logits:
     print(logits.argmax().item())
+
+
+# ### Test model predictions on unseen cases
+
+# In[ ]:
+
+
+from collections import Counter
+
+
+# In[ ]:
+
+
+# Create new data for PC Access logs
+# New case: machine location different from user location
+
+countries = ['Russia', 'China', 'India', 'Brazil']
+
+pc_unseen_df = pc_test[pc_test['suspect'] == 0].copy()
+
+np.random.seed(480)
+pc_unseen_df['machine_location'] = np.random.choice(countries, pc_unseen_df.shape[0])
+pc_unseen_df['input'] = pc_unseen_df[['user_id', 'access_date_time', 'log_on_off', 'machine_name',
+                                      'machine_location', 'user_location', 'terminated']].agg(', '.join, axis=1)
+
+display(pc_unseen_df)
+
+
+# In[ ]:
+
+
+# Create new data for Building Access logs
+# New case: large number of access attempts
+
+building_unseen_df = building_test[building_test['suspect'] == 0].copy()
+
+np.random.seed(480)
+building_unseen_df['attempts'] = np.random.randint(6, 20, building_unseen_df.shape[0])
+building_unseen_df['attempts'] = building_unseen_df['attempts'].astype(str)
+building_unseen_df['input'] = building_unseen_df[['user_id', 'access_date_time', 'direction', 'status',
+                                                  'office_location', 'attempts', 'terminated']].agg(', '.join, axis=1)
+
+display(building_unseen_df)
+
+
+# In[ ]:
+
+
+# Create new data for Proxy logs
+# New case: data upload/download from malicious urls
+
+url_types = ['malware', 'phishing']
+
+malicious_urls_df = pd.read_csv('malicious_urls.csv', sep=',', header=0)
+malicious_urls_df = malicious_urls_df[malicious_urls_df['type'].isin(url_types)]
+
+display(malicious_urls_df)
+
+urls = malicious_urls_df['url']
+
+proxy_unseen_df = proxy_test[proxy_test['suspect'] == 0].copy()
+
+np.random.seed(480)
+proxy_unseen_df['url'] = np.random.choice(urls, proxy_unseen_df.shape[0])
+proxy_unseen_df['category'] = 'Malware, Phishing'
+proxy_unseen_df['input'] = proxy_unseen_df[['user_id', 'access_date_time', 'machine_name',
+                                            'url', 'category', 'bytes_in', 'bytes_out']].agg(', '.join, axis=1)
+
+display(proxy_unseen_df)
+
+
+# In[ ]:
+
+
+# Compute accuracy of PC model on unseen case
+
+pc_test_input_unseen = pc_saved_tokenizer(pc_unseen_df['input'].sample(n=1000, random_state=480).tolist(),
+                                          padding=True,
+                                          truncation=True,
+                                          return_tensors="pt")
+
+pc_results = []
+
+with torch.no_grad():
+    pc_logits_unseen = pc_saved_model(**pc_test_input_unseen).logits
+
+for logits in pc_logits_unseen:
+    pc_results.append(logits.argmax().item())
+
+pc_results_counter = Counter(pc_results)
+
+print('PC model accuracy on unseen case:')
+print('Correct predictions: %d/%d (%f%%)' %
+      (pc_results_counter[1], len(pc_results), pc_results_counter[1]/len(pc_results)*100))
+
+
+# In[ ]:
+
+
+# Compute accuracy of Building model on unseen case
+
+building_test_input_unseen = building_saved_tokenizer(building_unseen_df['input'].sample(n=1000, random_state=480).tolist(),
+                                                      padding=True,
+                                                      truncation=True,
+                                                      return_tensors="pt")
+
+building_results = []
+
+with torch.no_grad():
+    building_logits_unseen = building_saved_model(**building_test_input_unseen).logits
+
+for logits in building_logits_unseen:
+    building_results.append(logits.argmax().item())
+
+building_results_counter = Counter(building_results)
+
+print('Building model accuracy on unseen case:')
+print('Correct predictions: %d/%d (%f%%)' %
+      (building_results_counter[1], len(building_results), building_results_counter[1]/len(building_results)*100))
+
+
+# In[ ]:
+
+
+# Compute accuracy of Proxy model on unseen case
+
+proxy_test_input_unseen = proxy_saved_tokenizer(proxy_unseen_df['input'].sample(n=1000, random_state=480).tolist(),
+                                                padding=True,
+                                                truncation=True,
+                                                return_tensors="pt")
+
+proxy_results = []
+
+with torch.no_grad():
+    proxy_logits_unseen = proxy_saved_model(**proxy_test_input_unseen).logits
+
+for logits in proxy_logits_unseen:
+    proxy_results.append(logits.argmax().item())
+
+proxy_results_counter = Counter(proxy_results)
+
+print('Proxy model accuracy on unseen case:')
+print('Correct predictions: %d/%d (%f%%)' %
+      (proxy_results_counter[1], len(proxy_results), proxy_results_counter[1]/len(proxy_results)*100))
 
