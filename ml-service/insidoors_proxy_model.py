@@ -57,14 +57,18 @@ get_ipython().system('whichgpu')
 
 # FUTURE ITERATIONS:
 # 1. properly incorporate tabular data
+# 2. add support for continual learning
 
 
 # ## Insidoors Text Classification Model for PC Access, Building Access, and Proxy Logs
-# This notebook details the fifth iteration of a binary text classification model that identifies suspicious employee activity. For ease of development, all models are currently built and trained in this notebook. In the future, a separate notebook will be created for each model.
+# This notebook details the sixth iteration of a text classification model that identifies suspicious employee activity. For ease of development, all models are currently built and trained in this notebook. In the future, a separate notebook will be created for each model.
 # 
 # #### Changelog
 # 
-# *Version: 5 (Current)*
+# *Version: 6 (Current)*
+# * Re-implemented binary classification with unseen cases
+# 
+# *Version: 5*
 # * Implemented undersampling and oversampling to better handle class imbalance
 # 
 # *Version: 4*
@@ -83,9 +87,9 @@ get_ipython().system('whichgpu')
 
 
 PRETRAINED_MODEL = 'distilbert-base-uncased'
-PC_MODEL_NAME = 'insidoors_pc_v5'
-BUILDING_MODEL_NAME = 'insidoors_building_v5'
-PROXY_MODEL_NAME = 'insidoors_proxy_v5'
+PC_MODEL_NAME = 'insidoors_pc_v6'
+BUILDING_MODEL_NAME = 'insidoors_building_v6'
+PROXY_MODEL_NAME = 'insidoors_proxy_v6'
 
 
 # ### Load data from MySQL
@@ -122,9 +126,13 @@ from sqlalchemy import create_engine
 
 # FOR GOOGLE COLAB & SMU GPU CLUSTER: COMMENT OUT CODE ABOVE AND USE THE FOLLOWING
 
+employee_df = pd.read_csv('employee_data_5k.csv', sep=';', header=0)
 pc_df = pd.read_csv('pc_data_5k_modified.csv', sep=';', header=0)
 building_df = pd.read_csv('building_data_5k_modified.csv', sep=';', header=0)
 proxy_df = pd.read_csv('proxy_data_5k_modified.csv', sep=';', header=0)
+
+print('Employees:')
+display(employee_df)
 
 print('PC Access logs:')
 display(pc_df)
@@ -134,6 +142,50 @@ display(building_df)
 
 print('Proxy logs:')
 display(proxy_df)
+
+
+# In[ ]:
+
+
+# Add 'terminated' column to Employee dataframe
+
+employee_df['terminated'] = np.where(employee_df['terminated_date'].notnull(), 'Y', 'N')
+
+
+# In[ ]:
+
+
+# Preparation for testing unseen cases
+# Add 'attempts' column to Building Access dataframe
+
+np.random.seed(480)
+building_df['attempts'] = np.random.randint(1, 6, building_df.shape[0])
+
+
+# In[ ]:
+
+
+# Remove cases 2 and 5 from all logs
+
+to_exclude = [2, 5]
+
+pc_df = pc_df[~pc_df['suspect'].isin(to_exclude)]
+building_df = building_df[~building_df['suspect'].isin(to_exclude)]
+proxy_df = proxy_df[~proxy_df['suspect'].isin(to_exclude)]
+
+
+# In[ ]:
+
+
+# Inner join Employee dataframe with PC Access and Building Access dataframes
+
+join_df_pc = employee_df[['id', 'location', 'terminated']].rename(
+    columns={'location': 'user_location'}
+)
+join_df_building = employee_df[['id', 'terminated']]
+
+pc_df = pc_df.join(join_df_pc.set_index('id'), on='user_id', how='inner')
+building_df = building_df.join(join_df_building.set_index('id'), on='user_id', how='inner')
 
 
 # In[ ]:
@@ -212,12 +264,13 @@ from transformers import DataCollatorWithPadding
 # In[ ]:
 
 
-# Concatenate input columns of PC Access logs into a single string
+# Concatenate input columns of PC Access logs into a single string and create label column
 
 pc_df = pc_df.astype(str)
 pc_df['suspect'] = pc_df['suspect'].astype(int) # Keep 'suspect' column as int
-pc_df['input'] = pc_df[['user_id', 'access_date_time', 'log_on_off',
-                        'machine_name', 'machine_location']].agg(', '.join, axis=1)
+pc_df['input'] = pc_df[['user_id', 'access_date_time', 'log_on_off', 'machine_name',
+                        'machine_location', 'user_location', 'terminated']].agg(', '.join, axis=1)
+pc_df['label'] = pc_df['suspect']
 
 display(pc_df)
 
@@ -225,28 +278,13 @@ display(pc_df)
 # In[ ]:
 
 
-# Prepare 'suspect' column of PC Access logs for multiclass classification
-
-pc_case2label = dict((int(value), int(key)) for key, value in enumerate(pc_cases))
-pc_label2case = dict((int(key), int(value)) for key, value in enumerate(pc_cases)) # Used later in model
-
-print('Case-to-Label mapping for PC Access logs:')
-print(pc_case2label)
-
-pc_df['label'] = pc_df['suspect'].map(pc_case2label)
-
-display(pc_df)
-
-
-# In[ ]:
-
-
-# Concatenate input columns of Building Access logs into a single string
+# Concatenate input columns of Building Access logs into a single string and create label column
 
 building_df = building_df.astype(str)
 building_df['suspect'] = building_df['suspect'].astype(int) # Keep 'suspect' column as int
-building_df['input'] = building_df[['user_id', 'access_date_time', 'direction',
-                                    'status', 'office_location']].agg(', '.join, axis=1)
+building_df['input'] = building_df[['user_id', 'access_date_time', 'direction', 'status',
+                                    'office_location', 'attempts', 'terminated']].agg(', '.join, axis=1)
+building_df['label'] = building_df['suspect']
 
 display(building_df)
 
@@ -254,44 +292,13 @@ display(building_df)
 # In[ ]:
 
 
-# Prepare 'suspect' column of Building Access logs for multiclass classification
-
-building_case2label = dict((int(value), int(key)) for key, value in enumerate(building_cases))
-building_label2case = dict((int(key), int(value)) for key, value in enumerate(building_cases)) # Used later in model
-
-print('Case-to-Label mapping for Building Access logs:')
-print(building_case2label)
-
-building_df['label'] = building_df['suspect'].map(building_case2label)
-
-display(building_df)
-
-
-# In[ ]:
-
-
-# Concatenate input columns of Proxy logs into a single string
+# Concatenate input columns of Proxy logs into a single string and create label column
 
 proxy_df = proxy_df.astype(str)
 proxy_df['suspect'] = proxy_df['suspect'].astype(int) # Keep 'suspect' column as int
 proxy_df['input'] = proxy_df[['user_id', 'access_date_time', 'machine_name',
                               'url', 'category', 'bytes_in', 'bytes_out']].agg(', '.join, axis=1)
-
-display(proxy_df)
-
-
-# In[ ]:
-
-
-# Prepare 'suspect' column of Proxy logs for multiclass classification
-
-proxy_case2label = dict((int(value), int(key)) for key, value in enumerate(proxy_cases))
-proxy_label2case = dict((int(key), int(value)) for key, value in enumerate(proxy_cases)) # Used later in model
-
-print('Case-to-Label mapping for Proxy logs:')
-print(proxy_case2label)
-
-proxy_df['label'] = proxy_df['suspect'].map(proxy_case2label)
+proxy_df['label'] = proxy_df['suspect']
 
 display(proxy_df)
 
@@ -355,10 +362,10 @@ from imblearn.over_sampling import RandomOverSampler
 
 # Create new distribution for PC Access data
 # Undersample majority class to 75% of original
-# Let majority class take up 50% of the total resampled distribution
-# Oversample minority class be evenly split among the remaining 50%
+# Let majority class take up 80% of the total resampled distribution
+# Oversample minority class be evenly split among the remaining 20%
 
-pc_dist = pc_train['label'].value_counts().to_dict()
+pc_dist = pc_train['suspect'].value_counts().to_dict()
 print('Original distribution of PC Access logs:')
 display(pc_dist)
 
@@ -369,7 +376,7 @@ print('Target undersampled distribution of PC Access logs:')
 display(undersample_pc_dist)
 
 oversample_pc_dist = undersample_pc_dist.copy()
-pc_minority = pc_majority // (len(pc_cases) - 1)
+pc_minority = int(pc_majority * 0.2) // (len(pc_cases) - 1)
 
 for key in oversample_pc_dist.keys():
     if key != 0:
@@ -387,7 +394,7 @@ display(oversample_pc_dist)
 pc_undersample = RandomUnderSampler(sampling_strategy=undersample_pc_dist, random_state=480)
 pc_oversample = RandomOverSampler(sampling_strategy=oversample_pc_dist, random_state=480)
 
-pc_x, pc_y = pc_undersample.fit_resample(pc_train[['input']], pc_train['label'])
+pc_x, pc_y = pc_undersample.fit_resample(pc_train[['input']], pc_train['suspect'])
 print('Distribution after undersampling:')
 print(pc_y.value_counts())
 
@@ -401,10 +408,10 @@ print(pc_y.value_counts())
 
 # Create new distribution for Building Access data
 # Undersample majority class to 75% of original
-# Let majority class take up 50% of the total resampled distribution
-# Oversample minority class be evenly split among the remaining 50%
+# Let majority class take up 80% of the total resampled distribution
+# Oversample minority class be evenly split among the remaining 20%
 
-building_dist = building_train['label'].value_counts().to_dict()
+building_dist = building_train['suspect'].value_counts().to_dict()
 print('Original distribution of Building Access logs:')
 display(building_dist)
 
@@ -415,7 +422,7 @@ print('Target undersampled distribution of Building Access logs:')
 display(undersample_building_dist)
 
 oversample_building_dist = undersample_building_dist.copy()
-building_minority = building_majority // (len(building_cases) - 1)
+building_minority = int(building_majority * 0.2) // (len(building_cases) - 1)
 
 for key in oversample_building_dist.keys():
     if key != 0:
@@ -433,7 +440,7 @@ display(oversample_building_dist)
 building_undersample = RandomUnderSampler(sampling_strategy=undersample_building_dist, random_state=480)
 building_oversample = RandomOverSampler(sampling_strategy=oversample_building_dist, random_state=480)
 
-building_x, building_y = building_undersample.fit_resample(building_train[['input']], building_train['label'])
+building_x, building_y = building_undersample.fit_resample(building_train[['input']], building_train['suspect'])
 print('Distribution after undersampling:')
 print(building_y.value_counts())
 
@@ -447,8 +454,10 @@ print(building_y.value_counts())
 
 # Create new distribution for Proxy data
 # Undersample majority class to 75% of original
-# Oversample minority class to 25%
-proxy_dist = proxy_train['label'].value_counts().to_dict()
+# Let majority class take up 80% of the total resampled distribution
+# Oversample minority class to 20%
+
+proxy_dist = proxy_train['suspect'].value_counts().to_dict()
 print('Original distribution of Proxy logs:')
 display(proxy_dist)
 
@@ -459,8 +468,11 @@ print('Target undersampled distribution of Proxy logs:')
 display(undersample_proxy_dist)
 
 oversample_proxy_dist = undersample_proxy_dist.copy()
-proxy_minority = int(proxy_majority * 0.25)
-oversample_proxy_dist[1] = proxy_minority
+proxy_minority = int(proxy_majority * 0.2)
+
+for key in oversample_proxy_dist.keys():
+    if key != 0:
+        oversample_proxy_dist[key] = proxy_minority
 
 print('Target oversampled distribution of Proxy logs:')
 display(oversample_proxy_dist)
@@ -474,7 +486,7 @@ display(oversample_proxy_dist)
 proxy_undersample = RandomUnderSampler(sampling_strategy=undersample_proxy_dist, random_state=480)
 proxy_oversample = RandomOverSampler(sampling_strategy=oversample_proxy_dist, random_state=480)
 
-proxy_x, proxy_y = proxy_undersample.fit_resample(proxy_train[['input']], proxy_train['label'])
+proxy_x, proxy_y = proxy_undersample.fit_resample(proxy_train[['input']], proxy_train['suspect'])
 print('Distribution after undersampling:')
 print(proxy_y.value_counts())
 
@@ -484,6 +496,81 @@ print(proxy_y.value_counts())
 
 
 # ### Preprocess data (cont.)
+
+# In[ ]:
+
+
+# Combine suspect PC classes into single 'anomaly' class
+
+pc_train.loc[pc_train['label'] != 0, 'label'] = 1
+print('pc_train value counts:')
+print(pc_train['label'].value_counts())
+
+pc_y[pc_y != 0] = 1
+print()
+print('pc_y value counts:')
+print(pc_y.value_counts())
+
+pc_val.loc[pc_val['label'] != 0, 'label'] = 1
+print()
+print('pc_val value counts:')
+print(pc_val['label'].value_counts())
+
+pc_test.loc[pc_test['label'] != 0, 'label'] = 1
+print()
+print('pc_test value counts:')
+print(pc_test['label'].value_counts())
+
+
+# In[ ]:
+
+
+# Combine suspect Building classes into single 'anomaly' class
+
+building_train.loc[building_train['label'] != 0, 'label'] = 1
+print('building_train value counts:')
+print(building_train['label'].value_counts())
+
+building_y[building_y != 0] = 1
+print()
+print('building_y value counts:')
+print(building_y.value_counts())
+
+building_val.loc[building_val['label'] != 0, 'label'] = 1
+print()
+print('building_val value counts:')
+print(building_val['label'].value_counts())
+
+building_test.loc[building_test['label'] != 0, 'label'] = 1
+print()
+print('building_test value counts:')
+print(building_test['label'].value_counts())
+
+
+# In[ ]:
+
+
+# Combine suspect Proxy classes into single 'anomaly' class
+
+proxy_train.loc[proxy_train['label'] != 0, 'label'] = 1
+print('proxy_train value counts:')
+print(proxy_train['label'].value_counts())
+
+proxy_y[proxy_y != 0] = 1
+print()
+print('proxy_y value counts:')
+print(proxy_y.value_counts())
+
+proxy_val.loc[proxy_val['label'] != 0, 'label'] = 1
+print()
+print('proxy_val value counts:')
+print(proxy_val['label'].value_counts())
+
+proxy_test.loc[proxy_test['label'] != 0, 'label'] = 1
+print()
+print('proxy_test value counts:')
+print(proxy_test['label'].value_counts())
+
 
 # In[ ]:
 
@@ -562,17 +649,19 @@ proxy_test_dataset = PyTorchDataset(proxy_test_encodings, proxy_test['label'].to
 
 
 import evaluate
+from scipy.special import softmax
 
 
 # In[ ]:
 
 
-# Load accuracy, f1, precision, and recall metrics
+# Load accuracy, f1, precision, recall, and roc_auc metrics
 
 accuracy = evaluate.load('accuracy')
 f1 = evaluate.load('f1')
 precision = evaluate.load('precision')
 recall = evaluate.load('recall')
+roc_auc = evaluate.load('roc_auc')
 
 
 # In[ ]:
@@ -582,6 +671,8 @@ recall = evaluate.load('recall')
 
 def compute_metrics(eval_pred):
     predictions, labels = eval_pred
+    prediction_scores = softmax(predictions, axis=1)
+    prediction_scores = np.max(prediction_scores, axis=1)
     predictions = np.argmax(predictions, axis=1)
 
     results = {}
@@ -589,6 +680,7 @@ def compute_metrics(eval_pred):
     results.update(f1.compute(predictions=predictions, references=labels, average='weighted'))
     results.update(precision.compute(predictions=predictions, references=labels, average='weighted'))
     results.update(recall.compute(predictions=predictions, references=labels, average='weighted'))
+    results.update(roc_auc.compute(prediction_scores=prediction_scores, references=labels, average='weighted'))
     
     return results
 
@@ -610,7 +702,7 @@ from transformers import Trainer
 
 pc_class_weights = class_weight.compute_class_weight(
     class_weight='balanced',
-    classes=list(pc_label2case.keys()),
+    classes=list(np.unique(pc_y)),
     y=pc_y
 )
 
@@ -641,7 +733,7 @@ class CustomPCTrainer(Trainer):
 
 building_class_weights = class_weight.compute_class_weight(
     class_weight='balanced',
-    classes=list(building_label2case.keys()),
+    classes=list(np.unique(building_y)),
     y=building_y
 )
 
@@ -672,7 +764,7 @@ class CustomBuildingTrainer(Trainer):
 
 proxy_class_weights = class_weight.compute_class_weight(
     class_weight='balanced',
-    classes=list(proxy_label2case.keys()),
+    classes=list(np.unique(proxy_y)),
     y=proxy_y
 )
 
@@ -709,44 +801,14 @@ from transformers import AutoModelForSequenceClassification, TrainingArguments
 
 # Load pretrained DistilBERT model
 
-pc_model = AutoModelForSequenceClassification.from_pretrained(
-    PRETRAINED_MODEL,
-    num_labels=len(pc_cases),
-    id2label=pc_label2case,
-    label2id=pc_case2label
-)
-pc_model_balanced = AutoModelForSequenceClassification.from_pretrained(
-    PRETRAINED_MODEL,
-    num_labels=len(pc_cases),
-    id2label=pc_label2case,
-    label2id=pc_case2label
-)
+pc_model = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+pc_model_balanced = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
 
-building_model = AutoModelForSequenceClassification.from_pretrained(
-    PRETRAINED_MODEL,
-    num_labels=len(building_cases),
-    id2label=building_label2case,
-    label2id=building_case2label
-)
-building_model_balanced = AutoModelForSequenceClassification.from_pretrained(
-    PRETRAINED_MODEL,
-    num_labels=len(building_cases),
-    id2label=building_label2case,
-    label2id=building_case2label
-)
+building_model = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+building_model_balanced = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
 
-proxy_model = AutoModelForSequenceClassification.from_pretrained(
-    PRETRAINED_MODEL,
-    num_labels=len(proxy_cases),
-    id2label=proxy_label2case,
-    label2id=proxy_case2label
-)
-proxy_model_balanced = AutoModelForSequenceClassification.from_pretrained(
-    PRETRAINED_MODEL,
-    num_labels=len(proxy_cases),
-    id2label=proxy_label2case,
-    label2id=proxy_case2label
-)
+proxy_model = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
+proxy_model_balanced = AutoModelForSequenceClassification.from_pretrained(PRETRAINED_MODEL, num_labels=2)
 
 
 # In[ ]:
@@ -756,9 +818,9 @@ proxy_model_balanced = AutoModelForSequenceClassification.from_pretrained(
 
 training_args = TrainingArguments(
     output_dir='training_output',
-    learning_rate=0.00002,
-    per_device_train_batch_size=128,
-    per_device_eval_batch_size=128,
+    learning_rate=0.00005,
+    per_device_train_batch_size=256,
+    per_device_eval_batch_size=256,
     num_train_epochs=20,
     weight_decay=0.01,
     evaluation_strategy='epoch',
@@ -1030,7 +1092,11 @@ pc_expected_output = []
 
 for case in pc_cases:
     pc_test_input += pc_test[pc_test['suspect'] == case]['input'].sample(n=3).tolist()
-    pc_expected_output += [case] * 3
+
+    if case != 0:
+        pc_expected_output += [1] * 3
+    else:
+        pc_expected_output += [case] * 3
 
 print('Sample PC Access log input:')
 display(pc_test_input)
@@ -1052,8 +1118,7 @@ print()
 print('PC model predictions:')
 
 for logits in pc_logits:
-    predicted_class_id = logits.argmax().item()
-    print(pc_saved_model.config.id2label[predicted_class_id])
+    print(logits.argmax().item())
 
 
 # In[ ]:
@@ -1065,8 +1130,12 @@ building_test_input = []
 building_expected_output = []
 
 for case in building_cases:
-    building_test_input += building_test[building_test['suspect'] == case]['input'].sample(n=2).tolist()
-    building_expected_output += [case] * 2
+    building_test_input += building_test[building_test['suspect'] == case]['input'].sample(n=3).tolist()
+    
+    if case != 0:
+        building_expected_output += [1] * 3
+    else:
+        building_expected_output += [case] * 3
 
 print('Sample Building Access log input:')
 display(building_test_input)
@@ -1088,8 +1157,7 @@ print()
 print('Building model predictions:')
 
 for logits in building_logits:
-    predicted_class_id = logits.argmax().item()
-    print(building_saved_model.config.id2label[predicted_class_id])
+    print(logits.argmax().item())
 
 
 # In[ ]:
@@ -1102,7 +1170,11 @@ proxy_expected_output = []
 
 for case in proxy_cases:
     proxy_test_input += proxy_test[proxy_test['suspect'] == case]['input'].sample(n=3).tolist()
-    proxy_expected_output += [case] * 3
+    
+    if case != 0:
+        proxy_expected_output += [1] * 3
+    else:
+        proxy_expected_output += [case] * 3
 
 print('Sample Proxy log input:')
 display(proxy_test_input)
@@ -1124,6 +1196,149 @@ print()
 print('Proxy model predictions:')
 
 for logits in proxy_logits:
-    predicted_class_id = logits.argmax().item()
-    print(proxy_saved_model.config.id2label[predicted_class_id])
+    print(logits.argmax().item())
+
+
+# ### Test model predictions on unseen cases
+
+# In[ ]:
+
+
+from collections import Counter
+
+
+# In[ ]:
+
+
+# Create new data for PC Access logs
+# New case: machine location different from user location
+
+countries = ['Russia', 'China', 'India', 'Brazil']
+
+pc_unseen_df = pc_test[pc_test['suspect'] == 0].copy()
+
+np.random.seed(480)
+pc_unseen_df['machine_location'] = np.random.choice(countries, pc_unseen_df.shape[0])
+pc_unseen_df['input'] = pc_unseen_df[['user_id', 'access_date_time', 'log_on_off', 'machine_name',
+                                      'machine_location', 'user_location', 'terminated']].agg(', '.join, axis=1)
+
+display(pc_unseen_df)
+
+
+# In[ ]:
+
+
+# Create new data for Building Access logs
+# New case: large number of access attempts
+
+building_unseen_df = building_test[building_test['suspect'] == 0].copy()
+
+np.random.seed(480)
+building_unseen_df['attempts'] = np.random.randint(6, 20, building_unseen_df.shape[0])
+building_unseen_df['attempts'] = building_unseen_df['attempts'].astype(str)
+building_unseen_df['input'] = building_unseen_df[['user_id', 'access_date_time', 'direction', 'status',
+                                                  'office_location', 'attempts', 'terminated']].agg(', '.join, axis=1)
+
+display(building_unseen_df)
+
+
+# In[ ]:
+
+
+# Create new data for Proxy logs
+# New case: data upload/download from malicious urls
+
+url_types = ['malware', 'phishing']
+
+malicious_urls_df = pd.read_csv('malicious_urls.csv', sep=',', header=0)
+malicious_urls_df = malicious_urls_df[malicious_urls_df['type'].isin(url_types)]
+
+display(malicious_urls_df)
+
+urls = malicious_urls_df['url']
+
+proxy_unseen_df = proxy_test[proxy_test['suspect'] == 0].copy()
+
+np.random.seed(480)
+proxy_unseen_df['url'] = np.random.choice(urls, proxy_unseen_df.shape[0])
+proxy_unseen_df['category'] = 'Malware, Phishing'
+proxy_unseen_df['input'] = proxy_unseen_df[['user_id', 'access_date_time', 'machine_name',
+                                            'url', 'category', 'bytes_in', 'bytes_out']].agg(', '.join, axis=1)
+
+display(proxy_unseen_df)
+
+
+# In[ ]:
+
+
+# Compute accuracy of PC model on unseen case
+
+pc_test_input_unseen = pc_saved_tokenizer(pc_unseen_df['input'].sample(n=1000, random_state=480).tolist(),
+                                          padding=True,
+                                          truncation=True,
+                                          return_tensors="pt")
+
+pc_results = []
+
+with torch.no_grad():
+    pc_logits_unseen = pc_saved_model(**pc_test_input_unseen).logits
+
+for logits in pc_logits_unseen:
+    pc_results.append(logits.argmax().item())
+
+pc_results_counter = Counter(pc_results)
+
+print('PC model accuracy on unseen case:')
+print('Correct predictions: %d/%d (%f%%)' %
+      (pc_results_counter[1], len(pc_results), pc_results_counter[1]/len(pc_results)*100))
+
+
+# In[ ]:
+
+
+# Compute accuracy of Building model on unseen case
+
+building_test_input_unseen = building_saved_tokenizer(building_unseen_df['input'].sample(n=1000, random_state=480).tolist(),
+                                                      padding=True,
+                                                      truncation=True,
+                                                      return_tensors="pt")
+
+building_results = []
+
+with torch.no_grad():
+    building_logits_unseen = building_saved_model(**building_test_input_unseen).logits
+
+for logits in building_logits_unseen:
+    building_results.append(logits.argmax().item())
+
+building_results_counter = Counter(building_results)
+
+print('Building model accuracy on unseen case:')
+print('Correct predictions: %d/%d (%f%%)' %
+      (building_results_counter[1], len(building_results), building_results_counter[1]/len(building_results)*100))
+
+
+# In[ ]:
+
+
+# Compute accuracy of Proxy model on unseen case
+
+proxy_test_input_unseen = proxy_saved_tokenizer(proxy_unseen_df['input'].sample(n=1000, random_state=480).tolist(),
+                                                padding=True,
+                                                truncation=True,
+                                                return_tensors="pt")
+
+proxy_results = []
+
+with torch.no_grad():
+    proxy_logits_unseen = proxy_saved_model(**proxy_test_input_unseen).logits
+
+for logits in proxy_logits_unseen:
+    proxy_results.append(logits.argmax().item())
+
+proxy_results_counter = Counter(proxy_results)
+
+print('Proxy model accuracy on unseen case:')
+print('Correct predictions: %d/%d (%f%%)' %
+      (proxy_results_counter[1], len(proxy_results), proxy_results_counter[1]/len(proxy_results)*100))
 
