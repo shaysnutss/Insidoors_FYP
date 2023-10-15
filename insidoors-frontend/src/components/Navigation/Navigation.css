@@ -1,0 +1,123 @@
+.navigation {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+.navigation .div {
+    background-color: #ffffff;
+    height: 1024px;
+    overflow: hidden;
+    position: relative;
+    width: 1440px;
+}
+
+.navigation .overlap {
+    height: 61px;
+    left: 51px;
+    position: absolute;
+    top: 43px;
+    width: 281px;
+}
+
+.navigation .ellipse {
+    background-color: #002c3e;
+    border-radius: 20px;
+    height: 40px;
+    left: 16px;
+    position: absolute;
+    top: 11px;
+    width: 40px;
+}
+
+.navigation .text-wrapper {
+    color: #002c3e;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 30px;
+    font-weight: 700;
+    height: 61px;
+    left: 0;
+    letter-spacing: 0;
+    line-height: normal;
+    margin-top: 10px;
+    margin-left: 70px;
+    width: 281px;
+}
+
+.navigation .overlap-group {
+    height: 80px;
+    left: 1100px;
+    position: absolute;
+    top: 37px;
+    width: 360px;
+}
+
+.navigation .text-wrapper-2 {
+    color: #000000;
+    font-family: "Poppins-Medium", Helvetica;
+    font-size: 22px;
+    font-weight: 500;
+    height: 80px;
+    left: 120px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 240px;
+}
+
+.navigation .text-wrapper-3 {
+    color: #000000;
+    font-family: "Poppins-Medium", Helvetica;
+    font-size: 22px;
+    font-weight: 500;
+    height: 80px;
+    left: 0;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 240px;
+}
+
+.navigation .overlap-2 {
+    height: 80px;
+    left: 357px;
+    position: absolute;
+    top: 37px;
+    width: 676px;
+}
+
+.navigation .text-wrapper-4 {
+    color: #000000;
+    font-family: "Poppins-Medium", Helvetica;
+    font-size: 22px;
+    font-weight: 500;
+    height: 80px;
+    left: 183px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 240px;
+}
+
+.navigation .text-wrapper-5 {
+    color: #78bcc4;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 22px;
+    font-weight: 700;
+    height: 80px;
+    left: 364px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 312px;
+}
