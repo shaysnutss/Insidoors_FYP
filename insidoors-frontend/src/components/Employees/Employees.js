@@ -1,7 +1,7 @@
 import "./Employees.css"
 import { Navigation } from './components'
 
-const Employee = () => {
+const Employees = () => {
     return(
         <div className="Employee">
             <div className= "div">
@@ -13,4 +13,4 @@ const Employee = () => {
     );
 }
 
-export default Employee
+export default Employees
