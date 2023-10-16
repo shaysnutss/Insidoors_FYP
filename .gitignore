@@ -390,3 +390,9 @@ dev.env
 .idea/libraries/Maven__org_springframework_spring_webmvc_6_0_12.xml
 .idea/misc.xml
 .idea/modules.xml
+account-service/src/main/resources/application.properties
+behavioral-analysis-service/src/main/resources/application.properties
+comments-service/src/main/resources/application.properties
+employee-service/src/main/resources/application.properties
+task-management-composite/src/main/resources/application.properties
+task-management-service/src/main/resources/application.properties
