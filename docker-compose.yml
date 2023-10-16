@@ -41,15 +41,15 @@ services:
   ####################################
   # Atomic Microservice: comments-service
   ####################################
-  # comments-service:
-  #   build:
-  #     context: ./comments-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   # env_file:
-  #   #   - "dev.env"
-  #   ports:
-  #     - "30004:8083"
+  comments-service:
+    build:
+      context: ./comments-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    ports:
+      - "30004:8083"
   ####################################
   # Atomic Microservice: behavioral-analysis-service
   ####################################
@@ -79,15 +79,15 @@ services:
   ####################################
   # Composite Microservice: notification-service
   ####################################
-  # notification-service:
-  #    build:
-  #      context: ./notification-service
-  #      dockerfile: Dockerfile
-  #    restart: always
-  #    env_file:
-  #     - "dev.env"
-  #    ports:
-  #      - "30009:8080"
+  notification-service:
+     build:
+       context: ./notification-service
+       dockerfile: Dockerfile
+     restart: always
+     env_file:
+      - "dev.env"
+     ports:
+       - "30009:8080"
   ###################################
   # Composite Microservice: task-management-composite
   ####################################
@@ -103,12 +103,12 @@ services:
   ###################################
   # Composite Microservice: behavioral-analysis-composite-service
   ####################################
-  # behavioral-analysis-composite-service:
-  #   build:
-  #     context: ./behavioral-analysis-composite-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   env_file:
-  #    - "dev.env"
-  #   ports:
-  #     - "30011:8080"
+  behavioral-analysis-composite-service:
+    build:
+      context: ./behavioral-analysis-composite-service
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+     - "dev.env"
+    ports:
+      - "30011:8080"
