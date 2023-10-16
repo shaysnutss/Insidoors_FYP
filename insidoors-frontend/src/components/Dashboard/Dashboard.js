@@ -70,7 +70,8 @@ const Dashboard = () => {
               navigate("/main/dashboard")}>Dashboard</button>
           </div>
           <div>
-            <button className="employee-tab">Employees</button>
+            <button className="employee-tab" onClick={() =>
+              navigate("/main/employees")}>Employees</button>
           </div>
           <div>
             <button className="case-tab" onClick={() =>

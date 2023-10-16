@@ -1,25 +1,42 @@
 import "./Navigation.css"
+import { Logo, Logout } from "..";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Navigation = () => {
+    const navigate = useNavigate();
     return(
-        <div className="navigation">
-            <div className="div">
-                <div className="overlap">
-                    <div className="ellipse" />
-                    <div className="text-wrapper">Insidoors</div>
+        <div className="nav">
+            <div className = "screen">
+                <div className="logo">
+                    <Logo></Logo>
                 </div>
-                <div className="overlap-group">
-                    <div className="text-wrapper-2">Logout</div>
-                    <div className="text-wrapper-3">Alerts</div>
+                <div className="navigation-tab">
+                    <div>
+                        <button className="dashboard-tab" onClick={() =>
+                        navigate("/main/dashboard")}>Dashboard</button>
+                    </div>
+                    <div>
+                        <button className="employee-tab">Employees</button>
+                    </div>
+                    <div>
+                        <button className="case-tab" onClick={() =>
+                        navigate("/main/case")}>Case Management</button>
+                    </div>
                 </div>
-                <div className="overlap-2">
-                    <div className="text-wrapper-4">Employees</div>
-                    <div className="text-wrapper-5">Case Management</div>
-                    <div className="text-wrapper-3">Dashboard</div>
+                <div className="extra-tab">
+                    <div>
+                        {/* <button className="alert-tab">Alerts</button> */}
+                    </div>
+                    <div className="logout">
+                        <Logout></Logout>
+                    </div>
                 </div>
             </div>
 
         </div>
+        
+        
     )
 }
 

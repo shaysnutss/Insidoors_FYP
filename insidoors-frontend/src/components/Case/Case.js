@@ -52,7 +52,8 @@ const Case = () => {
               navigate("/main/dashboard")}>Dashboard</button>
           </div>
           <div>
-            <button className="employee-tab">Employees</button>
+            <button className="employee-tab" onClick={() =>
+              navigate("/main/employees")}>Employees</button>
           </div>
           <div>
             <button className="case-tab" onClick={() =>
@@ -61,7 +62,7 @@ const Case = () => {
         </div>
         <div className="extra-tab">
           <div>
-            <button className="alert-tab">Alerts</button>
+            {/* <button className="alert-tab">Alerts</button> */}
           </div>
           <div className="logout">
             <Logout></Logout>

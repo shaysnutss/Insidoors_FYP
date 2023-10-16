@@ -38,7 +38,7 @@ const Login = () => {
           </div>
           <div className="page">
             <div className="title">
-              <div className="title-text">Log in.</div>
+              <div className="title-text">Log In.</div>
               <img className="image" alt="" src={loginPic} />
             </div>
             <div>
