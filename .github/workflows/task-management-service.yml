@@ -30,8 +30,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-    - name: Run Maven Build Command
-      run: mvn clean install -DskipTests -f task-management-service
+    # - name: Run Maven Build Command
+    #   run: mvn clean install -DskipTests -f task-management-service
     - name: Run Maven Test
       run: mvn test -f task-management-service
     - name: Unit Test Results
