@@ -129,6 +129,31 @@ public class TaskManagementServiceController {
         return ResponseEntity.ok(updatedTask);
     }
 
+    @PutMapping("/descUpdate/{id}")
+    public ResponseEntity<TaskManagementService> updateTaskDesc(@PathVariable Long id, @RequestBody String tmNew) {
+        Optional<TaskManagementService> optionalTask = tMServiceRepo.findById(id);
+
+        if (optionalTask.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        TaskManagementService existingTask = optionalTask.get();
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(tmNew);
+
+            existingTask.setId(id);
+            existingTask.setIncidentDesc(jsonNode.get("incidentDesc").asText());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null); 
+        }
+
+        TaskManagementService updatedTask = tMServiceRepo.save(existingTask);
+        return ResponseEntity.ok(updatedTask);
+    }
+
     @DeleteMapping("/tasks/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable Long id){
