@@ -1,6 +1,130 @@
-.nav .screen {
-    background-color: #ffffff;
-    height: 768px;
-    position: relative;
-    width: 1366px;
+.Employee {
+    /* width: 100%;
+    margin: 0;
+    padding: 0; */
 }
+body {
+    overflow-x: hidden;
+    
+}
+.Employee .headingEmployee {
+    transform: translateX(15%);
+    position:relative;
+    top: -595px;
+    
+    
+}
+
+.Employee .headingEmployee .title {
+    left: 11.8%;
+    top: -15px;
+    position: absolute;
+    width: 1275px;
+}
+
+.Employee .headingEmployee .title .title-text {
+    color: #000000;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 45px;
+    font-weight: 700;
+
+
+    transform: translateX(-9.6%);
+    position: relative;
+}
+
+.Employee .headingEmployee .searchbar {
+    color: #535151;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 20px;
+    font-weight: 400;
+    background-color: #ffffff;
+    border: 1px solid;
+    border-color: #032539;
+    border-radius: 10px;
+    height: 40px;
+    left: 1150px;
+    top: -15px;
+    position: absolute;
+    width: 280px;
+}
+
+.Employee .TableContainer{
+    width:60%;
+    position: absolute;
+    top:25%; 
+    /* transform: translateY(-250%); */
+    margin-left: 21.7%;
+    /* transform: translateX(10%); */
+
+
+}
+
+/* .Employee table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.Employee table .tableHeader{
+    display: flex;
+    width: 75%;
+    align-items: center;
+    justify-content: space-between;
+
+    transform: translateX(13%);
+    position: relative;
+    top: -480px;
+
+    color: #000;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 600;
+}
+
+.Employee table tbody .straight-line {
+    width: 75%;
+    height: 4px;
+    background-color: black;
+
+    position: relative;
+    top: -445px;
+    right:-10%
+}
+
+td {
+    border: 1px solid black;
+    padding: 5px;
+} */
+
+/* .Employee .tableEmployee .employeeList .employeeItem{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-gap: 0.5rem;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: "Poppins-Bold", Helvetica;
+    color: #000;
+    
+}
+
+.Employee .tableEmployee .employeeList .employeeItem .listRow {
+
+} */
+    
+    
+    /* display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    width: 55%;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: "Poppins-Bold", Helvetica;
+    color: #000;
+    position: relative;
+    right: -10% */

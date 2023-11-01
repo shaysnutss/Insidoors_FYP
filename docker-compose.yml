@@ -80,14 +80,14 @@ services:
   # Composite Microservice: notification-service
   ####################################
   notification-service:
-     build:
-       context: ./notification-service
-       dockerfile: Dockerfile
-     restart: always
-     env_file:
-      - "dev.env"
-     ports:
-       - "30009:8080"
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+    - "dev.env"
+    ports:
+      - "30009:8080"
   ###################################
   # Composite Microservice: task-management-composite
   ####################################
