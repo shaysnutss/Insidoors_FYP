@@ -42,7 +42,7 @@ public class BehavioralAnalysisComposite {
     /**
      * Find all employees with their behaviour analysis
      *
-     * @return list of all employees with their behaviour analysis + incidents
+     * @return list of all employees with their behaviour analysis + incidents of each employee
      */
 
     @GetMapping("/viewIncidentsByEmployeeId/{id}")
