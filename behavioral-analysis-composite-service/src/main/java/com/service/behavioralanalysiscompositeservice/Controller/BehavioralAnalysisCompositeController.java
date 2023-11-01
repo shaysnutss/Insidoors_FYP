@@ -77,6 +77,12 @@ public class BehavioralAnalysisCompositeController {
 
     }
 
+    /**
+     * Find all employees with their behaviour analysis
+     *
+     * @return list of all employees with their behaviour analysis + incidents
+     */
+
     @GetMapping("/viewIncidentsByEmployeeId/{id}")
     public ResponseEntity<?> viewAllEmployees(@PathVariable(value = "id") long id){
 

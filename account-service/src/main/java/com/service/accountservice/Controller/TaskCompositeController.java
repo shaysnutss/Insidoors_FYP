@@ -24,6 +24,9 @@ public class TaskCompositeController {
     @Value("${COMMENTS_API_BASE_URL}")
     private String commentsApiBaseUrl;
 
+    @Value("${BA_COMPOSITE_API_BASE_URL}")
+    private String baCompositeApiBaseURL;
+
 
     public TaskCompositeController(com.service.accountservice.Service.accountService accountService) {
         this.accountService = accountService;
@@ -68,4 +71,5 @@ public class TaskCompositeController {
     public ResponseEntity<?> viewAllTasksByEmployeeId(@PathVariable int id){
         return accountService.getMethod(taskMCompApiBaseUrl + "/viewAllTasksByEmployeeId/" + id);
     }
+
 }
