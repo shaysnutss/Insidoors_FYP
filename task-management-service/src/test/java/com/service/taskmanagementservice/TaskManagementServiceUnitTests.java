@@ -27,7 +27,7 @@ public class TaskManagementServiceUnitTests {
 
     @Test 
     void shouldCreateTask() throws Exception {
-        TaskManagementService task = new TaskManagementService(1L, "first", LocalDateTime.now(), 23, 200, "Open", 12, LocalDate.now());
+        TaskManagementService task = new TaskManagementService(1L, "first", "description", LocalDateTime.now(), 23, 200, "Open", 12, LocalDate.now());
 
         mockMvc.perform(post("/api/v1/tasks").contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(task)))
@@ -38,8 +38,8 @@ public class TaskManagementServiceUnitTests {
     @Test
     void shouldReturnListOfTasks() throws Exception {
         List<TaskManagementService> mockTasks = new ArrayList<>(
-            Arrays.asList(new TaskManagementService(1L, "first", LocalDateTime.now(), 23, 200, "Open", 12, LocalDate.now()),
-            new TaskManagementService(2L, "second", LocalDateTime.now(), 12, 120, "Closed", 34, LocalDate.now())));
+            Arrays.asList(new TaskManagementService(1L, "first", "description", LocalDateTime.now(), 23, 200, "Open", 12, LocalDate.now()),
+            new TaskManagementService(2L, "second", "description", LocalDateTime.now(), 12, 120, "Closed", 34, LocalDate.now())));
     
         when(tMServiceRepo.findAll()).thenReturn(mockTasks);
         mockMvc.perform(get("/api/v1/tasks"))
@@ -51,7 +51,7 @@ public class TaskManagementServiceUnitTests {
     @Test
     void shouldReturnTask() throws Exception {
         long id = 1L;
-        TaskManagementService mockTask = new TaskManagementService(id, "first", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 12, LocalDate.of(2017,Month.FEBRUARY,3));
+        TaskManagementService mockTask = new TaskManagementService(id, "first", "description", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 12, LocalDate.of(2017,Month.FEBRUARY,3));
 
         when(tMServiceRepo.findById(any())).thenReturn(Optional.of(mockTask));
         mockMvc.perform(get("/api/v1/tasks/1"))
@@ -71,7 +71,7 @@ public class TaskManagementServiceUnitTests {
     void shouldReturnTaskByEmployeeId() throws Exception {
         long id = 1L;
         List<TaskManagementService> mockTasks = new ArrayList<>(
-            Arrays.asList(new TaskManagementService(id, "first", LocalDateTime.now(), 23, 200, "Open", 12, LocalDate.now())));
+            Arrays.asList(new TaskManagementService(id, "first", "description", LocalDateTime.now(), 23, 200, "Open", 12, LocalDate.now())));
 
         when(tMServiceRepo.findAllByEmployeeId(anyInt())).thenReturn(mockTasks);
         mockMvc.perform(get("/api/v1/tasks/employee/23"))
@@ -84,7 +84,7 @@ public class TaskManagementServiceUnitTests {
     void shouldReturnTaskByAccountId() throws Exception {
         long id = 1L;
         List<TaskManagementService> mockTasks = new ArrayList<>(
-            Arrays.asList(new TaskManagementService(id, "first", LocalDateTime.now(), 23, 200, "Open", 12, LocalDate.now())));
+            Arrays.asList(new TaskManagementService(id, "first", "description", LocalDateTime.now(), 23, 200, "Open", 12, LocalDate.now())));
 
         when(tMServiceRepo.findAllByAccountId(anyInt())).thenReturn(mockTasks);
         mockMvc.perform(get("/api/v1/tasks/account/12"))
@@ -97,8 +97,8 @@ public class TaskManagementServiceUnitTests {
     void shouldUpdateTaskStatus() throws Exception {
         long id = 1L;
 
-        TaskManagementService mockTask = new TaskManagementService(id, "first", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 12, LocalDate.of(2017,Month.FEBRUARY,3));
-        TaskManagementService mockTaskUpdate = new TaskManagementService(id, "new", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Closed", 12, LocalDate.of(2017,Month.FEBRUARY,3));
+        TaskManagementService mockTask = new TaskManagementService(id, "first", "description", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 12, LocalDate.of(2017,Month.FEBRUARY,3));
+        TaskManagementService mockTaskUpdate = new TaskManagementService(id, "new", "description", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Closed", 12, LocalDate.of(2017,Month.FEBRUARY,3));
 
         when(tMServiceRepo.findById(id)).thenReturn(Optional.of(mockTask));
         when(tMServiceRepo.save(any(TaskManagementService.class))).thenReturn(mockTaskUpdate);
@@ -121,8 +121,8 @@ public class TaskManagementServiceUnitTests {
     void shouldUpdateTaskSOC() throws Exception {
         long id = 1L;
 
-        TaskManagementService mockTask = new TaskManagementService(id, "first", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 12, LocalDate.of(2017,Month.FEBRUARY,3));
-        TaskManagementService mockTaskUpdate = new TaskManagementService(id, "new", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 8, LocalDate.of(2017,Month.FEBRUARY,3));
+        TaskManagementService mockTask = new TaskManagementService(id, "first", "description", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 12, LocalDate.of(2017,Month.FEBRUARY,3));
+        TaskManagementService mockTaskUpdate = new TaskManagementService(id, "new", "description", LocalDateTime.of(2017,Month.FEBRUARY,3,6,30,40,0), 23, 200, "Open", 8, LocalDate.of(2017,Month.FEBRUARY,3));
 
         when(tMServiceRepo.findById(id)).thenReturn(Optional.of(mockTask));
         when(tMServiceRepo.save(any(TaskManagementService.class))).thenReturn(mockTaskUpdate);

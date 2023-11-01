@@ -23,6 +23,9 @@ public class TaskManagementService {
     @Column(name="incident_title")
     private String incidentTitle;
 
+    @Column(name="incident_desc")
+    private String incidentDesc;
+
     @Column(name="incident_timestamp")
     private LocalDateTime incidentTimestamp;
     
