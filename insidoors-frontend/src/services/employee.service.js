@@ -16,6 +16,10 @@ class employeeService {
     return axios.get(API_URL + "viewEmployeeByName/" + name, {headers: authHeader()} );
   }
 
+  viewEmployeeByName = (name) => {
+    return axios.get(API_URL + "viewEmployeeByName/" + name, {headers: authHeader()} );
+  }
+
 }
 
 export default new employeeService();
