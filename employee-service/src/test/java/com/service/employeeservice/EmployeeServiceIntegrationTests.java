@@ -86,26 +86,26 @@ public class EmployeeServiceIntegrationTests {
     @Test
     @Order(1)
     @Sql(statements = "INSERT INTO employees (id, firstname, lastname, email, gender, business_unit, joined_date, terminated_date, location) values (1, \"Mary\", \"Elizabeth\", \"marye@gmail.com\", \"female\", \"Asset Management\", null, null, \"Seattle\")", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    public void testEmployeeList() {
+    void testEmployeeList() {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<List<EmployeeService>> response = restTemplate.exchange(
             (createURLWithPort() + "/employees"), HttpMethod.GET, entity, new ParameterizedTypeReference<List<EmployeeService>>(){});
         List<EmployeeService> employeeList = response.getBody();
         assertNotNull(employeeList);
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(employeeList.size(), empServiceRepo.findAll().size());
     }
 
     @Test
     @Order(2)
     @Sql(statements = "INSERT INTO employees (id, firstname, lastname, email, gender, business_unit, joined_date, terminated_date, location) values (2, \"Shelly\", \"Rose\", \"shel@gmail.com\", \"female\", \"Asset Management\", null, null, \"Seattle\")", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    public void testEmployeeById() {
+    void testEmployeeById() {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<Optional<EmployeeService>> response = restTemplate.exchange(
             (createURLWithPort() + "/employees/2"), HttpMethod.GET, entity, new ParameterizedTypeReference<Optional<EmployeeService>>(){});
         Optional<EmployeeService> employee = response.getBody();
 
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(employee, empServiceRepo.findById(2L));
         assertEquals("Shelly", empServiceRepo.findById(2L).get().getFirstname());
     }
