@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import "./Employees.css";
 import { useNavigate } from "react-router-dom";
 import Navigation from '../Navigation/Navigation';
+import authService from "../../services/auth.service";
 import employeeService from "../../services/employee.service";
 
 import PropTypes from 'prop-types';
@@ -25,6 +26,7 @@ import { styled } from '@mui/system';
         borderRadius: '10px',
         
     });
+
 
     const StyledTableRow = styled(TableRow)({
         // borderRadius: '100px',
@@ -140,6 +142,34 @@ import { styled } from '@mui/system';
         const color = cyan[500];
         const navigate = useNavigate();
         const [employees, setEmployees] = useState([]);
+        const [searchInput, setSearchInput] = useState(''); 
+
+        // Step 2
+        const handleSearchInputChange = (event) => {
+            setSearchInput(event.target.value);
+            console.log("tracks typing");
+        };
+
+        // Step 3
+        const handleSearchSubmit = async (event) => {
+            event.preventDefault();
+            console.log("before sending API");
+            const response = await employeeService.viewEmployeeByName(searchInput); // Step 4
+            console.log(response);
+            console.log(response.data);
+            setEmployees(response.data);
+            console.log(employees); 
+            console.log("after sending API");
+            
+        };
+
+        useEffect(() => {
+            console.log("this is the state of employees now");
+            console.log(employees);
+        }, [employees]);
+
+
+
 
         const fetchEmployees = async (e) => {
             const { data } = await employeeService.viewAllEmployees();
@@ -185,7 +215,17 @@ import { styled } from '@mui/system';
                         <div className="title-text">Employee Information</div>
                     </div>
                     <div>
-                        <input type="text" className="searchbar" placeholder=" Search" />
+                        <form onSubmit={handleSearchSubmit}>
+                            <input
+                            type="text"
+                            className="searchbar"
+                            placeholder=" Search"
+                            value={searchInput}
+                            onChange={handleSearchInputChange}
+                            />
+                            <button type="submit">Search</button>
+                        </form>
+                        {/* <input type="text" className="searchbar" placeholder=" Search" /> */}
                     </div>
                 </div>
                 <StyledTableContainer className="TableContainer" component={Paper}>

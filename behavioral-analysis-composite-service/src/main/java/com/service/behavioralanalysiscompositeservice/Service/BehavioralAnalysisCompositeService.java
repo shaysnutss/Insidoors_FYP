@@ -48,6 +48,36 @@ public class BehavioralAnalysisCompositeService {
         return allResults;
 
     }
+
+    // Sending GET request to employee service to get all employees
+    public Map<String, Object> getEmployeeMethod(String baseURL){
+
+        HttpClient client = HttpClients.createDefault();
+        HttpGet request = new HttpGet(baseURL);
+        Map<String, Object> allResults = null;
+        try{
+            HttpResponse response = client.execute(request);
+            if(response.getStatusLine().getStatusCode() == 404){
+                return null;
+
+            }else if(response.getStatusLine().getStatusCode() != 200){
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + response.getStatusLine().getStatusCode());
+            }
+            HttpEntity entity = response.getEntity();
+            String responseString = EntityUtils.toString(entity, "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            allResults = mapper.readValue(responseString, new TypeReference<Map<String, Object>>(){});
+
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return allResults;
+
+    }
+
     /*
     This method is to help find the behaviour analysis of a particular employee.
     If found, a map of that behaviour analysis would be returned.

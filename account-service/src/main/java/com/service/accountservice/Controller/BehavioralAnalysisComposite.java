@@ -40,15 +40,22 @@ public class BehavioralAnalysisComposite {
 
 
     /**
-     * Find all employees with their behaviour analysis
+     * Find the incidents of an employee 
      *
-     * @return list of all employees with their behaviour analysis + incidents of each employee
+     * @return list the incidents of an employee
      */
 
     @GetMapping("/viewIncidentsByEmployeeId/{id}")
-    public ResponseEntity<?> viewIncidentsByEmployeeId(@PathVariable int id){
+    public ResponseEntity<?> viewIncidentsByEmployeeId(@PathVariable(value =  "id") int id){
         return accountService.getMethod(baCompositeApiBaseURL + "/viewIncidentsByEmployeeId/" + id);
     }
+
+    @GetMapping("/viewEmployeeByName/{name}")
+    public ResponseEntity<?> viewEmployeeById(@PathVariable(value = "name" ) String name){
+        return accountService.getMethod(baCompositeApiBaseURL + "/viewEmployeeByName/" + name);
+    }
+
+
 
 
     
