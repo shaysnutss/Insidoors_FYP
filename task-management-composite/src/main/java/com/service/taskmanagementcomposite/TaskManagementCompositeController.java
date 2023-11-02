@@ -151,8 +151,8 @@ public class TaskManagementCompositeController {
         }
     }
 
-    @GetMapping("/viewAllTasksById/{id}")
-    public ResponseEntity<?> viewAllTasksById(@PathVariable Long id) {
+    @GetMapping("/viewTaskById/{id}")
+    public ResponseEntity<?> viewTaskById(@PathVariable Long id) {
         try {
             objectMapper.findAndRegisterModules();
 
