@@ -39,4 +39,15 @@ public class EmployeeServiceController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
+    @GetMapping("/employees/getEmployee/{name}")
+    public ResponseEntity<EmployeeService> getEmployeeByName(@PathVariable String name) {
+        EmployeeService employee = employeeServiceRepo.findByfirstname(name);
+
+        if (employee != null) {
+            return ResponseEntity.ok(employee);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 }

@@ -78,9 +78,10 @@ public class BehavioralAnalysisCompositeController {
     }
 
     /**
-     * Find all employees with their behaviour analysis
+     * Find an employee with their behaviour analysis
      *
-     * @return list of all employees with their behaviour analysis + incidents
+     * @return an employee with their behaviour analysis + list of incidents of each
+     *         employee
      */
 
     @GetMapping("/viewIncidentsByEmployeeId/{id}")
@@ -91,6 +92,24 @@ public class BehavioralAnalysisCompositeController {
         return ResponseEntity.ok(incidentsByEmployee);
 
 
+    }
+
+    /**
+     * Find an employee with their behaviour analysis by name
+     *
+     * @return an employee with their behaviour analysis
+     */
+    @GetMapping("/viewEmployeeByName/{name}")
+    public ResponseEntity<?> viewEmployeeById(@PathVariable(value = "name") String name) {
+        // get the id by name
+        Map<String,Object> employeeIdObject = behavioralAnalysisCompositeService.getEmployeeMethod(employeesApiBaseUrl + "/getEmployee/" + name);
+        String id = "" + employeeIdObject.get("id"); 
+        Map<String, Object> employee = behavioralAnalysisCompositeService.getEmployeeMethod(employeesApiBaseUrl + "/" + id);
+        if (employee == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        
+        return ResponseEntity.ok(employee); 
     }
 
 
