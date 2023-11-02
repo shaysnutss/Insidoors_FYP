@@ -1,0 +1,651 @@
+.background {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+}
+
+.modal {
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    border-radius: 12px;
+    height: 790px;
+    width: 540px;
+    position: fixed;
+    border-radius: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.modal .closeButton {
+    color: #000000;
+    font-family: "Poppins-Light", Helvetica;
+    font-size: 20px;
+    font-weight: 400;
+    height: 30px;
+    left: 505px;
+    position: absolute;
+    top: 10px;
+    background-color: #ffffff;
+    border: none;
+}
+
+.modal .lineTop {
+    height: 2px;
+    left: 0;
+    position: absolute;
+    top: 45px;
+    width: 540px;
+}
+
+.modal .textTitle {
+    color: #002c3e;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 32px;
+    font-weight: 700;
+    left: 45px;
+    position: absolute;
+    top: 65px;
+    width: 300px;
+}
+
+.modal .textEmployee {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    left: 50px;
+    position: absolute;
+    top: 130px;
+}
+
+.modal .textIncident {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 48px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 179px;
+    width: 208px;
+}
+
+.modal .textSeverity {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 49px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 229px;
+    width: 208px;
+}
+
+.modal .textStatus {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 48px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 279px;
+    width: 127px;
+}
+
+.modal .textSoc {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 48px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 329px;
+    width: 109px;
+}
+
+.modal .textDate {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 48px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 379px;
+    width: 156px;
+}
+
+.modal .employee {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 129px;
+    width: 203px;
+}
+
+.modal .incident {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 179px;
+    width: 203px;
+}
+
+.modal .severity {
+    color: #9a0707;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 229px;
+    width: 203px;
+}
+
+.modal .status {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 300px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 279px;
+    width: 203px;
+}
+
+.modal .soc {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 329px;
+    width: 203px;
+}
+
+.modal .date {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 379px;
+    width: 203px;
+}
+
+.modal .tab {
+    position: absolute;
+    top: 435px;
+    width: 540px;
+}
+
+.modal .descSelected {
+    background-color: white;
+    border:none;
+    color: #6f6f6f66;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 18px;
+    font-weight: 400;
+    left: 20px;
+    position: absolute;
+    text-align: center;
+    top: 10px;
+}
+
+.modal .commentSelected {
+    background-color: white;
+    border:none;
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 18px;
+    font-weight: 400;
+    left: 170px;
+    position: absolute;
+    top: 10px;
+}
+
+.modal .lineBot {
+    height: 2px;
+    position: absolute;
+    top: 45px;
+    width: 540px;
+}
+
+.modal .comments {
+    height: 230px;
+    left: 10px;
+    position: absolute;
+    top: 490px;
+    width: 520px;
+}
+
+.modal .commentsGet {
+    height: 150px;
+    overflow-y: scroll;
+    position: absolute;
+    width: 520px;
+}
+
+.modal .commentBox {
+    height: 60px;
+    left: 5px;
+    position: relative;
+    top: -10px;
+    width: 510px;
+    border: 1px solid;
+    border-color: #000000;
+    border-radius: 5px;
+}
+
+.modal .commentTitle {
+    color: #000000;
+    font-family: "Poppins-Medium", Helvetica;
+    font-size: 16px;
+    font-weight: 500;
+    left: 10px;
+    position: absolute;
+    top: 5px;
+}
+
+.modal .commentDescription {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 12px;
+    font-weight: 400;
+    height: 40px;
+    left: 10px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 25px;
+    width: 495px;
+}
+
+.modal .addCommentBox {
+    border: 1px solid;
+    border-color: #000000;
+    border-radius: 5px;
+    height: 60px;
+    left: 5px;
+    position: absolute;
+    top: 160px;
+    width: 510px;
+}
+
+.modal .addCommentTitle {
+    color: #000000;
+    font-family: "Poppins-Medium", Helvetica;
+    font-size: 16px;
+    font-weight: 500;
+    left: 10px;
+    position: absolute;
+    top: 5px;
+}
+
+.modal .addCommentDescription {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 12px;
+    font-weight: 400;
+    height: 40px;
+    left: 10px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 25px;
+    width: 495px;
+}
+
+.modal .saveButton {
+    border: none;
+    align-items: center;
+    background-color: #78bcc4;
+    border-radius: 10px;
+    display: flex;
+    height: 35px;
+    justify-content: center;
+    left: 425px;
+    padding: 8px;
+    position: absolute;
+    top: 735px;
+    width: 100px;
+}
+
+.modal .saveButtonText {
+    color: #ffffff;
+    font-family: "Poppins-SemiBold", Helvetica;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+
+
+
+
+
+
+.modal1 {
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    border-radius: 12px;
+    height: 620px;
+    width: 540px;
+    position: fixed;
+    border-radius: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.modal1 .closeButton {
+    color: #000000;
+    font-family: "Poppins-Light", Helvetica;
+    font-size: 20px;
+    font-weight: 400;
+    height: 30px;
+    left: 505px;
+    position: absolute;
+    top: 10px;
+    background-color: #ffffff;
+    border: none;
+}
+
+.modal1 .lineTop {
+    height: 2px;
+    left: 0;
+    position: absolute;
+    top: 45px;
+    width: 540px;
+}
+
+.modal1 .textTitle {
+    color: #002c3e;
+    font-family: "Poppins-Bold", Helvetica;
+    font-size: 32px;
+    font-weight: 700;
+    left: 45px;
+    position: absolute;
+    top: 65px;
+    width: 300px;
+}
+
+.modal1 .textEmployee {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    left: 50px;
+    position: absolute;
+    top: 130px;
+}
+
+.modal1 .textIncident {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 48px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 179px;
+    width: 208px;
+}
+
+.modal1 .textSeverity {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 49px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 229px;
+    width: 208px;
+}
+
+.modal1 .textStatus {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 48px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 279px;
+    width: 127px;
+}
+
+.modal1 .textSoc {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 48px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 329px;
+    width: 109px;
+}
+
+.modal1 .textDate {
+    color: #6f6f6f;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 48px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 379px;
+    width: 156px;
+}
+
+.modal1 .employee {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 129px;
+    width: 203px;
+}
+
+.modal1 .incident {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 179px;
+    width: 203px;
+}
+
+.modal1 .severity {
+    color: #9a0707;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 229px;
+    width: 203px;
+}
+
+.modal1 .status {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 300px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 279px;
+    width: 203px;
+}
+
+.modal1 .soc {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 329px;
+    width: 203px;
+}
+
+.modal1 .date {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 301px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 379px;
+    width: 203px;
+}
+
+.modal1 .tab {
+    position: absolute;
+    top: 435px;
+    width: 540px;
+}
+
+.modal1 .descSelected {
+    background-color: white;
+    border:none;
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 18px;
+    font-weight: 400;
+    left: 20px;
+    position: absolute;
+    text-align: center;
+    top: 10px;
+}
+
+.modal1 .commentSelected {
+    background-color: white;
+    border:none;
+    color: #6f6f6f66;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 18px;
+    font-weight: 400;
+    left: 170px;
+    position: absolute;
+    top: 10px;
+}
+
+.modal1 .lineBot {
+    height: 2px;
+    position: absolute;
+    top: 45px;
+    width: 540px;
+}
+
+.modal1 .descBox {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    left:5px;
+    position: relative;
+    top: 490px;
+    width: 500px;
+}
+
+.modal1 .saveButton {
+    border: none;
+    align-items: center;
+    background-color: #78bcc4;
+    border-radius: 10px;
+    display: flex;
+    height: 35px;
+    justify-content: center;
+    left: 425px;
+    padding: 8px;
+    position: absolute;
+    top: 570px;
+    width: 100px;
+}
+
+.modal1 .saveButtonText {
+    color: #ffffff;
+    font-family: "Poppins-SemiBold", Helvetica;
+    font-size: 16px;
+    font-weight: 600;
+}
