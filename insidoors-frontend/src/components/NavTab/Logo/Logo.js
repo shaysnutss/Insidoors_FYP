@@ -1,4 +1,5 @@
 import "./Logo.css";
+import React from 'react'
 
 const Logo = () => {
     return (

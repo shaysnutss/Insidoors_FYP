@@ -76,6 +76,8 @@ services:
       - ./insidoors-frontend:/app
     ports:
       - "30008:3000"
+    stdin_open: true
+    tty: true
   ####################################
   # Composite Microservice: notification-service
   ####################################

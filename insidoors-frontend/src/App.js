@@ -2,6 +2,7 @@ import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import './App.css';
 import Employees from './components/Employees/Employees';
 import { Login, Dashboard, Case, Navigation } from './components'
+import React from 'react'
 
 function App() {
     
