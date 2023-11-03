@@ -29,7 +29,7 @@ body {
     font-weight: 700;
 
 
-    transform: translateX(-9.6%);
+    transform: translateX(-16.3%);
     position: relative;
 }
 
@@ -43,11 +43,29 @@ body {
     border-color: #032539;
     border-radius: 10px;
     height: 40px;
-    left: 1150px;
+    left: 1000px;
     top: -15px;
     position: absolute;
     width: 280px;
 }
+
+.Employee .headingEmployee .searchButton {
+    background: #032539;
+    -webkit-border-radius: 28;
+    -moz-border-radius: 28;
+    border-radius: 28px;
+    font-family: "Poppins-Regular", Helvetica;
+    color: #ffffff;
+    font-size: 20px;
+    padding: 7px 20px 20px 20px;
+    text-decoration: none;
+    height: 40px;
+    left: 1300px;
+    top: -15px;
+    position: absolute;
+}
+
+
 
 .Employee .TableContainer{
     width:60%;
