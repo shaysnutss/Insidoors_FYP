@@ -21,6 +21,8 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { cyan } from '@mui/material/colors';
 import { styled } from '@mui/system';
+// import { forceUpdate } from 'react-redux';
+
 
     const StyledTableContainer = styled(TableContainer)({
         borderRadius: '10px',
@@ -141,7 +143,10 @@ import { styled } from '@mui/system';
     export default function Employees() {
         const color = cyan[500];
         const navigate = useNavigate();
-        const [employees, setEmployees] = useState([]);
+        // State for all employees
+        const [allEmployees, setAllEmployees] = useState([]);
+        // State for filtered employees
+        const [filteredEmployees, setFilteredEmployees] = useState([]);
         const [searchInput, setSearchInput] = useState(''); 
 
         // Step 2
@@ -153,20 +158,30 @@ import { styled } from '@mui/system';
         // Step 3
         const handleSearchSubmit = async (event) => {
             event.preventDefault();
+            
             console.log("before sending API");
-            const response = await employeeService.viewEmployeeByName(searchInput); // Step 4
-            console.log(response);
-            console.log(response.data);
-            setEmployees(response.data);
-            console.log(employees); 
+
+            // Fetch all employees
+            const { data } = await employeeService.viewAllEmployees();
+            setAllEmployees(data);
+
+            // Filter employees based on the search input
+            const filtered = data.filter((employee) =>
+                employee.firstname.toLowerCase().includes(searchInput.toLowerCase())
+            );
+
+            // Update the state with the filtered employees
+            setFilteredEmployees(filtered);
+
             console.log("after sending API");
+
             
         };
 
         useEffect(() => {
             console.log("this is the state of employees now");
-            console.log(employees);
-        }, [employees]);
+            console.log(filteredEmployees);
+        }, [filteredEmployees]);
 
 
 
@@ -174,10 +189,12 @@ import { styled } from '@mui/system';
         const fetchEmployees = async (e) => {
             const { data } = await employeeService.viewAllEmployees();
             const employees = data;
-            setEmployees(employees);
+            setAllEmployees(data);
+            setFilteredEmployees(data);
             console.log("hello1");
             console.log(employees);
             console.log("hello2");
+
         };
 
         useEffect(() => {
@@ -205,10 +222,12 @@ import { styled } from '@mui/system';
             }
         }, []);
 
+        
+
         return (
             <div className="Employee">
                 <div className= "div">
-                    <Navigation/>
+                    <Navigation resetEmployees={fetchEmployees}/>
                 </div>
                 <div className = "headingEmployee">
                     <div className="title">
@@ -245,12 +264,15 @@ import { styled } from '@mui/system';
                         </StyleTableHeader>
                         </TableHead>
                         <TableBody sx={{ border: 'none'}} >
-
-                            {employees && employees.length > 0 ? (
-                                employees.map((employee) => <Row key={employee.id} row={employee} />)
+                            {filteredEmployees && filteredEmployees.length > 0 ? (
+                                filteredEmployees.map((employee) => <Row key={employee.id} row={employee} />)
                             ) : (
                                 <TableRow>
-                                <TableCell colSpan={11}>No employees found.</TableCell>
+                                    <TableCell colSpan={11}>
+                                        {searchInput.trim() === ''
+                                            ? 'No employees found.'
+                                            : 'No matching employees found.'}
+                                    </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
