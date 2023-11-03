@@ -242,7 +242,7 @@ import { styled } from '@mui/system';
                             value={searchInput}
                             onChange={handleSearchInputChange}
                             />
-                            <button type="submit">Search</button>
+                            <button type="submit" className="searchButton">Search</button>
                         </form>
                         {/* <input type="text" className="searchbar" placeholder=" Search" /> */}
                     </div>
