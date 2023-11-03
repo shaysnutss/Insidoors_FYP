@@ -11,27 +11,23 @@
 # In[ ]:
 
 
-# !pip install feature-engine --no-build-isolation
+# !pip3 install feature-engine
 
 
 # In[ ]:
 
 
 # FUTURE ITERATIONS:
-# 1. evaluate k vs k-1 dummies for categorical variables
-# 2. evaluate performance with cases 2 and 5
+# 1. Use gridsearch for hyperparameter tuning
 
 
-# ## Insidoors One-class SVM Classifier for PC Access, Building Access, and Proxy Logs
-# This notebook details the second iteration of an anomaly detection classifier that identifies suspicious employee activity. For ease of development, all classifiers are currently built and trained in this notebook. In the future, a separate notebook will be created for each classifier.
+# ## Insidoors Local Outlier Factor for PC Access, Building Access, and Proxy Logs
+# This notebook details the first iteration of using Local Outlier Factor to identify suspicious employee activity. For ease of development, all classifiers are currently built and trained in this notebook. In the future, a separate notebook will be created for each classifier.
 # 
 # #### Changelog
 # 
-# *Version: 2 (Current)*
-# * Implemented feature encoding for tabular data
-# 
-# *Version: 1*
-# * Base classifier
+# *Version: 1 (Current)*
+# * Base
 
 # ### Load data
 
@@ -86,11 +82,11 @@ building_df['attempts'] = np.random.randint(1, 6, building_df.shape[0])
 
 # Remove cases 2 and 5 from all logs
 
-to_exclude = [2, 5]
+# to_exclude = [2, 5]
 
-pc_df = pc_df[~pc_df['suspect'].isin(to_exclude)]
-building_df = building_df[~building_df['suspect'].isin(to_exclude)]
-proxy_df = proxy_df[~proxy_df['suspect'].isin(to_exclude)]
+# pc_df = pc_df[~pc_df['suspect'].isin(to_exclude)]
+# building_df = building_df[~building_df['suspect'].isin(to_exclude)]
+# proxy_df = proxy_df[~proxy_df['suspect'].isin(to_exclude)]
 
 
 # In[ ]:
@@ -295,6 +291,17 @@ print(pc_X_test.shape)
 # In[ ]:
 
 
+# Select only normal pc_X_train data
+
+pc_X_train_normal = pc_y_train[pc_y_train==1].index
+pc_X_train = pc_X_train.loc[pc_X_train_normal]
+
+pc_X_train
+
+
+# In[ ]:
+
+
 # Split Building dataframe into train and test
 # 80% train, 20% test
 
@@ -307,6 +314,17 @@ building_X_train, building_X_test, building_y_train, building_y_test = train_tes
 print('Building dataframe splits:')
 print(building_X_train.shape)
 print(building_X_test.shape)
+
+
+# In[ ]:
+
+
+# Select only normal building_X_train data
+
+building_X_train_normal = building_y_train[building_y_train==1].index
+building_X_train = building_X_train.loc[building_X_train_normal]
+
+building_X_train
 
 
 # In[ ]:
@@ -329,6 +347,17 @@ print(proxy_X_test.shape)
 # In[ ]:
 
 
+# Select only normal proxy_X_train data
+
+proxy_X_train_normal = proxy_y_train[proxy_y_train==1].index
+proxy_X_train = proxy_X_train.loc[proxy_X_train_normal]
+
+proxy_X_train
+
+
+# In[ ]:
+
+
 # Create feature encoding pipeline for PC Access logs
 
 pc_numeric_features = ['access_year']
@@ -338,7 +367,7 @@ pc_numeric_transformer = Pipeline(
 
 pc_categorical_features = ['log_on_off', 'machine_location', 'user_location', 'terminated']
 pc_categorical_transformer = Pipeline(
-    steps=[('encoder', OneHotEncoder(handle_unknown='ignore'))]
+    steps=[('encoder', OneHotEncoder(drop='first', handle_unknown='ignore'))]
 )
 
 pc_cyclical_features = ['access_month', 'access_day', 'access_weekday',
@@ -379,7 +408,7 @@ building_numeric_transformer = Pipeline(
 
 building_categorical_features = ['direction', 'status', 'office_location', 'terminated']
 building_categorical_transformer = Pipeline(
-    steps=[('encoder', OneHotEncoder(handle_unknown='ignore'))]
+    steps=[('encoder', OneHotEncoder(drop='first', handle_unknown='ignore'))]
 )
 
 building_cyclical_features = ['access_month', 'access_day', 'access_weekday',
@@ -420,7 +449,7 @@ proxy_numeric_transformer = Pipeline(
 
 proxy_categorical_features = ['category']
 proxy_categorical_transformer = Pipeline(
-    steps=[('encoder', OneHotEncoder(handle_unknown='ignore'))]
+    steps=[('encoder', OneHotEncoder(drop='first', handle_unknown='ignore'))]
 )
 
 proxy_cyclical_features = ['access_month', 'access_day', 'access_weekday',
@@ -449,23 +478,23 @@ print('\nSample proxy_train encoding:')
 print(proxy_train_encodings[0])
 
 
-# ### Train anomaly detection classifier with One-class SVM
+# ### Train Local Outlier Factor for anomaly detection
 
 # In[ ]:
 
 
-from sklearn.svm import OneClassSVM
+from sklearn.neighbors import LocalOutlierFactor
 
 
 # In[ ]:
 
 
-# Initialise and fit One-class SVM classifier for PC Access logs
+# Initialise and fit Local Outlier Factor for PC Access logs
 
 pc_clf = Pipeline(
     steps=[
         ('preprocessor', pc_preprocessor),
-        ('classifier', OneClassSVM(nu=0.05, kernel='rbf'))
+        ('classifier', LocalOutlierFactor(novelty=True, contamination=0.03))
     ]
 )
 
@@ -477,19 +506,19 @@ pc_clf.fit(pc_X_train)
 
 # Run predictions for PC Access logs
 
-pc_train_preds = pc_clf.predict(pc_X_train)
+# pc_train_preds = pc_clf.predict(pc_X_train)
 pc_test_preds = pc_clf.predict(pc_X_test)
 
 
 # In[ ]:
 
 
-# Initialise and fit One-class SVM classifier for Building Access logs
+# Initialise and fit Local Outlier Factor for Building Access logs
 
 building_clf = Pipeline(
     steps=[
         ('preprocessor', building_preprocessor),
-        ('classifier', OneClassSVM(nu=0.05, kernel='rbf'))
+        ('classifier', LocalOutlierFactor(novelty=True, contamination=0.03))
     ]
 )
 
@@ -501,19 +530,19 @@ building_clf.fit(building_X_train)
 
 # Run predictions for Building Access logs
 
-building_train_preds = building_clf.predict(building_X_train)
+# building_train_preds = building_clf.predict(building_X_train)
 building_test_preds = building_clf.predict(building_X_test)
 
 
 # In[ ]:
 
 
-# Initialise and fit One-class SVM classifier for Proxy Access logs
+# Initialise and fit Local Outlier Factor for Proxy Access logs
 
 proxy_clf = Pipeline(
     steps=[
         ('preprocessor', proxy_preprocessor),
-        ('classifier', OneClassSVM(nu=0.05, kernel='rbf'))
+        ('classifier', LocalOutlierFactor(novelty=True, contamination=0.03))
     ]
 )
 
@@ -525,11 +554,11 @@ proxy_clf.fit(proxy_X_train)
 
 # Run predictions for Proxy logs
 
-proxy_train_preds = proxy_clf.predict(proxy_X_train)
+# proxy_train_preds = proxy_clf.predict(proxy_X_train)
 proxy_test_preds = proxy_clf.predict(proxy_X_test)
 
 
-# ### Evaluate classifier
+# ### Evaluate
 
 # In[ ]:
 
@@ -551,12 +580,12 @@ cm_display_labels = ['normal', 'anomaly']
 
 # Compute metrics for PC classifier
 
-pc_train_accuracy = accuracy_score(pc_y_train, pc_train_preds)
-pc_train_precision = precision_score(pc_y_train, pc_train_preds)
-pc_train_recall = recall_score(pc_y_train, pc_train_preds)
-pc_train_f1 = f1_score(pc_y_train, pc_train_preds)
-pc_train_f1_weighted = f1_score(pc_y_train, pc_train_preds, average='weighted')
-pc_train_confusion = confusion_matrix(pc_y_train, pc_train_preds, labels=cm_labels)
+# pc_train_accuracy = accuracy_score(pc_y_train, pc_train_preds)
+# pc_train_precision = precision_score(pc_y_train, pc_train_preds)
+# pc_train_recall = recall_score(pc_y_train, pc_train_preds)
+# pc_train_f1 = f1_score(pc_y_train, pc_train_preds)
+# pc_train_f1_weighted = f1_score(pc_y_train, pc_train_preds, average='weighted')
+# pc_train_confusion = confusion_matrix(pc_y_train, pc_train_preds, labels=cm_labels)
 
 pc_test_accuracy = accuracy_score(pc_y_test, pc_test_preds)
 pc_test_precision = precision_score(pc_y_test, pc_test_preds)
@@ -571,18 +600,18 @@ pc_test_confusion = confusion_matrix(pc_y_test, pc_test_preds, labels=cm_labels)
 
 # Display evaluation results for pc_train
 
-print('Results for One-class SVM on pc_train:')
-print('Accuracy:', pc_train_accuracy)
-print('Precision:', pc_train_precision)
-print('Recall:', pc_train_recall)
-print('F1:', pc_train_f1)
-print('F1 (Weighted):', pc_train_f1_weighted)
+# print('Results for Local Outlier Factor on pc_train:')
+# print('Accuracy:', pc_train_accuracy)
+# print('Precision:', pc_train_precision)
+# print('Recall:', pc_train_recall)
+# print('F1:', pc_train_f1)
+# print('F1 (Weighted):', pc_train_f1_weighted)
 
-print('\nConfusion Matrix:')
-pc_train_confusion_disp = ConfusionMatrixDisplay(confusion_matrix=pc_train_confusion,
-                                                 display_labels=cm_display_labels)
-pc_train_confusion_disp.plot()
-plt.show()
+# print('\nConfusion Matrix:')
+# pc_train_confusion_disp = ConfusionMatrixDisplay(confusion_matrix=pc_train_confusion,
+#                                                  display_labels=cm_display_labels)
+# pc_train_confusion_disp.plot()
+# plt.show()
 
 
 # In[ ]:
@@ -590,7 +619,7 @@ plt.show()
 
 # Display evaluation results for pc_test
 
-print('Results for One-class SVM on pc_test:')
+print('Results for Local Outlier Factor on pc_test:')
 print('Accuracy:', pc_test_accuracy)
 print('Precision:', pc_test_precision)
 print('Recall:', pc_test_recall)
@@ -609,12 +638,12 @@ plt.show()
 
 # Compute metrics for Building classifier
 
-building_train_accuracy = accuracy_score(building_y_train, building_train_preds)
-building_train_precision = precision_score(building_y_train, building_train_preds)
-building_train_recall = recall_score(building_y_train, building_train_preds)
-building_train_f1 = f1_score(building_y_train, building_train_preds)
-building_train_f1_weighted = f1_score(building_y_train, building_train_preds, average='weighted')
-building_train_confusion = confusion_matrix(building_y_train, building_train_preds, labels=cm_labels)
+# building_train_accuracy = accuracy_score(building_y_train, building_train_preds)
+# building_train_precision = precision_score(building_y_train, building_train_preds)
+# building_train_recall = recall_score(building_y_train, building_train_preds)
+# building_train_f1 = f1_score(building_y_train, building_train_preds)
+# building_train_f1_weighted = f1_score(building_y_train, building_train_preds, average='weighted')
+# building_train_confusion = confusion_matrix(building_y_train, building_train_preds, labels=cm_labels)
 
 building_test_accuracy = accuracy_score(building_y_test, building_test_preds)
 building_test_precision = precision_score(building_y_test, building_test_preds)
@@ -629,18 +658,18 @@ building_test_confusion = confusion_matrix(building_y_test, building_test_preds,
 
 # Display evaluation results for building_train
 
-print('Results for One-class SVM on building_train:')
-print('Accuracy:', building_train_accuracy)
-print('Precision:', building_train_precision)
-print('Recall:', building_train_recall)
-print('F1:', building_train_f1)
-print('F1 (Weighted):', building_train_f1_weighted)
-print('Confusion Matrix: \n', building_train_confusion)
+# print('Results for Local Outlier Factor on building_train:')
+# print('Accuracy:', building_train_accuracy)
+# print('Precision:', building_train_precision)
+# print('Recall:', building_train_recall)
+# print('F1:', building_train_f1)
+# print('F1 (Weighted):', building_train_f1_weighted)
+# print('Confusion Matrix: \n', building_train_confusion)
 
-building_train_confusion_disp = ConfusionMatrixDisplay(confusion_matrix=building_train_confusion,
-                                                       display_labels=cm_display_labels)
-building_train_confusion_disp.plot()
-plt.show()
+# building_train_confusion_disp = ConfusionMatrixDisplay(confusion_matrix=building_train_confusion,
+#                                                        display_labels=cm_display_labels)
+# building_train_confusion_disp.plot()
+# plt.show()
 
 
 # In[ ]:
@@ -648,7 +677,7 @@ plt.show()
 
 # Display evaluation results for building_test
 
-print('Results for One-class SVM on building_test:')
+print('Results for Local Outlier Factor on building_test:')
 print('Accuracy:', building_test_accuracy)
 print('Precision:', building_test_precision)
 print('Recall:', building_test_recall)
@@ -667,12 +696,12 @@ plt.show()
 
 # Compute metrics for Proxy classifier
 
-proxy_train_accuracy = accuracy_score(proxy_y_train, proxy_train_preds)
-proxy_train_precision = precision_score(proxy_y_train, proxy_train_preds)
-proxy_train_recall = recall_score(proxy_y_train, proxy_train_preds)
-proxy_train_f1 = f1_score(proxy_y_train, proxy_train_preds)
-proxy_train_f1_weighted = f1_score(proxy_y_train, proxy_train_preds, average='weighted')
-proxy_train_confusion = confusion_matrix(proxy_y_train, proxy_train_preds, labels=cm_labels)
+# proxy_train_accuracy = accuracy_score(proxy_y_train, proxy_train_preds)
+# proxy_train_precision = precision_score(proxy_y_train, proxy_train_preds)
+# proxy_train_recall = recall_score(proxy_y_train, proxy_train_preds)
+# proxy_train_f1 = f1_score(proxy_y_train, proxy_train_preds)
+# proxy_train_f1_weighted = f1_score(proxy_y_train, proxy_train_preds, average='weighted')
+# proxy_train_confusion = confusion_matrix(proxy_y_train, proxy_train_preds, labels=cm_labels)
 
 proxy_test_accuracy = accuracy_score(proxy_y_test, proxy_test_preds)
 proxy_test_precision = precision_score(proxy_y_test, proxy_test_preds)
@@ -687,18 +716,18 @@ proxy_test_confusion = confusion_matrix(proxy_y_test, proxy_test_preds, labels=c
 
 # Display evaluation results for proxy_train
 
-print('Results for One-class SVM on proxy_train:')
-print('Accuracy:', proxy_train_accuracy)
-print('Precision:', proxy_train_precision)
-print('Recall:', proxy_train_recall)
-print('F1:', proxy_train_f1)
-print('F1 (Weighted):', proxy_train_f1_weighted)
-print('Confusion Matrix: \n', proxy_train_confusion)
+# print('Results for Local Outlier Factor on proxy_train:')
+# print('Accuracy:', proxy_train_accuracy)
+# print('Precision:', proxy_train_precision)
+# print('Recall:', proxy_train_recall)
+# print('F1:', proxy_train_f1)
+# print('F1 (Weighted):', proxy_train_f1_weighted)
+# print('Confusion Matrix: \n', proxy_train_confusion)
 
-proxy_train_confusion_disp = ConfusionMatrixDisplay(confusion_matrix=proxy_train_confusion,
-                                                    display_labels=cm_display_labels)
-proxy_train_confusion_disp.plot()
-plt.show()
+# proxy_train_confusion_disp = ConfusionMatrixDisplay(confusion_matrix=proxy_train_confusion,
+#                                                     display_labels=cm_display_labels)
+# proxy_train_confusion_disp.plot()
+# plt.show()
 
 
 # In[ ]:
@@ -706,7 +735,7 @@ plt.show()
 
 # Display evaluation results for proxy_test
 
-print('Results for One-class SVM on proxy_test:')
+print('Results for Local Outlier Factor on proxy_test:')
 print('Accuracy:', proxy_test_accuracy)
 print('Precision:', proxy_test_precision)
 print('Recall:', proxy_test_recall)
@@ -720,7 +749,7 @@ proxy_test_confusion_disp.plot()
 plt.show()
 
 
-# ### Test classifier predictions on unseen cases
+# ### Test predictions on unseen cases
 
 # In[ ]:
 

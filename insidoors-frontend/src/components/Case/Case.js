@@ -3,12 +3,36 @@ import { Logo, Logout } from "..";
 import { useNavigate } from "react-router-dom";
 import authService from "../../services/auth.service";
 import userService from "../../services/user.service";
-import "./Case.css"
-import { openCases, assigned, inReview, closed, plus, message, line, male, female } from "../../assets"
+import Modal from "./Modal/Modal";
+import "./Case.css";
+import { openCases, assigned, inReview, closed, plus, line, male, female } from "../../assets"
 
 const Case = () => {
   const navigate = useNavigate();
   const [cases, setCases] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [caseId, setCaseId] = useState(0);
+
+  function Ticket(cases) {
+    return (<div className="ticket">
+      <img className="line" alt="" src={line} />
+      <div className="ticket-body">
+        {cases.severity === 50 &&
+          <div className="priority-low">Low</div>
+        }
+        {cases.severity === 100 &&
+          <div className="priority-med">Med</div>
+        }
+        {cases.severity === 200 &&
+          <div className="priority-high">High</div>
+        }
+        <div className="title">{cases.title}</div>
+        <p className="description">{cases.employeeFirstname} {cases.employeeLastname}{"\n"}{cases.incidentTimestamp}</p>
+      </div>
+      <img className="person" alt="" src={plus} />
+      <button className="message" onClick={() => { setModalOpen(true); setCaseId(cases.id); }}>View {">"}</button>
+    </div>)
+  }
 
   const fetchCases = async (e) => {
     const { data } = await userService.getAllCases();
@@ -73,25 +97,8 @@ const Case = () => {
             <div>
               {cases.map((cases) => (
                 <p key={cases.id}>
-                  {cases.status === "Open" &&
-                    <div className="ticket">
-                      <img className="line" alt="" src={line} />
-                      <div className="ticket-body">
-                        {cases.severity === 50 &&
-                          <div className="priority-low">Low</div>
-                        }
-                        {cases.severity === 100 &&
-                          <div className="priority-med">Med</div>
-                        }
-                        {cases.severity === 200 &&
-                          <div className="priority-high">High</div>
-                        }
-                        <div className="title">{cases.incidentTitle}</div>
-                        <p className="description">{cases.employeeFirstname} {cases.employeeLastname}{"\n"}{cases.incidentTimestamp}</p>
-                      </div>
-                      <img className="person" alt="" src={message} />
-                      <img className="message" alt="" src={plus} />
-                    </div>
+                  {/* cases.status === "Open" && */
+                    Ticket(cases)
                   }
                 </p>
               ))}
@@ -106,24 +113,7 @@ const Case = () => {
               {cases.map((cases) => (
                 <p key={cases.id}>
                   {cases.status === "Assigned" &&
-                    <div className="ticket">
-                      <img className="line" alt="" src={line} />
-                      <div className="ticket-body">
-                        {cases.severity === 50 &&
-                          <div className="priority-low">Low</div>
-                        }
-                        {cases.severity === 100 &&
-                          <div className="priority-med">Med</div>
-                        }
-                        {cases.severity === 200 &&
-                          <div className="priority-high">High</div>
-                        }
-                        <div className="title">{cases.incidentTitle}</div>
-                        <p className="description">{cases.employeeFirstname} {cases.employeeLastname}{"\n"}{cases.incidentTimestamp}</p>
-                      </div>
-                      <img className="person" alt="" src={message} />
-                      <img className="message" alt="" src={male} />
-                    </div>
+                    Ticket(cases)
                   }
                 </p>
               ))}
@@ -138,24 +128,7 @@ const Case = () => {
               {cases.map((cases) => (
                 <p key={cases.id}>
                   {cases.status === "In review" &&
-                    <div className="ticket">
-                      <img className="line" alt="" src={line} />
-                      <div className="ticket-body">
-                        {cases.severity === 50 &&
-                          <div className="priority-low">Low</div>
-                        }
-                        {cases.severity === 100 &&
-                          <div className="priority-med">Med</div>
-                        }
-                        {cases.severity === 200 &&
-                          <div className="priority-high">High</div>
-                        }
-                        <div className="title">{cases.incidentTitle}</div>
-                        <p className="description">{cases.employeeFirstname} {cases.employeeLastname}{"\n"}{cases.incidentTimestamp}</p>
-                      </div>
-                      <img className="person" alt="" src={message} />
-                      <img className="message" alt="" src={female} />
-                    </div>
+                    Ticket(cases)
                   }
                 </p>
               ))}
@@ -170,24 +143,7 @@ const Case = () => {
               {cases.map((cases) => (
                 <p key={cases.id}>
                   {cases.status === "Closed" &&
-                    <div className="ticket">
-                      <img className="line" alt="" src={line} />
-                      <div className="ticket-body">
-                        {cases.severity === 50 &&
-                          <div className="priority-low">Low</div>
-                        }
-                        {cases.severity === 100 &&
-                          <div className="priority-med">Med</div>
-                        }
-                        {cases.severity === 200 &&
-                          <div className="priority-high">High</div>
-                        }
-                        <div className="title">{cases.incidentTitle}</div>
-                        <p className="description">{cases.employeeFirstname} {cases.employeeLastname}{"\n"}{cases.incidentTimestamp}</p>
-                      </div>
-                      <img className="person" alt="" src={message} />
-                      <img className="message" alt="" src={male} />
-                    </div>
+                    Ticket(cases)
                   }
                 </p>
               ))}
@@ -200,6 +156,7 @@ const Case = () => {
           <input type="text" className="searchbar" placeholder="Search" />
         </div>
       </div>
+      {modalOpen && <Modal setOpenModal={setModalOpen} cases={caseId} />}
     </div >
   );
 };

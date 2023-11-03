@@ -10,7 +10,6 @@ class employeeService {
 
   viewAllTasksByEmployee = (id) => {
     return axios.get(API_URL + "viewIncidentsByEmployeeId/" + id, {headers: authHeader()} );
-
   }
 
   viewEmployeeByName = (name) => {

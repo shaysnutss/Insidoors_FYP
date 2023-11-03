@@ -41,7 +41,6 @@ public class BehavioralAnalysisComposite {
 
     /**
      * Find the incidents of an employee 
-     *
      * @return list the incidents of an employee
      */
 
