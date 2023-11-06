@@ -91,6 +91,10 @@
   width: 270px;
 }
 
+.case .ticket-size {
+  height: 160px;
+}
+
 .case .ticket {
   background-color: #ffffff;
   border: 1px solid;
@@ -99,7 +103,6 @@
   height: 140px;
   position: relative;
 }
-
 
 .case .line {
   height: 2px;
@@ -114,7 +117,6 @@
   top: 10px;
 }
 
-
 .case .priority-high {
   color: #9a0707;
   background-color: #f0bdbd;
@@ -125,7 +127,7 @@
   font-family: "Poppins-SemiBold", Helvetica;
   font-size: 15px;
   font-weight: 600;
-  left: 175px;
+  left: 180px;
   position: absolute;
   text-align: center;
   line-height: 25px;
@@ -142,7 +144,7 @@
   font-family: "Poppins-SemiBold", Helvetica;
   font-size: 15px;
   font-weight: 600;
-  left: 175px;
+  left: 180px;
   position: absolute;
   text-align: center;
   line-height: 25px;
@@ -159,7 +161,7 @@
   font-family: "Poppins-SemiBold", Helvetica;
   font-size: 15px;
   font-weight: 600;
-  left: 175px;
+  left: 180px;
   position: absolute;
   text-align: center;
   line-height: 25px;

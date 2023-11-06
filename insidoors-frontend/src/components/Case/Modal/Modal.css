@@ -224,7 +224,7 @@
 
 .modal .descSelected {
     background-color: white;
-    border:none;
+    border: none;
     color: #6f6f6f66;
     font-family: "Poppins-Regular", Helvetica;
     font-size: 18px;
@@ -237,7 +237,7 @@
 
 .modal .commentSelected {
     background-color: white;
-    border:none;
+    border: none;
     color: #000000;
     font-family: "Poppins-Regular", Helvetica;
     font-size: 18px;
@@ -252,6 +252,10 @@
     position: absolute;
     top: 45px;
     width: 540px;
+}
+
+.modal .box-size {
+    height: 75px;
 }
 
 .modal .comments {
@@ -273,7 +277,6 @@
     height: 60px;
     left: 5px;
     position: relative;
-    top: -10px;
     width: 510px;
     border: 1px solid;
     border-color: #000000;
@@ -317,6 +320,7 @@
 
 .modal .addCommentTitle {
     color: #000000;
+    border: none;
     font-family: "Poppins-Medium", Helvetica;
     font-size: 16px;
     font-weight: 500;
@@ -327,16 +331,18 @@
 
 .modal .addCommentDescription {
     color: #000000;
+    border: none;
+
     font-family: "Poppins-Regular", Helvetica;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 400;
-    height: 40px;
+    height: 30px;
     left: 10px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
     top: 25px;
-    width: 495px;
+    width: 490px;
 }
 
 .modal .saveButton {
@@ -360,7 +366,6 @@
     font-size: 16px;
     font-weight: 600;
 }
-
 
 
 
@@ -587,7 +592,7 @@
 
 .modal1 .descSelected {
     background-color: white;
-    border:none;
+    border: none;
     color: #000000;
     font-family: "Poppins-Regular", Helvetica;
     font-size: 18px;
@@ -600,7 +605,7 @@
 
 .modal1 .commentSelected {
     background-color: white;
-    border:none;
+    border: none;
     color: #6f6f6f66;
     font-family: "Poppins-Regular", Helvetica;
     font-size: 18px;
@@ -622,7 +627,7 @@
     font-family: "Poppins-Regular", Helvetica;
     font-size: 16px;
     font-weight: 400;
-    left:5px;
+    left: 5px;
     position: relative;
     top: 490px;
     width: 500px;
