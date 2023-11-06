@@ -3,7 +3,6 @@ import "./Employees.css";
 import { useNavigate } from "react-router-dom";
 import Navigation from '../Navigation/Navigation';
 import authService from "../../services/auth.service";
-import authService from "../../services/auth.service";
 import employeeService from "../../services/employee.service";
 
 import PropTypes from 'prop-types';
