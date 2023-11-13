@@ -80,9 +80,6 @@ const Dashboard = () => {
         </div>
         <div className="extra-tab">
           <div>
-            <button className="alert-tab">Alerts</button>
-          </div>
-          <div>
             <Logout></Logout>
           </div>
         </div>
