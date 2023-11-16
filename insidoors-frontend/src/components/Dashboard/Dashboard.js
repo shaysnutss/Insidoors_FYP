@@ -1,6 +1,6 @@
 import "./Dashboard.css";
 import { Logo, Logout } from ".."
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import userService from "../../services/user.service";
 import authService from "../../services/auth.service";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import {
 } from 'https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js';
 
 const Dashboard = () => {
+  const [name,setName] = useState([]);
   const navigate = useNavigate();
   const viz = new TableauViz();
 
@@ -46,7 +47,19 @@ const Dashboard = () => {
       console.log(err);
       navigate("/auth/login");
     }
+    
+    fetchName();
+
+
   }, []);
+
+  const fetchName = async () => {
+    const {data} = await userService.getName();
+    const name = data;
+    const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1);
+    setName(nameCapitalized);
+    console.log(nameCapitalized);
+  }
 
   const changeViewBuilding = () => {
     viz.src = 'https://public.tableau.com/views/Dashboard-BuildingAccessLogs/BuildingAccessLogs?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link';
@@ -83,9 +96,15 @@ const Dashboard = () => {
             <Logout></Logout>
           </div>
         </div>
-        <button className="change-to-pc" onClick={changeViewPC}>PC</button>
-        <button className="change-to-building" onClick={changeViewBuilding}>Building</button>
-        <div className="visual" id="tableauViz" />
+        <div className = "name">
+            Hello, {name}!
+        </div>
+        <div className = "dashboardView">
+          <button className="change-to-pc" onClick={changeViewPC}>PC</button>
+          <button className="change-to-building" onClick={changeViewBuilding}>Building</button>
+          <div className="visual" id="tableauViz" />
+        </div>
+        
       </div>
     </div>
 
