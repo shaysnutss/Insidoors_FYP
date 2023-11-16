@@ -34,4 +34,5 @@ public class AuthenticateController {
         return ResponseEntity.ok(service.register(request));
     }
 
+
 }

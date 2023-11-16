@@ -8,6 +8,10 @@ class userService {
     return axios.get(API_URL + "demo-controller", { headers: authHeader() });
   };
 
+  getName = () => {
+    return axios.get(API_URL + "accountByTasks/viewName", { headers: authHeader() });
+  }
+
   getAllCases = () => {
     //return axios.get("https://jsonplaceholder.typicode.com/todos/");
     return axios.get("http://localhost:30010/api/v1/viewAllTasks");
@@ -34,6 +38,8 @@ class userService {
   putSoc = (id, accountId) => {
     return axios.put("http://localhost:30010/api/v1/assignSOC/" + id, {accountId: {accountId}});
   }
+
+
 }
 
 export default new userService;
