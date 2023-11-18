@@ -209,9 +209,13 @@
 
 .case .person {
   height: 25px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: "Poppins-Medium", Helvetica;
+  color: #000000;
   left: 15px;
   position: relative;
-  top: 108px;
+  top: 110px;
   width: 25px;
 }
 
@@ -297,6 +301,20 @@
   position: absolute;
   top: 140px;
   width: 280px;
+}
+
+.case .socSelect {
+  color: #000000;
+  font-family: "Poppins-Regular", Helvetica;
+  font-size: 16px;
+  font-weight: 400;
+  height: 40px;
+  left: 100px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 150px;
+  width: 150px;
 }
 
 .case ::-webkit-scrollbar {

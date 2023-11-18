@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,13 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:30008")
+@CrossOrigin(maxAge = 3600)
 @RequestMapping(path = "/api/v1")
 public class TaskManagementCompositeController {
 
     CloseableHttpClient httpclient = HttpClients.createDefault();
     ObjectMapper objectMapper = new ObjectMapper();
 
+    @CrossOrigin(origins = "http://localhost:30008")
     @GetMapping("/viewAllTasks")
     public ResponseEntity<?> viewAllTasks() {
         try {
@@ -58,6 +61,7 @@ public class TaskManagementCompositeController {
                     item.put("severity", jsonNodeTask.get(i).path("severity"));
                     item.put("status", jsonNodeTask.get(i).path("status"));
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
+                    item.put("accountId", jsonNodeTask.get(i).path("accountId"));
 
                     // employee items
                     HttpGet httpgetEmployee = new HttpGet(
@@ -94,6 +98,7 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")
     @GetMapping("/viewAllTasksByAccountId/{id}")
     public ResponseEntity<?> viewAllTasksByAccountId(@PathVariable int id) {
         try {
@@ -119,6 +124,7 @@ public class TaskManagementCompositeController {
                     item.put("severity", jsonNodeTask.get(i).path("severity"));
                     item.put("status", jsonNodeTask.get(i).path("status"));
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
+                    item.put("accountId", jsonNodeTask.get(i).path("accountId"));
 
                     // employee items
                     HttpGet httpgetEmployee = new HttpGet(
@@ -155,6 +161,7 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")
     @GetMapping("/viewTaskById/{id}")
     public ResponseEntity<?> viewTaskById(@PathVariable Long id) {
         try {
@@ -181,6 +188,7 @@ public class TaskManagementCompositeController {
                 item.put("severity", jsonNodeTask.get("severity"));
                 item.put("status", jsonNodeTask.get("status"));
                 item.put("dateAssigned", jsonNodeTask.get("dateAssigned"));
+                item.put("accountId", jsonNodeTask.get("accountId"));
 
                 // employee items
                 HttpGet httpgetEmployee = new HttpGet(
@@ -217,6 +225,7 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")
     @GetMapping("/viewAllCommentsByTaskId/{id}")
     public ResponseEntity<?> viewAllCommentsByTaskId(@PathVariable Long id) {
         try {
@@ -263,6 +272,7 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")
     @GetMapping("/listSOCs")
     public ResponseEntity<?> listSOCs() {
         try {
@@ -284,7 +294,6 @@ public class TaskManagementCompositeController {
                     item.put("socName", jsonNodeAccount.get(i).path("name"));
 
                     socAccountList.add(item);
-
                 }
 
                 return ResponseEntity.ok(socAccountList);
@@ -301,6 +310,7 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")
     @PutMapping("/assignSOC/{id}")
     public ResponseEntity<?> assignSOC(@PathVariable Long id, @RequestBody String newData) {
         try {
@@ -348,6 +358,7 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")
     @PutMapping("/changeStatus/{id}")
     public ResponseEntity<?> changeStatus(@PathVariable Long id, @RequestBody String newData) {
         try {
@@ -360,23 +371,17 @@ public class TaskManagementCompositeController {
                 StringEntity stringEntity = new StringEntity(newData);
                 httpPutNewStatus.setEntity(stringEntity);
 
-                // Perform the PUT request asynchronously
-                // CompletableFuture<CloseableHttpResponse> statusResponseFuture =
-                // CompletableFuture.supplyAsync(() -> {
-                // try {
-                // return httpclient.execute(httpPutNewStatus);
-                // } catch (IOException e) {
-                // throw new RuntimeException(e);
-                // }
-                // });
+                try (CloseableHttpResponse response = httpclient.execute(httpPutNewStatus)) {
 
-                CompletableFuture<CloseableHttpResponse> statusResponseFuture = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return httpclient.execute(httpPutNewStatus);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    if (response.getEntity() == null) {
+                        System.out.println("something went wrong here");
+                    } else {
+                        System.out.println("all good");
                     }
-                });
+
+                } catch (IOException e) {
+                    e.getMessage();
+                }
 
                 return ResponseEntity.ok(newData);
 
@@ -391,6 +396,7 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")
     @PutMapping("/closeCase/{id}")
     public ResponseEntity<?> closeCase(@PathVariable Long id, @RequestBody String newData) {
         try {
@@ -411,36 +417,35 @@ public class TaskManagementCompositeController {
                                                                        // rating in json if there is a change
                 httpPutNewRiskRating.setEntity(stringEntity);
 
-                // RequestConfig requestConfig = RequestConfig.custom()
-                // .setConnectTimeout(5000) // Connection timeout in milliseconds
-                // .setSocketTimeout(5000) // Socket timeout in milliseconds
-                // .build();
-                // httpPutNewRiskRating.setConfig(requestConfig);
+                try (CloseableHttpResponse response = httpclient.execute(httpPutNewRiskRating)) {
 
-                // Perform the PUT request asynchronously
-                CompletableFuture<CloseableHttpResponse> ratingResponseFuture = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return httpclient.execute(httpPutNewRiskRating);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    if (response.getEntity() == null) {
+                        System.out.println("something went wrong here");
+                    } else {
+                        System.out.println("all good");
                     }
-                });
 
-                HttpPut httpPutStatus = new HttpPut("http://task-management-service:8081/api/v1/statusUpdate/" + id);
-                httpPutStatus.setHeader("Accept", "application/json");
-                httpPutStatus.setHeader("Content-type", "application/json");
-                httpPutStatus.setEntity(stringEntity); // json must have status closed
+                } catch (IOException e) {
+                    e.getMessage();
+                }
 
-                // httpPutStatus.setConfig(requestConfig);
+                // HttpPut httpPutStatus = new
+                // HttpPut("http://task-management-service:8081/api/v1/statusUpdate/" + id);
+                // httpPutStatus.setHeader("Accept", "application/json");
+                // httpPutStatus.setHeader("Content-type", "application/json");
+                // httpPutStatus.setEntity(stringEntity); // json must have status closed
 
-                // Perform the PUT request asynchronously
-                CompletableFuture<CloseableHttpResponse> statusResponseFuture = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return httpclient.execute(httpPutStatus);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                // try (CloseableHttpResponse response = httpclient.execute(httpPutStatus)) {
+
+                // if (response.getEntity() == null) {
+                // System.out.println("something went wrong here");
+                // } else {
+                // System.out.println("all good");
+                // }
+
+                // } catch (IOException e) {
+                // e.getMessage();
+                // }
 
                 return ResponseEntity.ok(newData);
 
@@ -455,6 +460,7 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")
     @GetMapping("/viewAllTasksByEmployeeId/{id}")
     public ResponseEntity<?> viewAllTasksByEmployeeId(@PathVariable int id) {
         try {
@@ -500,6 +506,35 @@ public class TaskManagementCompositeController {
             }
         } catch (HttpServerErrorException e) {
             return ResponseEntity.status(e.getStatusCode()).body("Error in retrieving task management list.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error.");
+        }
+    }
+
+    @CrossOrigin(origins = "http://localhost:30008")
+    @PostMapping("/addComment/{id}")
+    public ResponseEntity<?> addComment(@PathVariable Long id, @RequestBody String newComment) {
+        try {
+            objectMapper.findAndRegisterModules();
+            HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/" + id); // task id
+            CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
+            // String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(),
+            // "UTF-8");
+            // JsonNode jsonNodeTask = objectMapper.readTree(jsonContentTask);
+
+            if (responseBodyTask != null) {
+                HttpPost httpPostComment = new HttpPost("http://comments-service:8083/api/v1" + "/comments");
+                StringEntity stringEntity = new StringEntity(newComment);
+                httpPostComment.setEntity(stringEntity);
+                httpclient.execute(httpPostComment);
+
+                return ResponseEntity.ok(newComment);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found.");
+            }
+        } catch (HttpServerErrorException e) {
+            return ResponseEntity.status(e.getStatusCode()).body("Error in retrieving task.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error.");

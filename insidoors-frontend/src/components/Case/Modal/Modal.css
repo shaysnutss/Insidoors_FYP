@@ -44,7 +44,7 @@
 .modal .textTitle {
     color: #002c3e;
     font-family: "Poppins-Bold", Helvetica;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 700;
     left: 45px;
     position: absolute;
@@ -161,7 +161,6 @@
 }
 
 .modal .severity {
-    color: #9a0707;
     font-family: "Poppins-Regular", Helvetica;
     font-size: 16px;
     font-weight: 400;
@@ -184,7 +183,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 279px;
+    top: 265px;
     width: 203px;
 }
 
@@ -198,7 +197,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 329px;
+    top: 320px;
     width: 203px;
 }
 
@@ -351,6 +350,10 @@
     background-color: #78bcc4;
     border-radius: 10px;
     display: flex;
+    color: #ffffff;
+    font-family: "Poppins-SemiBold", Helvetica;
+    font-size: 16px;
+    font-weight: 600;
     height: 35px;
     justify-content: center;
     left: 425px;
@@ -360,11 +363,19 @@
     width: 100px;
 }
 
-.modal .saveButtonText {
-    color: #ffffff;
+.modal .checkbox {
+    border: none;
+    align-items: center;
+    color: black;
     font-family: "Poppins-SemiBold", Helvetica;
     font-size: 16px;
     font-weight: 600;
+    display: flex;
+    height: 35px;
+    justify-content: center;
+    left: 300px;
+    position: absolute;
+    top: 735px;
 }
 
 
@@ -412,8 +423,9 @@
 .modal1 .textTitle {
     color: #002c3e;
     font-family: "Poppins-Bold", Helvetica;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 700;
+    height: 50px;
     left: 45px;
     position: absolute;
     top: 65px;
@@ -529,7 +541,6 @@
 }
 
 .modal1 .severity {
-    color: #9a0707;
     font-family: "Poppins-Regular", Helvetica;
     font-size: 16px;
     font-weight: 400;
@@ -552,7 +563,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 279px;
+    top: 265px;
     width: 203px;
 }
 
@@ -566,7 +577,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 329px;
+    top: 320px;
     width: 203px;
 }
 
@@ -638,6 +649,10 @@
     align-items: center;
     background-color: #78bcc4;
     border-radius: 10px;
+    color: #ffffff;
+    font-family: "Poppins-SemiBold", Helvetica;
+    font-size: 16px;
+    font-weight: 600;
     display: flex;
     height: 35px;
     justify-content: center;
@@ -648,9 +663,17 @@
     width: 100px;
 }
 
-.modal1 .saveButtonText {
-    color: #ffffff;
+.modal1 .checkbox {
+    border: none;
+    align-items: center;
+    color: black;
     font-family: "Poppins-SemiBold", Helvetica;
     font-size: 16px;
     font-weight: 600;
+    display: flex;
+    height: 35px;
+    justify-content: center;
+    left: 300px;
+    position: absolute;
+    top: 570px;
 }

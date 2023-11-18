@@ -1,91 +1,118 @@
 import "./Modal.css";
 import React, { useState, useEffect } from "react";
 import userService from "../../../services/user.service"
+import { useNavigate } from "react-router-dom";
 import { line } from "../../../assets"
-import axios from "axios";
 
 function Modal({ setOpenModal, caseId }) {
 
+    const navigate = useNavigate();
     const [comments, setComments] = useState([]);
     const [detail, setDetail] = useState([]);
     const [socList, setSocList] = useState([]);
     const [tab, setTab] = useState("modal1");
+    const [status, setStatus] = useState("");
     const [soc, setSoc] = useState("");
-    const [socId, setSocId] = useState();
+    const [socId, setSocId] = useState(0);
     const [priority, setPriority] = useState("");
-    const [name, setName] = useState("");
     const [desc, setDesc] = useState("");
+    const [checked, setChecked] = useState(false);
 
+    function fetchComments() {
+        userService.getAllCommentsById(caseId)
+            .then(function (response) {
+                setComments(response.data);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+    };
 
-    const fetchComments = async (e) => {
-        //e.preventDefault();
-        try {
-            //const { data } = await userService.getAllCases();
-            const { data } = await userService.getAllCommentsById(caseId);
-            const comments = data;
-            setComments(comments);
-        } catch (err) {
-            console.log(err);
+    function getSoc() {
+        userService.getAllSoc()
+            .then(function (response) {
+                setSocList(response.data);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+    }
+
+    function getAllCases() {
+        userService.getCaseById(caseId)
+            .then(function (response) {
+                setDetail(response.data);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+    }
+
+    function savingModal() {
+        if (desc !== "") {
+            console.log("comment");
         }
-        console.log(comments);
-    };
 
-    const fetchCase = async (e) => {
-        //e.preventDefault();
-        try {
-            const { data } = await userService.getCaseById(caseId);
-            const detail = data;
-            setDetail(detail);
-            setSoc(detail.socName);
-            if (detail.severity <= 50) {
-                setPriority("Low");
-            } else if (detail.severity > 50 && detail.severity <= 100) {
-                setPriority("Med");
-            } else if (detail.severity > 100) {
-                setPriority("High");
-            }
-        } catch (err) {
-            console.log(err);
+        if (checked === true) {
+            userService.closeCase(caseId, detail.severity)
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
         }
-        console.log(detail);
-    };
 
-    const fetchSoc = async (e) => {
-        //e.preventDefault();
-        try {
-            const { data } = await userService.getAllSoc();
-            const socList = data;
-            setSocList(socList);
-        } catch (err) {
-            console.log(err);
-        }
-        console.log(socList);
-    };
+        userService.putSoc(caseId, socId)
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
 
-    const handleModal = async (e) => {
-        //e.preventDefault();
+        userService.putStatus(caseId, status)
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
 
-        setOpenModal(false);
-    };
+        navigate("/main/case");
+        window.location.reload();
+    }
 
-    const handleSoc = async (e) => {
-        //e.preventDefault();
+    function handleSoc(e) {
+        const selectedIndex = e.target.options.selectedIndex;
         setSoc(e.target.value);
-        setSocId(e.target.key);
-        console.log(soc);
-        const res = await userService.putSoc(caseId, socId);
+        setSocId(e.target.options[selectedIndex].getAttribute('data-key'));
     };
 
-    const handleStatus = async (e) => {
-        //e.preventDefault();
-        const res = await userService.putStatus(caseId, e.target.value);
+    function handleStatus(e) {
+        setStatus(e.target.value);
     };
+
+    function handleChecked() {
+        setChecked(!checked);
+    }
 
     useEffect(() => {
-        fetchComments()
-        fetchCase()
-        fetchSoc()
+        getAllCases();
+        getSoc();
+        fetchComments();
     }, [])
+
+    useEffect(() => {
+        if (detail.severity <= 50) {
+            setPriority("Low");
+        } else if (detail.severity > 50 && detail.severity <= 100) {
+            setPriority("Med");
+        } else if (detail.severity > 100) {
+            setPriority("High");
+        }
+        setSoc(detail.socName);
+        setSocId(detail.accountId);
+        setStatus(detail.status);
+    }, [detail])
+
 
     return (
         <div className="background">
@@ -103,15 +130,15 @@ function Modal({ setOpenModal, caseId }) {
                     <div className="employee">{detail.employeeFirstname} {detail.employeeLastname}</div>
                     <div className="incident">{detail.incidentTimestamp}</div>
                     <div className="severity">{priority}</div>
-                    <select className="status" value={detail.status} onChange={handleStatus}>
-                        <option value="Open" onChange={handleStatus}>Open</option>
-                        <option value="Assigned" onChange={handleStatus}>Assigned</option>
-                        <option value="In review" onChange={handleStatus}>In review</option>
-                        <option value="Closed" onChange={handleStatus}>Closed</option>
+                    <select className="status" value={status} onChange={handleStatus}>
+                        <option value="Open">Open</option>
+                        <option value="Assigned">Assigned</option>
+                        <option value="In review">In review</option>
+                        <option value="Closed">Closed</option>
                     </select>
-                    <select className="soc" value={soc} onChange={handleSoc}>
+                    <select className="soc" value={soc} data-key={socId} onChange={handleSoc}>
                         {socList.map((socList) => (
-                            <option key={socList.id} value={socList.socName}>{socList.socName}</option>
+                            <option key={socList.id} data-key={socList.id} value={socList.socName}>{socList.socName}</option>
                         ))}
                     </select>
                     <div className="date">{detail.dateAssigned}</div>
@@ -127,7 +154,7 @@ function Modal({ setOpenModal, caseId }) {
                                     <div>
                                         {comments.map((comments) => (
                                             <div className="box-size" key={comments.id}>
-                                                {/* cases.status === "Open" && */
+                                                {
                                                     <div className="commentBox">
                                                         <div className="commentTitle">{comments.socName}</div>
                                                         <div className="commentDescription">
@@ -142,7 +169,7 @@ function Modal({ setOpenModal, caseId }) {
                                 </div>
 
                                 <div className="addCommentBox">
-                                    <input type="text" className="addCommentTitle" placeholder="Enter Name" value={name} onChange={(e) => setName(e.target.value)} />
+                                    <div className="addCommentTitle"></div>
                                     <input type="text" className="addCommentDescription" placeholder="Enter Description" value={desc} onChange={(e) => setDesc(e.target.value)} />
                                 </div>
                             </div>
@@ -153,9 +180,10 @@ function Modal({ setOpenModal, caseId }) {
                             <div className="descBox">{detail.incidentDesc}</div>
                         }
                     </div>
-                    <button className="saveButton" onClick={handleModal}>
-                        <div className="saveButtonText">Save</div>
-                    </button>
+                    {status === "Closed" &&
+                        <label className="checkbox"><input type="checkbox" checked={checked} onChange={handleChecked}/>True Positive</label>
+                    }
+                    <button className="saveButton" onClick={savingModal}> Save </button>
                 </div>
             </div>
         </div>

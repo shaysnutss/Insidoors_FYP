@@ -5,13 +5,18 @@ import authService from "../../services/auth.service";
 import userService from "../../services/user.service";
 import Modal from "./Modal/Modal";
 import "./Case.css";
-import { openCases, assigned, inReview, closed, plus, line } from "../../assets"
+import { openCases, assigned, inReview, closed, line } from "../../assets"
 
 const Case = () => {
   const navigate = useNavigate();
   const [cases, setCases] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [caseId, setCaseId] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [socList, setSocList] = useState([]);
+  const [filteredData, setFilteredData] = useState(cases);
+  const [filteredDataSecond, setFilteredDataSecond] = useState(cases);
+
 
   function Ticket(cases) {
     return (
@@ -31,26 +36,68 @@ const Case = () => {
             <div className="title">{cases.incidentTitle}</div>
             <div className="description">{cases.incidentDesc}</div>
           </div>
-          <img className="person" alt="" src={plus} />
+          <div className="person" >{cases.socName}</div>
           <button className="message" onClick={() => { setModalOpen(true); setCaseId(cases.id); }}>View {">"}</button>
         </div>
       </div>
     )
   }
 
-  const fetchCases = async () => {
-    const { data } = await userService.getAllCases();
-    const cases = data;
-    setCases(cases);
-    console.log(cases);
+  function TicketClose(cases) {
+    return (
+      <div className="ticket-size">
+        <div className="ticket">
+          <img className="line" alt="" src={line} />
+          <div className="ticket-body">
+            {cases.severity <= 50 &&
+              <div className="priority-low">Low</div>
+            }
+            {cases.severity > 50 && cases.severity <= 100 &&
+              <div className="priority-med">Med</div>
+            }
+            {cases.severity > 100 &&
+              <div className="priority-high">High</div>
+            }
+            <div className="title">{cases.incidentTitle}</div>
+            <div className="description">{cases.incidentDesc}</div>
+          </div>
+          <div className="person" >{cases.socName}</div>
+        </div>
+      </div>
+    )
+  }
+
+  function getSoc() {
+    userService.getAllSoc()
+      .then(function (response) {
+        setSocList(response.data);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+  }
+
+  function fetchCases() {
+    userService.getAllCases()
+      .then(function (response) {
+        setCases(response.data);
+        setFilteredData(response.data);
+        setFilteredDataSecond(response.data);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
   };
 
   useEffect(() => {
-    fetchCases();
     try {
       userService.getAccountById().then(
         () => {
           console.log("ok");
+          fetchCases();
+          getSoc();
         },
         (error) => {
           console.log("Private page", error.response);
@@ -67,6 +114,34 @@ const Case = () => {
       navigate("/auth/login");
     }
   }, []);
+
+  const handleSearch = (e) => {
+    const { value } = e.target;
+    setSearchTerm(value);
+    console.log(value);
+    filterData(value);
+  }
+
+  const filterData = (searchTerm) => {
+    const filter = filteredDataSecond.filter((item) =>
+      item.incidentTitle.toLowerCase().includes(searchTerm.toLowerCase()) || item.incidentDesc.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredData(filter);
+  };
+
+  function handleSoc(e) {
+    if (e.target.value === "reset") {
+      setFilteredDataSecond(cases);
+      setFilteredData(cases);
+    }
+    else {
+      const filter = cases.filter((item) =>
+        item.accountId == (e.target.value)
+      )
+      setFilteredData(filter);
+      setFilteredDataSecond(filter);
+    }
+  };
 
   return (
     <div className="case">
@@ -99,7 +174,7 @@ const Case = () => {
         <div className="open-cases">
           <div className="open-cases-container">
             <div>
-              {cases.map((cases) => (
+              {filteredData.map((cases) => (
                 <div key={cases.id}>
                   {cases.status === "Open" &&
                     Ticket(cases)
@@ -114,7 +189,7 @@ const Case = () => {
         <div className="assigned-cases">
           <div className="assigned-cases-container">
             <div>
-              {cases.map((cases) => (
+              {filteredData.map((cases) => (
                 <div key={cases.id}>
                   {cases.status === "Assigned" &&
                     Ticket(cases)
@@ -129,7 +204,7 @@ const Case = () => {
         <div className="review-cases">
           <div className="review-cases-container">
             <div>
-              {cases.map((cases) => (
+              {filteredData.map((cases) => (
                 <div key={cases.id}>
                   {cases.status === "In review" &&
                     Ticket(cases)
@@ -144,10 +219,10 @@ const Case = () => {
         <div className="closed-cases">
           <div className="closed-cases-container">
             <div>
-              {cases.map((cases) => (
+              {filteredData.map((cases) => (
                 <div key={cases.id}>
                   {cases.status === "Closed" &&
-                    Ticket(cases)
+                    TicketClose(cases)
                   }
                 </div>
               ))}
@@ -157,8 +232,14 @@ const Case = () => {
           <img className="pic" alt="" src={closed} />
         </div>
         <div>
-          <input type="text" className="searchbar" placeholder="Search" />
+          <input type="text" className="searchbar" placeholder="Search" value={searchTerm} onChange={handleSearch} />
         </div>
+        <select className="socSelect" onChange={handleSoc}>
+          <option value="reset">Everyone</option>
+          {socList.map((socList) => (
+            <option key={socList.id} value={socList.id}>{socList.socName}</option>
+          ))}
+        </select>
       </div>
       {modalOpen && <Modal setOpenModal={setModalOpen} caseId={caseId} />}
     </div >

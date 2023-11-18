@@ -105,7 +105,7 @@
     font-weight: 600;
     height: 30px;
     justify-content: center;
-    left: 82px;
+    left: 80px;
     border: none;
     position: absolute;
     top: 135px;
@@ -128,6 +128,22 @@
     width: 70px;
 }
 
+.dashboard .change-to-proxy {
+    align-items: center;
+    background-color:gray;
+    color: #ffffff;
+    font-family: "Poppins-SemiBold", Helvetica;
+    font-size: 12px;
+    font-weight: 600;
+    height: 30px;
+    justify-content: center;
+    left: 220px;
+    border: none;
+    position: absolute;
+    top: 135px;
+    width: 70px;
+}
+
 .dashboard .visual {
     margin-top: 160px;
     border-style: ridge;
@@ -141,4 +157,3 @@
     position: absolute;
     top: 150px;
 }
-

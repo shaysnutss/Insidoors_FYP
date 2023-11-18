@@ -1,16 +1,15 @@
 import "./Dashboard.css";
 import { Logo, Logout } from ".."
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import userService from "../../services/user.service";
 import authService from "../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 import {
-  TableauViz,
-  TableauEventType
+  TableauViz
 } from 'https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js';
 
 const Dashboard = () => {
-  const [name,setName] = useState([]);
+  const [name, setName] = useState("");
   const navigate = useNavigate();
   const viz = new TableauViz();
 
@@ -47,9 +46,8 @@ const Dashboard = () => {
       console.log(err);
       navigate("/auth/login");
     }
-    
-    fetchName();
 
+    fetchName();
 
   }, []);
 
@@ -68,6 +66,11 @@ const Dashboard = () => {
 
   const changeViewPC = () => {
     viz.src = 'https://public.tableau.com/views/Dashboard-PCAccessLogs/PCAccessLogs?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link';
+    document.getElementById('tableauViz').appendChild(viz);
+  }
+
+  const changeViewProxy = () => {
+    viz.src = 'https://public.tableau.com/views/Dashboard-ProxyLogs/ProxyLogs?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link';
     document.getElementById('tableauViz').appendChild(viz);
   }
 
@@ -96,15 +99,16 @@ const Dashboard = () => {
             <Logout></Logout>
           </div>
         </div>
-        <div className = "name">
-            Hello, {name}!
+        <div className="name">
+          Hello, {name}!
         </div>
-        <div className = "dashboardView">
+        <div className="dashboardView">
           <button className="change-to-pc" onClick={changeViewPC}>PC</button>
           <button className="change-to-building" onClick={changeViewBuilding}>Building</button>
+          <button className="change-to-proxy" onClick={changeViewProxy}>Proxy</button>
           <div className="visual" id="tableauViz" />
         </div>
-        
+
       </div>
     </div>
 

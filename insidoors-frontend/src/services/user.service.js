@@ -32,14 +32,34 @@ class userService {
   }
 
   putStatus = (id, status) => {
-    return axios.put("http://localhost:30010/api/v1/changeStatus/" + id, {status: {status}});
+    return axios({
+      method: 'put',
+      url: 'http://localhost:30010/api/v1/changeStatus/' + id,
+      data: {
+        "status": status
+      }
+    });
   }
 
   putSoc = (id, accountId) => {
-    return axios.put("http://localhost:30010/api/v1/assignSOC/" + id, {accountId: {accountId}});
+    return axios({
+      method: 'put',
+      url: 'http://localhost:30010/api/v1/assignSOC/' + id,
+      data: {
+        "accountId": accountId
+      }
+    });
   }
 
-
+  closeCase = (id, riskRating) => {
+    return axios({
+      method: 'put',
+      url: 'http://localhost:30010/api/v1/closeCase/' + id,
+      data: {
+        "riskRating": riskRating
+      }
+    });
+  }
 }
 
 export default new userService;

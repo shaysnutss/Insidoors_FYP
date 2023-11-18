@@ -28,7 +28,7 @@
 .login .title {
   height: 668px;
   left: 20px;
-  top:10px;
+  top: 10px;
   position: absolute;
   width: 1275px;
 }
@@ -46,6 +46,18 @@
   position: absolute;
   top: 115px;
   width: 500px;
+}
+
+.login .error {
+  color: lightcoral;
+  font-family: "Poppins-Bold", Helvetica;
+  font-size: 25px;
+  font-weight: 700;
+  position: absolute;
+  left: 20px;
+  top: 190px;
+  position: absolute;
+  width: 600px;
 }
 
 .login .input-email {
