@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,12 +25,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @RestController
+@CrossOrigin(maxAge = 3600)
 @RequiredArgsConstructor
 @RequestMapping(path = "/api/v1")
 public class CommentsServiceController {
 
     private final CommentsServiceRepository commentsServiceRepo;
 
+    @CrossOrigin(origins = "http://localhost:30008")   
     @GetMapping("/comments")
     public ResponseEntity<List<CommentsService>> getAllComments() {
         List<CommentsService> comments = commentsServiceRepo.findAll();
@@ -41,6 +44,7 @@ public class CommentsServiceController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")   
     @GetMapping("/comments/{id}") 
     public ResponseEntity<CommentsService> getCommentsById(@PathVariable Long id) {
         Optional<CommentsService> commentOptional = commentsServiceRepo.findById(id);
@@ -52,6 +56,7 @@ public class CommentsServiceController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")   
     @GetMapping("/comments/taskManagement/{id}") 
     public ResponseEntity<List<CommentsService>> getCommentsByTaskManagementId(@PathVariable int id) {
         List<CommentsService> comments = commentsServiceRepo.findAllByTaskManagementId(id);
@@ -63,6 +68,7 @@ public class CommentsServiceController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")   
     @GetMapping("/comments/account/{id}") 
     public ResponseEntity<List<CommentsService>> getCommentsByAccountId(@PathVariable int id) {
         List<CommentsService> comments = commentsServiceRepo.findAllByAccountId(id);
@@ -76,10 +82,18 @@ public class CommentsServiceController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/comments")
-    public CommentsService addComment(@RequestBody CommentsService comment) {
-        return commentsServiceRepo.save(comment);
+    public CommentsService addComment(@RequestBody String comment) throws JsonMappingException, JsonProcessingException {
+        CommentsService commentsService = new CommentsService();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(comment);
+
+        commentsService.setCommentDescription(jsonNode.get("commentDescription").asText());
+        commentsService.setAccountId(jsonNode.get("accountId").asInt());
+        commentsService.setTaskManagementId(jsonNode.get("taskManagementId").asInt());
+        return commentsServiceRepo.save(commentsService);
     }
 
+    @CrossOrigin(origins = "http://localhost:30008")   
     @PutMapping("/comments/{id}")
     public ResponseEntity<CommentsService> updateComment(@PathVariable Long id, @RequestBody String commentNew){
         CommentsService comment = commentsServiceRepo.findById(id).get();
@@ -108,6 +122,7 @@ public class CommentsServiceController {
         
     }
     
+    @CrossOrigin(origins = "http://localhost:30008")
     @DeleteMapping("/comments/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable Long id){

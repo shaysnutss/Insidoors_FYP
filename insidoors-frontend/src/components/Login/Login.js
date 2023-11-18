@@ -9,6 +9,7 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
 
   const navigate = useNavigate();
 
@@ -21,6 +22,7 @@ const Login = () => {
           window.location.reload();
         },
         (error) => {
+          setError(true);
           console.log(error);
         }
       );
@@ -41,6 +43,9 @@ const Login = () => {
               <div className="title-text">Log In.</div>
               <img className="image" alt="" src={loginPic} />
             </div>
+            {error === true &&
+              <div className="error"> Wrong E-mail or Password, please try again.</div>
+            }
             <div>
               <input type="text" className="input-email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
