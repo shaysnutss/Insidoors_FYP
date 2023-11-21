@@ -89,12 +89,12 @@ public class TaskManagementServiceController {
 
             tmService.setIncidentTitle(jsonNode.get("incidentTitle").asText());
             tmService.setIncidentDesc(jsonNode.get("incidentDesc").asText());
-            tmService.setDateAssigned(null);
-            tmService.setIncidentTimestamp(null);
+            //tmService.setIncidentTimestamp(jsonNode.get("incidentTimestamp").asText());
             tmService.setSeverity(jsonNode.get("severity").asInt());
             tmService.setStatus("Open");
             tmService.setAccountId(jsonNode.get("accountId").asInt());
             tmService.setEmployeeId(jsonNode.get("employeeId").asInt());
+            tmService.setTruePositive(false);
 
             toSave.add(tmService);
             System.out.println(stringList.get(i));
@@ -145,6 +145,31 @@ public class TaskManagementServiceController {
 
             existingTask.setId(id);
             existingTask.setAccountId(jsonNode.get("accountId").asInt());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null); 
+        }
+
+        TaskManagementService updatedTask = tMServiceRepo.save(existingTask);
+        return ResponseEntity.ok(updatedTask);
+    }
+
+    @PutMapping("/truePositiveUpdate/{id}")
+    public ResponseEntity<TaskManagementService> updateTruePositive(@PathVariable Long id, @RequestBody String tmNew) {
+        Optional<TaskManagementService> optionalTask = tMServiceRepo.findById(id);
+
+        if (optionalTask.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        TaskManagementService existingTask = optionalTask.get();
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(tmNew);
+
+            existingTask.setId(id);
+            existingTask.setTruePositive(jsonNode.get("truePositive").asBoolean());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(null); 

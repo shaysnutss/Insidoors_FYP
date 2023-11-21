@@ -2,12 +2,10 @@ package com.service.taskmanagementcomposite;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -62,6 +60,7 @@ public class TaskManagementCompositeController {
                     item.put("status", jsonNodeTask.get(i).path("status"));
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
                     item.put("accountId", jsonNodeTask.get(i).path("accountId"));
+                    item.put("truePositive", jsonNodeTask.get(i).path("truePositive"));
 
                     // employee items
                     HttpGet httpgetEmployee = new HttpGet(
@@ -125,6 +124,7 @@ public class TaskManagementCompositeController {
                     item.put("status", jsonNodeTask.get(i).path("status"));
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
                     item.put("accountId", jsonNodeTask.get(i).path("accountId"));
+                    item.put("truePositive", jsonNodeTask.get(i).path("truePositive"));
 
                     // employee items
                     HttpGet httpgetEmployee = new HttpGet(
@@ -189,6 +189,7 @@ public class TaskManagementCompositeController {
                 item.put("status", jsonNodeTask.get("status"));
                 item.put("dateAssigned", jsonNodeTask.get("dateAssigned"));
                 item.put("accountId", jsonNodeTask.get("accountId"));
+                item.put("truePositive", jsonNodeTask.get("truePositive"));
 
                 // employee items
                 HttpGet httpgetEmployee = new HttpGet(
@@ -324,15 +325,6 @@ public class TaskManagementCompositeController {
                 StringEntity stringEntity = new StringEntity(newData);
                 httpPutNewAccountId.setEntity(stringEntity);
 
-                // CompletableFuture<CloseableHttpResponse> accountResponseFuture =
-                // CompletableFuture.supplyAsync(() -> {
-                // try {
-                // return httpclient.execute(httpPutNewAccountId);
-                // } catch (IOException e) {
-                // throw new RuntimeException(e);
-                // }
-                // });
-
                 try (CloseableHttpResponse response = httpclient.execute(httpPutNewAccountId)) {
 
                     if (response.getEntity() == null) {
@@ -429,23 +421,22 @@ public class TaskManagementCompositeController {
                     e.getMessage();
                 }
 
-                // HttpPut httpPutStatus = new
-                // HttpPut("http://task-management-service:8081/api/v1/statusUpdate/" + id);
-                // httpPutStatus.setHeader("Accept", "application/json");
-                // httpPutStatus.setHeader("Content-type", "application/json");
-                // httpPutStatus.setEntity(stringEntity); // json must have status closed
+                HttpPut httpPutTP = new HttpPut("http://task-management-service:8081/api/v1/truePositiveUpdate/" + id);
+                httpPutTP.setHeader("Accept", "application/json");
+                httpPutTP.setHeader("Content-type", "application/json");
+                httpPutTP.setEntity(stringEntity); // json must have status closed
 
-                // try (CloseableHttpResponse response = httpclient.execute(httpPutStatus)) {
+                try (CloseableHttpResponse response = httpclient.execute(httpPutTP)) {
 
-                // if (response.getEntity() == null) {
-                // System.out.println("something went wrong here");
-                // } else {
-                // System.out.println("all good");
-                // }
+                if (response.getEntity() == null) {
+                System.out.println("something went wrong here");
+                } else {
+                //System.out.println("all good");
+                }
 
-                // } catch (IOException e) {
-                // e.getMessage();
-                // }
+                } catch (IOException e) {
+                e.getMessage();
+                }
 
                 return ResponseEntity.ok(newData);
 
@@ -486,6 +477,7 @@ public class TaskManagementCompositeController {
                     item.put("severity", jsonNodeTask.get(i).path("severity"));
                     item.put("status", jsonNodeTask.get(i).path("status"));
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
+                    item.put("truePositive", jsonNodeTask.get(i).path("truePositive"));
 
                     // soc account items
                     HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAccountById/"
@@ -519,9 +511,6 @@ public class TaskManagementCompositeController {
             objectMapper.findAndRegisterModules();
             HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/" + id); // task id
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
-            // String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(),
-            // "UTF-8");
-            // JsonNode jsonNodeTask = objectMapper.readTree(jsonContentTask);
 
             if (responseBodyTask != null) {
                 HttpPost httpPostComment = new HttpPost("http://comments-service:8083/api/v1" + "/comments");

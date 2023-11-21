@@ -50,6 +50,17 @@ public class BehavioralAnalysisServiceController {
         }
     }
 
+    @GetMapping("/behavioralanalysis/employee/{id}")
+    public ResponseEntity<BehavioralAnalysisService> getBehavioralAnalysisByEmployeeId(@PathVariable int id) {
+        BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
+
+        if (ba != null) {
+            return ResponseEntity.ok(ba);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
     @GetMapping("/riskrating/{id}")
     public ResponseEntity<Integer> getRiskRatingByEmployeeId(@PathVariable int id) {
         BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
@@ -74,8 +85,16 @@ public class BehavioralAnalysisServiceController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/behavioralanalysis")
-    public BehavioralAnalysisService addBehavioralAnalysis(@RequestBody BehavioralAnalysisService ba){
-        return bAServiceRepo.save(ba);
+    public BehavioralAnalysisService addBehavioralAnalysis(@RequestBody String ba) throws JsonMappingException, JsonProcessingException{
+        BehavioralAnalysisService baEntry = new BehavioralAnalysisService();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(ba);
+
+        baEntry.setEmployeeId(jsonNode.get("employeeId").asInt());
+        baEntry.setRiskRating(0);
+        baEntry.setSuspectedCases(1);
+
+        return bAServiceRepo.save(baEntry);
     }
 
     @PutMapping("/updateRiskRating/{id}")

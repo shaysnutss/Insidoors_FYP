@@ -88,7 +88,7 @@ public class TaskManagementServiceIntegrationTests {
 
     @Test
     @Order(1)
-    @Sql(statements = "INSERT INTO task_management_service (tm_id, incident_title, incident_desc, incident_timestamp, employee_id, severity, status, account_id, date_assigned) values (1, \"the first incident\", \"description\", null, 23, 200, \"Open\", 12, \'2012-06-18\')", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(statements = "INSERT INTO task_management_service (tm_id, incident_title, incident_desc, incident_timestamp, employee_id, severity, status, account_id, true_positive) values (1, \"the first incident\", \"description\", \"2012-06-18\", 23, 200, \"Open\", 12, false)", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testTaskList() {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<List<TaskManagementService>> response = restTemplate.exchange(
