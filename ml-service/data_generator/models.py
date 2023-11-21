@@ -31,6 +31,7 @@ class PC_Access(Base):
     machine_name = Column(String(255))
     machine_location = Column(String(255))
     suspect = Column(Integer)
+    working_hours = Column(Integer, nullable=True)
 
 class Building_Access(Base):
     __tablename__ = 'building_access'

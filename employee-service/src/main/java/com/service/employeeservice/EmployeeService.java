@@ -13,7 +13,7 @@ import jakarta.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-@Table(name = "employees", schema = "employees")
+@Table(name = "employees", schema = "insidoors")
 public class EmployeeService {
     
     private @Id @Column(name="id") @GeneratedValue (strategy = GenerationType.IDENTITY) Long id;

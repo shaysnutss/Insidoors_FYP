@@ -136,24 +136,24 @@ def generate_pc_access_log():
                 if curr_day != "Saturday" and curr_day != "Sunday" and (random.randint(0, 35)) != 0:
                     pc_access = PC_Access(user_id=employee.id, access_date_time=normal_login_time(current_date),
                                           log_on_off="Log On", machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=0)
+                                          machine_location=employee.location, suspect=0, working_hours=1)
                     session.add(pc_access)
 
                     pc_access = PC_Access(user_id=employee.id, access_date_time=normal_logoff_time(current_date),
                                           log_on_off="Log Off", machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=0)
+                                          machine_location=employee.location, suspect=0, working_hours=1)
                     session.add(pc_access)
 
                 # suspect case 1 - after hour login for profile 1
                 if (random.randint(0, 40)) == 0:
                     pc_access = PC_Access(user_id=employee.id, access_date_time=odd_hour_login_time(current_date),
                                           log_on_off="Log On", machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=1)
+                                          machine_location=employee.location, suspect=1, working_hours=1)
                     session.add(pc_access)
 
                     pc_access = PC_Access(user_id=employee.id, access_date_time=odd_hour_login_time(current_date),
                                           log_on_off="Log Off", machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=1)
+                                          machine_location=employee.location, suspect=1, working_hours=1)
                     session.add(pc_access)
                     employee.suspect = True
                     session.add(employee)
@@ -164,12 +164,12 @@ def generate_pc_access_log():
                 if (random.randint(0, 4)) != 0:
                     pc_access = PC_Access(user_id=employee.id, access_date_time=normal_login_time(current_date),
                                           log_on_off="Log On", machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=0)
+                                          machine_location=employee.location, suspect=0, working_hours=2)
                     session.add(pc_access)
 
                     pc_access = PC_Access(user_id=employee.id, access_date_time=normal_logoff_time(current_date),
                                           log_on_off="Log Off", machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=0)
+                                          machine_location=employee.location, suspect=0, working_hours=2)
                     session.add(pc_access)
 
                 # suspect case 1 - after hour login for profile 2
@@ -177,14 +177,14 @@ def generate_pc_access_log():
                     login_datetime = odd_hour_login_time_ex_weekend(current_date)
                     pc_access = PC_Access(user_id=employee.id, access_date_time=login_datetime,
                                           log_on_off="Log On", machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=1)
+                                          machine_location=employee.location, suspect=1, working_hours=2)
                     session.add(pc_access)
 
                     # logout after 1-10 hours randomly
                     pc_access = PC_Access(user_id=employee.id,
                                           access_date_time=logout_anytime(login_datetime, random.randrange(1, 10, 1)),
                                           log_on_off="Log Off", machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=1)
+                                          machine_location=employee.location, suspect=1, working_hours=2)
                     session.add(pc_access)
                     employee.suspect = True
                     session.add(employee)
@@ -195,17 +195,19 @@ def generate_pc_access_log():
                 workornot = (random.randint(0, 3))
                 if workornot == 0:
                     login_datetime = normal_login_time(current_date)
+                    workHours = 3
                 elif workornot == 1:
                     login_datetime = late_login_time(current_date)
+                    workHours = 4
                 if workornot == 0 or workornot == 1:
                     pc_access = PC_Access(user_id=employee.id, access_date_time=login_datetime,
                                           log_on_off="Log On", machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=0)
+                                          machine_location=employee.location, suspect=0, working_hours=workHours)
                     session.add(pc_access)
-                    logout_datetime = logout_anytime(login_datetime, random.randrange(11, 13, 1))
+                    logout_datetime = logout_anytime(login_datetime, random.randrange(10, 12, 1))
                     pc_access = PC_Access(user_id=employee.id, access_date_time=logout_datetime, log_on_off="Log Off",
                                           machine_name="PC_" + str(employee.id),
-                                          machine_location=employee.location, suspect=0)
+                                          machine_location=employee.location, suspect=0, working_hours=workHours)
                     session.add(pc_access)
 
                     # suspect case 1 - after hour login for profile 3
@@ -215,11 +217,11 @@ def generate_pc_access_log():
                         logout_datetime = logout_anytime(login_datetime, random.randrange(1, 2, 1))
                         pc_access = PC_Access(user_id=employee.id, access_date_time=login_datetime, log_on_off="Log On",
                                               machine_name="PC_" + str(employee.id),
-                                              machine_location=employee.location, suspect=1)
+                                              machine_location=employee.location, suspect=1, working_hours=workHours)
                         session.add(pc_access)
                         pc_access = PC_Access(user_id=employee.id, access_date_time=logout_datetime,
                                               log_on_off="Log Off", machine_name="PC_" + str(employee.id),
-                                              machine_location=employee.location, suspect=1)
+                                              machine_location=employee.location, suspect=1, working_hours=workHours)
                         session.add(pc_access)
                         employee.suspect = True
                         session.add(employee)
@@ -234,13 +236,13 @@ def generate_pc_access_log():
                 login_datetime = login_anytime(current_date)
                 pc_access = PC_Access(user_id=employee.id, access_date_time=login_datetime,
                                       log_on_off="Log On", machine_name=PC,
-                                      machine_location=location2, suspect=2)
+                                      machine_location=location2, suspect=2, working_hours=employee.profile)
                 session.add(pc_access)
 
                 pc_access = PC_Access(user_id=employee.id,
                                       access_date_time=logout_anytime(login_datetime, random.randrange(1, 10, 1)),
                                       log_on_off="Log Off", machine_name=PC,
-                                      machine_location=location2, suspect=2)
+                                      machine_location=location2, suspect=2, working_hours=employee.profile)
                 session.add(pc_access)
                 employee.suspect = True
                 session.add(employee)
@@ -251,13 +253,13 @@ def generate_pc_access_log():
                 login_datetime = login_anytime(current_date)
                 pc_access = PC_Access(user_id=employee.id, access_date_time=login_datetime,
                                       log_on_off="Log On", machine_name="PC_" + str(employee.id),
-                                      machine_location=employee.location, suspect=3)
+                                      machine_location=employee.location, suspect=3, working_hours=workHours)
                 session.add(pc_access)
 
                 pc_access = PC_Access(user_id=employee.id,
                                       access_date_time=logout_anytime(login_datetime, random.randrange(1, 10, 1)),
                                       log_on_off="Log Off", machine_name="PC_" + str(employee.id),
-                                      machine_location=employee.location, suspect=3)
+                                      machine_location=employee.location, suspect=3, working_hours=workHours)
                 session.add(pc_access)
                 employee.suspect = True
                 session.add(employee)
