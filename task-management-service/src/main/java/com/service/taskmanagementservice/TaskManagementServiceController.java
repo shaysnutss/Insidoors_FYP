@@ -3,6 +3,7 @@ package com.service.taskmanagementservice;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -75,8 +76,32 @@ public class TaskManagementServiceController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/tasks")
-    public TaskManagementService addTask(@RequestBody TaskManagementService tm){
-        return tMServiceRepo.save(tm);
+    public List<TaskManagementService> addTask(@RequestBody String tm) throws JsonMappingException, JsonProcessingException{
+        List<TaskManagementService> toSave = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        
+        String[] stringArray = tm.split("/");
+        List<String> stringList = Arrays.asList(stringArray);
+
+        for (int i = 0; i < stringList.size(); i++) {
+            TaskManagementService tmService = new TaskManagementService();
+            JsonNode jsonNode = objectMapper.readTree(stringList.get(i));
+
+            tmService.setIncidentTitle(jsonNode.get("incidentTitle").asText());
+            tmService.setIncidentDesc(jsonNode.get("incidentDesc").asText());
+            tmService.setDateAssigned(null);
+            tmService.setIncidentTimestamp(null);
+            tmService.setSeverity(jsonNode.get("severity").asInt());
+            tmService.setStatus("Open");
+            tmService.setAccountId(jsonNode.get("accountId").asInt());
+            tmService.setEmployeeId(jsonNode.get("employeeId").asInt());
+
+            toSave.add(tmService);
+            System.out.println(stringList.get(i));
+        }
+        
+
+        return tMServiceRepo.saveAll(toSave);
     }
 
     @PutMapping("/statusUpdate/{id}")
