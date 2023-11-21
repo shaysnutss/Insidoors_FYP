@@ -27,7 +27,7 @@ public class TaskManagementService {
     private String incidentDesc;
 
     @Column(name="incident_timestamp")
-    private LocalDateTime incidentTimestamp;
+    private String incidentTimestamp;
     
     @Column(name="employee_id")
     private int employeeId;
@@ -41,7 +41,7 @@ public class TaskManagementService {
     @Column(name="account_id")
     private int accountId;
 
-    @Column(name="date_assigned")
-    private LocalDate dateAssigned;
+    @Column(name="true_positive")
+    private Boolean truePositive = false;
 
 }
