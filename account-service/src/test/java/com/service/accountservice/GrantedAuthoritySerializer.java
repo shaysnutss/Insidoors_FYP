@@ -1,15 +1,15 @@
-package com.service.accountservice;
+// package com.service.accountservice;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import org.springframework.security.core.GrantedAuthority;
+// import com.fasterxml.jackson.core.JsonGenerator;
+// import com.fasterxml.jackson.databind.JsonSerializer;
+// import com.fasterxml.jackson.databind.SerializerProvider;
+// import org.springframework.security.core.GrantedAuthority;
 
-import java.io.IOException;
+// import java.io.IOException;
 
-public class GrantedAuthoritySerializer extends JsonSerializer<GrantedAuthority> {
-    @Override
-    public void serialize(GrantedAuthority grantedAuthority, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeString(grantedAuthority.getAuthority());
-    }
-}
+// public class GrantedAuthoritySerializer extends JsonSerializer<GrantedAuthority> {
+//     @Override
+//     public void serialize(GrantedAuthority grantedAuthority, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+//         jsonGenerator.writeString(grantedAuthority.getAuthority());
+//     }
+// }
