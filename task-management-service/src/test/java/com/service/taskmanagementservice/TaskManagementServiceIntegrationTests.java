@@ -142,19 +142,30 @@ public class TaskManagementServiceIntegrationTests {
     @Test
     @Order(5)
     public void testCreateTask() throws JsonProcessingException {
-        TaskManagementService task = new TaskManagementService(2L, "the second incident", "description", null, 28, 300, "In review", 12, null);
+        String task1 = "{\"incidentDesc\":\"Crystal Mccleskey has attempted to log into their account after working hours.\",\"incidentTitle\":\"After Hour Login\",\"severity\":50,\"accountId\":0,\"employeeId\":1}";
+        String task2 = "{\"incidentDesc\":\"Another Incident\",\"incidentTitle\":\"Another Title\",\"severity\":30,\"accountId\":1,\"employeeId\":2}";
+        // Add more tasks as needed...
 
-        HttpEntity<String> entity = new HttpEntity<>(objectMapper.writeValueAsString(task), headers);
-        ResponseEntity<TaskManagementService> response = restTemplate.exchange(
-            (createURLWithPort() + "/tasks"), HttpMethod.POST, entity, TaskManagementService.class);
-            
-        assertEquals(response.getStatusCode(), HttpStatus.CREATED);
-        TaskManagementService taskRes = Objects.requireNonNull(response.getBody());
-        assertNotNull(taskRes);
-        assertEquals(taskRes.getStatus(), tMServiceRepo.save(task).getStatus());
-        assertEquals(taskRes.getIncidentTitle(), tMServiceRepo.save(task).getIncidentTitle());
-        assertEquals(taskRes.getSeverity(), tMServiceRepo.save(task).getSeverity());
+        String combinedTasks = task1 + "/" + task2 + "/";  // Concatenate tasks with "/"
         
+        HttpEntity<String> entity = new HttpEntity<>(combinedTasks, headers);
+        ResponseEntity<List<TaskManagementService>> response = restTemplate.exchange(
+            (createURLWithPort() + "/tasks"), HttpMethod.POST, entity, new ParameterizedTypeReference<List<TaskManagementService>>() {});
+
+        assertEquals(response.getStatusCode(), HttpStatus.CREATED);
+        List<TaskManagementService> tasks = Objects.requireNonNull(response.getBody());
+        assertNotNull(tasks);
+        
+        // Add assertions for each task in the response as needed
+        assertEquals(tasks.get(0).getStatus(), "Open");
+        assertEquals(tasks.get(0).getIncidentTitle(), "After Hour Login");
+        assertEquals(tasks.get(0).getSeverity(), 50);
+
+        // Add assertions for the second task if needed
+        assertEquals(tasks.get(1).getStatus(), "Open");
+        assertEquals(tasks.get(1).getIncidentTitle(), "Another Title");
+        assertEquals(tasks.get(1).getSeverity(), 30);
+            
     }
 
     @Test
