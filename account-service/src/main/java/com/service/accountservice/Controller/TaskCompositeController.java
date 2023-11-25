@@ -95,4 +95,18 @@ public class TaskCompositeController {
         
     }
 
+    @GetMapping("/getAccount")
+    public ResponseEntity<?> getAccount(HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        if(authHeader == null || !authHeader.startsWith("Bearer ")){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No bearer token provided. This web app uses JWT Authentication");
+        }
+
+        String jwt = authHeader.substring(7);
+        String userEmail = jwtService.extractUsername(jwt);
+        Account accountToReturn = repository.findByEmail(userEmail);
+        return ResponseEntity.ok(accountToReturn);
+        
+    }
+
 }
