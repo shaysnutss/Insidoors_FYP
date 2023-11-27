@@ -38,6 +38,28 @@ public class BehavioralAnalysisComposite {
         return accountService.getMethod(baCompositeApiBaseURL + "/viewAllEmployees");
     }
 
+    /**
+     * Find all employees with their behaviour analysis sorted by risk rating
+     *
+     * @return list of all employees with their behaviour analysis 
+     */
+
+    @GetMapping("/viewAllEmployeesByRiskRating")
+    public ResponseEntity<?> viewAllEmployeesSortedByRiskRating(){
+        return accountService.getMethod(baCompositeApiBaseURL + "/viewAllEmployeesByRiskRating");
+    }
+
+    /**
+     * Find all employees with their behaviour analysis sorted by risk rating
+     *
+     * @return list of all employees with their behaviour analysis 
+     */
+
+    @GetMapping("/viewAllEmployeesByCaseNumber")
+    public ResponseEntity<?> viewAllEmployeesByCaseNumber(){
+        return accountService.getMethod(baCompositeApiBaseURL + "/viewAllEmployeesByCaseNumber");
+    }
+
 
     /**
      * Find the incidents of an employee 

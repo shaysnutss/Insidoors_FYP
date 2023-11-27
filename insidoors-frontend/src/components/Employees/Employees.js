@@ -148,6 +148,7 @@ import { styled } from '@mui/system';
         // State for filtered employees
         const [filteredEmployees, setFilteredEmployees] = useState([]);
         const [searchInput, setSearchInput] = useState(''); 
+        const [selectedValue, setSelectedValue] = useState('');
 
         // Step 2
         const handleSearchInputChange = (event) => {
@@ -158,25 +159,34 @@ import { styled } from '@mui/system';
         // Step 3
         const handleSearchSubmit = async (event) => {
             event.preventDefault();
-            
-            console.log("before sending API");
-
             // Fetch all employees
             const { data } = await employeeService.viewAllEmployees();
             setAllEmployees(data);
-
             // Filter employees based on the search input
             const filtered = data.filter((employee) =>
                 employee.firstname.toLowerCase().includes(searchInput.toLowerCase())
             );
-
             // Update the state with the filtered employees
             setFilteredEmployees(filtered);
-
-            console.log("after sending API");
-
             
         };
+
+        const handleSorting = async(event) => {
+            setSelectedValue(event.target.value);
+            console.log(event.target.value);
+            if (event.target.value === "option1") {
+                const { data } = await employeeService.viewAllEmployeesByRiskRating();
+                setAllEmployees(data);
+                setFilteredEmployees(data);
+            }
+            else {
+                const { data } = await employeeService.viewAllEmployeesByCaseNumber();
+                setAllEmployees(data);
+                setFilteredEmployees(data);
+            }
+        };
+
+
 
         useEffect(() => {
             console.log("this is the state of employees now");
@@ -233,6 +243,12 @@ import { styled } from '@mui/system';
                     <div className="title">
                         <div className="title-text">Employee Information</div>
                     </div>
+                    <select className="dropDown" value={selectedValue} onChange={handleSorting}>
+                        <option value="">Sort By</option>
+                        <option value="option1">Risk Rating</option>
+                        <option value="option2">Number Of Cases</option>
+                    </select>
+
                     <div>
                         <form onSubmit={handleSearchSubmit}>
                             <input

@@ -77,6 +77,70 @@ public class BehavioralAnalysisCompositeController {
 
     }
 
+
+    /**
+     * Find all employees with their behaviour analysis sorted by risk rating
+     *
+     * @return list of all employees with their behaviour analysis sorted by risk
+     *         rating
+     */
+    @GetMapping("/viewAllEmployeesByRiskRating")
+    public ResponseEntity<?> viewAllEmployeesByRiskRating(){
+
+        // Using getMethod service method to send GET request to employee service to get all employees
+        List<Map<String, Object>> employeesResponse = behavioralAnalysisCompositeService.getMethod(employeesApiBaseUrl);
+        if (employeesResponse == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        List<Map<String, Object>> toReturn = behavioralAnalysisCompositeService.aggregateAllEmployees(employeesResponse);
+
+        // sort the list by risk rating
+        Collections.sort(toReturn, new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> map1, Map<String, Object> map2) {
+                // Extract the "risk_rating" values from the maps
+                Integer riskRating1 = (Integer) map1.get("riskRating");
+                Integer riskRating2 = (Integer) map2.get("riskRating");
+
+                // Compare based on "risk_rating"
+                return Integer.compare(riskRating2, riskRating1);
+            }
+        });
+        return ResponseEntity.ok(toReturn);
+    }
+
+    /**
+     * Find all employees with their behaviour analysis sorted by number of cases
+     *
+     * @return list of all employees with their behaviour analysis sorted by number of cases
+     */
+    @GetMapping("/viewAllEmployeesByCaseNumber")
+    public ResponseEntity<?> viewAllEmployeesByCaseNumber(){
+
+        // Using getMethod service method to send GET request to employee service to get all employees
+        List<Map<String, Object>> employeesResponse = behavioralAnalysisCompositeService.getMethod(employeesApiBaseUrl);
+        if (employeesResponse == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        List<Map<String, Object>> toReturn = behavioralAnalysisCompositeService.aggregateAllEmployees(employeesResponse);
+
+        // sort the list by risk rating
+        Collections.sort(toReturn, new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> map1, Map<String, Object> map2) {
+                // Extract the "risk_rating" values from the maps
+                Integer riskRating1 = (Integer) map1.get("suspectedCases");
+                Integer riskRating2 = (Integer) map2.get("suspectedCases");
+
+                // Compare based on "risk_rating"
+                return Integer.compare(riskRating2, riskRating1);
+            }
+        });
+        return ResponseEntity.ok(toReturn);
+    }
+
     /**
      * Find an employee with their behaviour analysis
      *
