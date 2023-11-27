@@ -19,7 +19,7 @@ user profile 2 --> 9am - 6pm any day
 user profile 3 --> 12 hour shift any day (8am-8pm or 8pm-8am)
 """
 
-NUM_OF_EMPLOYEES = 5000
+NUM_OF_EMPLOYEES = 30
 START_DATE = date(2023, 1, 1)
 END_DATE = date(2023, 1, 31)
 
