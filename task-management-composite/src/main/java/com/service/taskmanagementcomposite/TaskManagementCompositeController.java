@@ -337,6 +337,24 @@ public class TaskManagementCompositeController {
                     e.getMessage();
                 }
 
+                HttpPut httpPutNewStatus = new HttpPut("http://task-management-service:8081/api/v1/statusUpdate/" + id);
+                httpPutNewStatus.setHeader("Accept", "application/json");
+                httpPutNewStatus.setHeader("Content-type", "application/json");
+                //StringEntity stringEntity2 = new StringEntity(newData);
+                httpPutNewStatus.setEntity(stringEntity);
+
+                try (CloseableHttpResponse response = httpclient.execute(httpPutNewStatus)) {
+
+                    if (response.getEntity() == null) {
+                        System.out.println("something went wrong here");
+                    } else {
+                        System.out.println("all good");
+                    }
+
+                } catch (IOException e) {
+                    e.getMessage();
+                }
+
                 return ResponseEntity.ok(newData);
 
             } else {

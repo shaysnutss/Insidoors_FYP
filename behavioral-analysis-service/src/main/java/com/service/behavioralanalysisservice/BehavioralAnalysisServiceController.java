@@ -50,6 +50,10 @@ public class BehavioralAnalysisServiceController {
         }
     }
 
+    // public boolean checkIfIdExists(Long id) {
+    //     return bAServiceRepo.existsById(id);
+    // }
+
     @GetMapping("/behavioralanalysis/employee/{id}")
     public ResponseEntity<BehavioralAnalysisService> getBehavioralAnalysisByEmployeeId(@PathVariable int id) {
         BehavioralAnalysisService ba = bAServiceRepo.findByEmployeeId(id);
@@ -85,16 +89,26 @@ public class BehavioralAnalysisServiceController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/behavioralanalysis")
-    public BehavioralAnalysisService addBehavioralAnalysis(@RequestBody String ba) throws JsonMappingException, JsonProcessingException{
-        BehavioralAnalysisService baEntry = new BehavioralAnalysisService();
+    public List<BehavioralAnalysisService> addBehavioralAnalysis(@RequestBody String ba) throws JsonMappingException, JsonProcessingException{
+        List<BehavioralAnalysisService> baEntry = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(ba);
+        
+        String[] stringArray = ba.split("/");
+        List<String> stringList = Arrays.asList(stringArray);
 
-        baEntry.setEmployeeId(jsonNode.get("employeeId").asInt());
-        baEntry.setRiskRating(0);
-        baEntry.setSuspectedCases(1);
+        for (int i = 0; i < stringList.size(); i++) {
+            BehavioralAnalysisService baService = new BehavioralAnalysisService();
+            JsonNode jsonNode = objectMapper.readTree(stringList.get(i));
 
-        return bAServiceRepo.save(baEntry);
+            baService.setEmployeeId(jsonNode.get("employeeId").asInt());
+            baService.setRiskRating(0);
+            baService.setSuspectedCases(jsonNode.get("suspectedCases").asInt());
+
+            baEntry.add(baService);
+            //System.out.println(stringList.get(i));
+        }
+
+        return bAServiceRepo.saveAll(baEntry);
     }
 
     @PutMapping("/updateRiskRating/{id}")
@@ -140,7 +154,7 @@ public class BehavioralAnalysisServiceController {
 
             ba.setId(ba.getId());
             ba.setEmployeeId(id);
-            ba.setSuspectedCases(jsonNode.get("suspectedCases").asInt());
+            ba.setSuspectedCases(ba.getSuspectedCases() + jsonNode.get("suspectedCases").asInt());
         
         } catch (JsonMappingException e) {
             e.printStackTrace();

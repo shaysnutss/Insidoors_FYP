@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 public interface BehavioralAnalysisServiceRepository extends JpaRepository<BehavioralAnalysisService, Long> {
     
     BehavioralAnalysisService findByEmployeeId(int employeeId);
+    boolean existsByEmployeeId(Long id);
 
 }

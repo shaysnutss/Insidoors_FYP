@@ -2,10 +2,6 @@ package com.service.taskmanagementservice;
 
 import lombok.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
-
 import jakarta.persistence.*;
 
 @Entity

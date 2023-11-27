@@ -41,6 +41,17 @@ public class TaskManagementServiceController {
         }
     }
 
+    @GetMapping("/tasks/afterId/{id}")
+    public ResponseEntity<List<TaskManagementService>> getAllTasksAfterId(@PathVariable Long id) {
+        List<TaskManagementService> tasks = tMServiceRepo.findAllAfterId(id);
+
+        if (!tasks.isEmpty()) {
+            return ResponseEntity.ok(tasks);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
     @GetMapping("/tasks/{id}")
     public ResponseEntity<TaskManagementService> getTaskById(@PathVariable Long id) {
         Optional<TaskManagementService> taskOptional = tMServiceRepo.findById(id);

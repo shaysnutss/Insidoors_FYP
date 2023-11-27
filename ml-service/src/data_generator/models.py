@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 
 # !! Replace placeholders before running !!
 Base = declarative_base()
-engine = create_engine('mysql+mysqldb://<USER>:<PASSWORD>@<HOST>:<PORT>/insidoors', echo=True)
-
+#engine = create_engine('mysql+mysqldb://<USER>:<PASSWORD>@<HOST>:<PORT>/insidoors', echo=True)
+engine = create_engine('mysql+pymysql://root:akshaya100@localhost:3306/insidoors', echo=True)
 
 class Employee(Base):
     __tablename__ = 'employees'

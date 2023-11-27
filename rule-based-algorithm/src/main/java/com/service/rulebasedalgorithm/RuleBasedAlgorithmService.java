@@ -23,44 +23,18 @@ public class RuleBasedAlgorithmService {
     CloseableHttpClient httpclient = HttpClients.createDefault();
     ObjectMapper objectMapper = new ObjectMapper();
     
-    public String checkCaseSix (int bytesOut, int id) throws ClientProtocolException, IOException {
-        objectMapper.findAndRegisterModules();
-        String task = "";
+    public boolean checkCaseSix (int bytesOut) throws ClientProtocolException, IOException {
 
         if (bytesOut >= 10000000) {
-
-            HttpGet httpgetEmployee = new HttpGet("http://employee-service:8082/api/v1/employees" + "/" + id);
-
-            ObjectNode obj = objectMapper.createObjectNode();
-            
-            try (CloseableHttpResponse response =  httpclient.execute(httpgetEmployee)) {
-
-                if (response.getEntity() != null) {
-                    String jsonContentEmployee = EntityUtils.toString(response.getEntity(), "UTF-8");
-                    JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
-                    obj.put("incidentDesc", jsonNodeEmployee.get("firstname").asText() + " " + jsonNodeEmployee.get("lastname").asText() + " has made an unusually large amount of data upload or download.");
-                } else {
-                    System.out.println("something went wrong here");
-                }
-
-            } catch (IOException e) {
-                e.getMessage();
-            }
-
-            obj.put("incidentTitle", "Potential Data Exfiltration");
-            obj.put("severity", 100);
-            obj.put("accountId", 0);
-            obj.put("employeeId", id);
-            task = obj.toString();
-
+            return true;
         } 
 
-        return task;
+        return false;
     }
 
     public String checkCaseFour (String status, int id) throws ClientProtocolException, IOException {
         objectMapper.findAndRegisterModules();
-        String task = "";
+        String task = ""; // modify the same way as case six
      
         if (status.equals("FAIL")) {
 
