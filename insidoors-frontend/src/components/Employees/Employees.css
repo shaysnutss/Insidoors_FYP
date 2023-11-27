@@ -33,6 +33,22 @@ body {
     position: relative;
 }
 
+.Employee .headingEmployee .dropDown{
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: normal;
+    height: 40px;
+    left: 825px;
+    position: absolute;
+    top: -12.5px;
+    width: 150px;
+}
+
+
+
 .Employee .headingEmployee .searchbar {
     color: #535151;
     font-family: "Poppins-Regular", Helvetica;
