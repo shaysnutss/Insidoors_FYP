@@ -1,10 +1,13 @@
+import json
 import socket
 import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-
+import pc_clf
+import building_clf
+import proxy_clf
 
 # my_id = os.getenv('db_conn')
 app = Flask(__name__)
@@ -197,15 +200,32 @@ def change_by_id(food_id):
         }
     ), 404
 
-@app.route('/example', methods=['POST'])
+@app.route('/example_pc', methods=['POST'])
 def example():
-    data = request.get_json()
     # Process the data
-    return jsonify(
-                {
-                    "message": str(data)
-                }
-            ), 200
+
+    data_json = json.loads(request.data)
+    pc_clf.infer(str(data_json))
+    
+    return jsonify({"message": str(data_json)}), 200
+
+@app.route('/example_building', methods=['POST'])
+def example():
+    # Process the data
+
+    data_json = json.loads(request.data)
+    building_clf.infer(str(data_json))
+    
+    return jsonify({"message": str(data_json)}), 200
+
+@app.route('/example_proxy', methods=['POST'])
+def example():
+    # Process the data
+
+    data_json = json.loads(request.data)
+    proxy_clf.infer(str(data_json))
+    
+    return jsonify({"message": str(data_json)}), 200
 
 
 if __name__ == '__main__':
