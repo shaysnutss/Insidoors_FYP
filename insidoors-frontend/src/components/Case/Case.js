@@ -70,6 +70,9 @@ const Case = () => {
     userService.getAllCases()
       .then(function (response) {
         setCases(response.data);
+        // KGB
+        setFilteredData(response.data);
+        setFilteredDataSecond(response.data);
       })
       .catch(function (error) {
         // handle error
