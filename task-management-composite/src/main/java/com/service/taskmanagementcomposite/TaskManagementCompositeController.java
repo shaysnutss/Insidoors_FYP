@@ -376,7 +376,7 @@ public class TaskManagementCompositeController {
                     String incidentTitle = jsonNodeTask.get("incidentTitle").toString();
                     String taskId = jsonNodeTask.get("id").toString();
                     JsonNode rootNode = objectMapper.readTree(newData);
-                    String accountId = rootNode.get("accountId").toString();
+                    Long accountId = rootNode.get("accountId").asLong();
 
                     CloseableHttpClient httpClient = HttpClients.createDefault();
                     HttpPost request1 = new HttpPost(
@@ -390,16 +390,16 @@ public class TaskManagementCompositeController {
                     StringEntity entity = new StringEntity(json, StandardCharsets.UTF_8);
                     request1.setEntity(entity);
 
-                    Future<?> future = Executors.newSingleThreadExecutor().submit(() -> {
+                    // Future<?> future = Executors.newSingleThreadExecutor().submit(() -> {
                         
-                        try (CloseableHttpResponse response = httpClient.execute(request1)) {
-                        System.out.println(EntityUtils.toString(response.getEntity()));
-                        System.out.println("fourth api call and its status code" +
-                        response.getStatusLine().getStatusCode());
-                        } catch (Exception e) {
-                        e.printStackTrace();
-                        }
-                    });
+                    //     try (CloseableHttpResponse response = httpClient.execute(request1)) {
+                    //     System.out.println(EntityUtils.toString(response.getEntity()));
+                    //     System.out.println("fourth api call and its status code" +
+                    //     response.getStatusLine().getStatusCode());
+                    //     } catch (Exception e) {
+                    //     e.printStackTrace();
+                    //     }
+                    // });
                 }
                 return ResponseEntity.ok(newData);
 
