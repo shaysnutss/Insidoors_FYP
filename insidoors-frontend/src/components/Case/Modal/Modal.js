@@ -1,12 +1,10 @@
 import "./Modal.css";
 import React, { useState, useEffect } from "react";
 import userService from "../../../services/user.service"
-import { useNavigate } from "react-router-dom";
 import { line } from "../../../assets"
 
 function Modal({ setOpenModal, caseId }) {
 
-    const navigate = useNavigate();
     const [comments, setComments] = useState([]);
     const [detail, setDetail] = useState([]);
     const [socList, setSocList] = useState([]);
@@ -16,7 +14,9 @@ function Modal({ setOpenModal, caseId }) {
     const [socId, setSocId] = useState(0);
     const [priority, setPriority] = useState("");
     const [desc, setDesc] = useState("");
+    const [flag, setFlag] = useState(false);
     const [checked, setChecked] = useState(false);
+    const [currentUser, setCurrentUser] = useState([]);
 
     function fetchComments() {
         userService.getAllCommentsById(caseId)
@@ -29,6 +29,17 @@ function Modal({ setOpenModal, caseId }) {
             })
     };
 
+    function getCurrentUser() {
+        userService.getUser()
+            .then(function (response) {
+                setCurrentUser(response.data);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+    }
+
     function getSoc() {
         userService.getAllSoc()
             .then(function (response) {
@@ -40,7 +51,7 @@ function Modal({ setOpenModal, caseId }) {
             })
     }
 
-    function getAllCases() {
+    function getSingleCase() {
         userService.getCaseById(caseId)
             .then(function (response) {
                 setDetail(response.data);
@@ -53,7 +64,11 @@ function Modal({ setOpenModal, caseId }) {
 
     function savingModal() {
         if (desc !== "") {
-            console.log("comment");
+            userService.addComment(caseId, currentUser.id, desc)
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
         }
 
         if (checked === true) {
@@ -64,19 +79,13 @@ function Modal({ setOpenModal, caseId }) {
                 })
         }
 
-        userService.putSoc(caseId, socId)
+        userService.putSoc(caseId, socId, status)
             .catch(function (error) {
                 // handle error
                 console.log(error);
             })
 
-        userService.putStatus(caseId, status)
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-            })
-
-        navigate("/main/case");
+        setOpenModal(false);
         window.location.reload();
     }
 
@@ -84,20 +93,16 @@ function Modal({ setOpenModal, caseId }) {
         const selectedIndex = e.target.options.selectedIndex;
         setSoc(e.target.value);
         setSocId(e.target.options[selectedIndex].getAttribute('data-key'));
+        if(status === "Open") {
+            setStatus("Assigned");
+        }
     };
-
-    function handleStatus(e) {
-        setStatus(e.target.value);
-    };
-
-    function handleChecked() {
-        setChecked(!checked);
-    }
 
     useEffect(() => {
-        getAllCases();
+        getSingleCase();
         getSoc();
         fetchComments();
+        getCurrentUser();
     }, [])
 
     useEffect(() => {
@@ -126,22 +131,30 @@ function Modal({ setOpenModal, caseId }) {
                     <div className="textSeverity">Severity</div>
                     <div className="textStatus">Status</div>
                     <div className="textSoc">SOC</div>
-                    <div className="textDate">Date Assigned</div>
                     <div className="employee">{detail.employeeFirstname} {detail.employeeLastname}</div>
                     <div className="incident">{detail.incidentTimestamp}</div>
                     <div className="severity">{priority}</div>
-                    <select className="status" value={status} onChange={handleStatus}>
-                        <option value="Open">Open</option>
-                        <option value="Assigned">Assigned</option>
-                        <option value="In review">In review</option>
-                        <option value="Closed">Closed</option>
-                    </select>
-                    <select className="soc" value={soc} data-key={socId} onChange={handleSoc}>
-                        {socList.map((socList) => (
-                            <option key={socList.id} data-key={socList.id} value={socList.socName}>{socList.socName}</option>
-                        ))}
-                    </select>
-                    <div className="date">{detail.dateAssigned}</div>
+                    {detail.status !== "Closed" &&
+                        <select className="status" value={status} onChange={(e) => { setStatus(e.target.value); setFlag(true); if(e.target.value === "Open" && socId !== 0) {setSocId(0)}}}>
+                            <option value="Open">Open</option>
+                            <option value="Assigned">Assigned</option>
+                            <option value="In review">In review</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    }
+                    {detail.status === "Closed" &&
+                        <div className="statusClosed"> Closed </div>
+                    }
+                    {detail.status !== "Closed" &&
+                        <select className="soc" value={soc} data-key={socId} onChange={handleSoc}>
+                            {socList.map((socList) => (
+                                <option key={socList.id} data-key={socList.id} value={socList.socName}>{socList.socName}</option>
+                            ))}
+                        </select>
+                    }
+                    {detail.status === "Closed" &&
+                        <div className="socClosed">{soc}</div>
+                    }
                     <div className="tab">
                         <button className="descSelected" onClick={() => { setTab("modal1"); }}>DESCRIPTION</button>
                         <button className="commentSelected" onClick={() => { setTab("modal"); }}>COMMENTS</button>
@@ -167,9 +180,8 @@ function Modal({ setOpenModal, caseId }) {
                                         ))}
                                     </div>
                                 </div>
-
                                 <div className="addCommentBox">
-                                    <div className="addCommentTitle"></div>
+                                    <div className="addCommentTitle">{currentUser.name}</div>
                                     <input type="text" className="addCommentDescription" placeholder="Enter Description" value={desc} onChange={(e) => setDesc(e.target.value)} />
                                 </div>
                             </div>
@@ -180,10 +192,12 @@ function Modal({ setOpenModal, caseId }) {
                             <div className="descBox">{detail.incidentDesc}</div>
                         }
                     </div>
-                    {status === "Closed" &&
-                        <label className="checkbox"><input type="checkbox" checked={checked} onChange={handleChecked}/>True Positive</label>
+                    {status === "Closed" && flag === true &&
+                        <label className="checkbox"><input type="checkbox" checked={checked} onChange={() => setChecked(!checked)} />True Positive</label>
                     }
-                    <button className="saveButton" onClick={savingModal}> Save </button>
+                    {((status === "Closed" && flag === true) || (status !== "Closed")) &&
+                        <button className="saveButton" onClick={savingModal}> Save </button>
+                    }
                 </div>
             </div>
         </div>

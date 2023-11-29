@@ -15,6 +15,7 @@ const Case = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [socList, setSocList] = useState([]);
   const [filteredData, setFilteredData] = useState(cases);
+  const [currentUser, setCurrentUser] = useState([]);
   const [filteredDataSecond, setFilteredDataSecond] = useState(cases);
 
 
@@ -43,30 +44,6 @@ const Case = () => {
     )
   }
 
-  function TicketClose(cases) {
-    return (
-      <div className="ticket-size">
-        <div className="ticket">
-          <img className="line" alt="" src={line} />
-          <div className="ticket-body">
-            {cases.severity <= 50 &&
-              <div className="priority-low">Low</div>
-            }
-            {cases.severity > 50 && cases.severity <= 100 &&
-              <div className="priority-med">Med</div>
-            }
-            {cases.severity > 100 &&
-              <div className="priority-high">High</div>
-            }
-            <div className="title">{cases.incidentTitle}</div>
-            <div className="description">{cases.incidentDesc}</div>
-          </div>
-          <div className="person" >{cases.socName}</div>
-        </div>
-      </div>
-    )
-  }
-
   function getSoc() {
     userService.getAllSoc()
       .then(function (response) {
@@ -78,12 +55,21 @@ const Case = () => {
       })
   }
 
+  function getCurrentUser() {
+    userService.getUser()
+      .then(function (response) {
+        setCurrentUser(response.data);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+  }
+
   function fetchCases() {
     userService.getAllCases()
       .then(function (response) {
         setCases(response.data);
-        setFilteredData(response.data);
-        setFilteredDataSecond(response.data);
       })
       .catch(function (error) {
         // handle error
@@ -91,13 +77,25 @@ const Case = () => {
       })
   };
 
+  function setCurrentCases() {
+    const filter = cases.filter((item) =>
+      item.accountId === currentUser.id || item.status === "Open"
+    )
+    setFilteredData(filter);
+    setFilteredDataSecond(filter);
+  }
+
+  useEffect(() => {
+    setCurrentCases();
+  },[cases])
+
   useEffect(() => {
     try {
       userService.getAccountById().then(
         () => {
-          console.log("ok");
           fetchCases();
           getSoc();
+          getCurrentUser();
         },
         (error) => {
           console.log("Private page", error.response);
@@ -136,7 +134,7 @@ const Case = () => {
     }
     else {
       const filter = cases.filter((item) =>
-        item.accountId == (e.target.value)
+        item.accountId == (e.target.value) || item.status === "Open"
       )
       setFilteredData(filter);
       setFilteredDataSecond(filter);
@@ -164,9 +162,6 @@ const Case = () => {
           </div>
         </div>
         <div className="extra-tab">
-          <div>
-            {/* <button className="alert-tab">Alerts</button> */}
-          </div>
           <div className="logout">
             <Logout></Logout>
           </div>
@@ -222,7 +217,7 @@ const Case = () => {
               {filteredData.map((cases) => (
                 <div key={cases.id}>
                   {cases.status === "Closed" &&
-                    TicketClose(cases)
+                    Ticket(cases)
                   }
                 </div>
               ))}
@@ -237,7 +232,7 @@ const Case = () => {
         <select className="socSelect" onChange={handleSoc}>
           <option value="reset">Everyone</option>
           {socList.map((socList) => (
-            <option key={socList.id} value={socList.id}>{socList.socName}</option>
+            <option key={socList.id} value={socList.id} selected={currentUser.id === socList.id}>{socList.socName}</option>
           ))}
         </select>
       </div>
