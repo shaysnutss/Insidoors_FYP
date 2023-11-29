@@ -1,10 +1,14 @@
 package com.service.taskmanagementcomposite;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -316,6 +320,7 @@ public class TaskManagementCompositeController {
     public ResponseEntity<?> assignSOC(@PathVariable Long id, @RequestBody String newData) {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
 
             if (newData != null) {
                 HttpPut httpPutNewAccountId = new HttpPut(
@@ -327,6 +332,8 @@ public class TaskManagementCompositeController {
 
                 try (CloseableHttpResponse response = httpclient.execute(httpPutNewAccountId)) {
 
+                    System.out.println("first api call and its status code" + response.getStatusLine().getStatusCode());
+
                     if (response.getEntity() == null) {
                         System.out.println("something went wrong here");
                     } else {
@@ -337,6 +344,63 @@ public class TaskManagementCompositeController {
                     e.getMessage();
                 }
 
+                HttpPut httpPutNewStatus = new HttpPut("http://task-management-service:8081/api/v1/statusUpdate/" + id);
+                httpPutNewStatus.setHeader("Accept", "application/json");
+                httpPutNewStatus.setHeader("Content-type", "application/json");
+                // StringEntity stringEntity2 = new StringEntity(newData);
+                httpPutNewStatus.setEntity(stringEntity);
+
+                try (CloseableHttpResponse response = httpclient.execute(httpPutNewStatus)) {
+                    System.out
+                            .println("second api call and its status code" + response.getStatusLine().getStatusCode());
+
+                    if (response.getEntity() == null) {
+                        System.out.println("something went wrong here");
+                    } else {
+                        System.out.println("all good");
+                    }
+
+                } catch (IOException e) {
+                    e.getMessage();
+                }
+                HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/" + id);
+                CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
+                System.out.println("this is responseBodyTask" + responseBodyTask);
+                System.out.println(
+                        "third api call and its status code" + responseBodyTask.getStatusLine().getStatusCode());
+                if (responseBodyTask.getStatusLine().getStatusCode() == 200) {
+
+                    String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(), "UTF-8");
+                    JsonNode jsonNodeTask = objectMapper.readTree(jsonContentTask);
+                    String severity = jsonNodeTask.get("severity").toString();
+                    String incidentTitle = jsonNodeTask.get("incidentTitle").toString();
+                    String taskId = jsonNodeTask.get("id").toString();
+                    JsonNode rootNode = objectMapper.readTree(newData);
+                    String accountId = rootNode.get("accountId").toString();
+
+                    CloseableHttpClient httpClient = HttpClients.createDefault();
+                    HttpPost request1 = new HttpPost(
+                            "http://notification-service:8080/api/v1/notifications/assignSOC/" + accountId);
+                    Map<String, Object> requestBody = new HashMap<>();
+                    requestBody.put("severity", severity);
+                    requestBody.put("incidentTitle", incidentTitle);
+                    requestBody.put("taskId", taskId);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String json = objectMapper.writeValueAsString(requestBody);
+                    StringEntity entity = new StringEntity(json, StandardCharsets.UTF_8);
+                    request1.setEntity(entity);
+
+                    Future<?> future = Executors.newSingleThreadExecutor().submit(() -> {
+                        
+                        try (CloseableHttpResponse response = httpClient.execute(request1)) {
+                        System.out.println(EntityUtils.toString(response.getEntity()));
+                        System.out.println("fourth api call and its status code" +
+                        response.getStatusLine().getStatusCode());
+                        } catch (Exception e) {
+                        e.printStackTrace();
+                        }
+                    });
+                }
                 return ResponseEntity.ok(newData);
 
             } else {
@@ -428,14 +492,14 @@ public class TaskManagementCompositeController {
 
                 try (CloseableHttpResponse response = httpclient.execute(httpPutTP)) {
 
-                if (response.getEntity() == null) {
-                System.out.println("something went wrong here");
-                } else {
-                //System.out.println("all good");
-                }
+                    if (response.getEntity() == null) {
+                        System.out.println("something went wrong here");
+                    } else {
+                        // System.out.println("all good");
+                    }
 
                 } catch (IOException e) {
-                e.getMessage();
+                    e.getMessage();
                 }
 
                 return ResponseEntity.ok(newData);
