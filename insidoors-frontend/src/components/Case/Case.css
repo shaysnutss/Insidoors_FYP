@@ -65,17 +65,6 @@
   top: 50px;
 }
 
-.case .alert-tab {
-  color: #000000;
-  border: none;
-  background-color: #ffffff;
-  font-family: "Poppins-Medium", Helvetica;
-  font-size: 22px;
-  font-weight: 500;
-  left: 100px;
-  position: absolute;
-}
-
 .case .open-cases {
   height: 1000px;
   left: 100px;
@@ -120,9 +109,7 @@
 .case .priority-high {
   color: #9a0707;
   background-color: #f0bdbd;
-  border: 1px solid;
   border-radius: 10px;
-  border-color: #032539;
   height: 25px;
   font-family: "Poppins-SemiBold", Helvetica;
   font-size: 15px;
@@ -137,9 +124,7 @@
 .case .priority-med {
   color: #C5700C;
   background-color: #F0DCBD;
-  border: 1px solid;
   border-radius: 10px;
-  border-color: #032539;
   height: 25px;
   font-family: "Poppins-SemiBold", Helvetica;
   font-size: 15px;
@@ -154,9 +139,7 @@
 .case .priority-low {
   color: #27A109;
   background-color: #BEF0BD;
-  border: 1px solid;
   border-radius: 10px;
-  border-color: #032539;
   height: 25px;
   font-family: "Poppins-SemiBold", Helvetica;
   font-size: 15px;
