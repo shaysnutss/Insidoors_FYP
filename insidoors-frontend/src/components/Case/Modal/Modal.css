@@ -124,7 +124,7 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
@@ -138,7 +138,7 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
@@ -151,7 +151,7 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
@@ -192,7 +192,7 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
@@ -206,11 +206,24 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
     top: 350px;
+}
+
+.modal .message-error {
+    color: lightcoral;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 24px;
+    font-weight: 500;
+    height: 40px;
+    left: 300px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 390px;
 }
 
 .modal .tab {
@@ -500,7 +513,7 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
@@ -513,7 +526,7 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
@@ -525,7 +538,7 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
@@ -565,7 +578,7 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
@@ -579,11 +592,24 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
     top: 350px;
+}
+
+.modal1 .message-error {
+    color: lightcoral;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 24px;
+    font-weight: 500;
+    height: 40px;
+    left: 300px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 390px;
 }
 
 .modal1 .tab {

@@ -17,6 +17,7 @@ function Modal({ setOpenModal, caseId }) {
     const [flag, setFlag] = useState(false);
     const [checked, setChecked] = useState(false);
     const [currentUser, setCurrentUser] = useState([]);
+    const [message, setMessage] = useState("");
 
     function fetchComments() {
         userService.getAllCommentsById(caseId)
@@ -63,37 +64,42 @@ function Modal({ setOpenModal, caseId }) {
     }
 
     function savingModal() {
-        if (desc !== "") {
-            userService.addComment(caseId, currentUser.id, desc)
+
+        if (flag === true && socId === 0 && status !== "Open") {
+            setMessage("Please select SOC");
+        } else {
+            if (desc !== "") {
+                userService.addComment(caseId, currentUser.id, desc)
+                    .catch(function (error) {
+                        // handle error
+                        console.log(error);
+                    })
+            }
+
+            if (checked === true) {
+                userService.closeCase(caseId, detail.severity)
+                    .catch(function (error) {
+                        // handle error
+                        console.log(error);
+                    })
+            }
+
+            userService.putSoc(caseId, socId, status)
                 .catch(function (error) {
                     // handle error
                     console.log(error);
                 })
+
+            setOpenModal(false);
+            window.location.reload();
         }
-
-        if (checked === true) {
-            userService.closeCase(caseId, detail.severity)
-                .catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-        }
-
-        userService.putSoc(caseId, socId, status)
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-            })
-
-        setOpenModal(false);
-        window.location.reload();
     }
 
     function handleSoc(e) {
         const selectedIndex = e.target.options.selectedIndex;
         setSoc(e.target.value);
         setSocId(e.target.options[selectedIndex].getAttribute('data-key'));
-        if(status === "Open") {
+        if (status === "Open") {
             setStatus("Assigned");
         }
     };
@@ -135,7 +141,7 @@ function Modal({ setOpenModal, caseId }) {
                     <div className="incident">{detail.incidentTimestamp}</div>
                     <div className="severity">{priority}</div>
                     {detail.status !== "Closed" &&
-                        <select className="status" value={status} onChange={(e) => { setStatus(e.target.value); setFlag(true); if(e.target.value === "Open" && socId !== 0) {setSocId(0)}}}>
+                        <select className="status" value={status} onChange={(e) => { setStatus(e.target.value); setFlag(true); if (e.target.value === "Open" && socId !== 0) { setSocId(0) } }}>
                             <option value="Open">Open</option>
                             <option value="Assigned">Assigned</option>
                             <option value="In review">In review</option>
@@ -147,6 +153,7 @@ function Modal({ setOpenModal, caseId }) {
                     }
                     {detail.status !== "Closed" &&
                         <select className="soc" value={soc} data-key={socId} onChange={handleSoc}>
+                            <option data-key="0" value="NoSoc">No Soc</option>
                             {socList.map((socList) => (
                                 <option key={socList.id} data-key={socList.id} value={socList.socName}>{socList.socName}</option>
                             ))}
@@ -155,6 +162,7 @@ function Modal({ setOpenModal, caseId }) {
                     {detail.status === "Closed" &&
                         <div className="socClosed">{soc}</div>
                     }
+                    <div className="message-error">{message}</div>
                     <div className="tab">
                         <button className="descSelected" onClick={() => { setTab("modal1"); }}>DESCRIPTION</button>
                         <button className="commentSelected" onClick={() => { setTab("modal"); }}>COMMENTS</button>
