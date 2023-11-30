@@ -414,64 +414,6 @@ public class TaskManagementCompositeController {
         }
     }
 
-    // @CrossOrigin(origins = "http://localhost:30008")
-    // @PutMapping("/assignSOC/{id}")
-    // public ResponseEntity<?> assignSOC(@PathVariable Long id, @RequestBody String newData) {
-    //     try {
-    //         objectMapper.findAndRegisterModules();
-    //         CloseableHttpClient httpclient = HttpClients.createDefault();
-
-    //         if (newData != null) {
-    //             HttpPut httpPutNewAccountId = new HttpPut(
-    //                     "http://task-management-service:8081/api/v1/accountUpdate/" + id);
-    //             httpPutNewAccountId.setHeader("Accept", "application/json");
-    //             httpPutNewAccountId.setHeader("Content-type", "application/json");
-    //             StringEntity stringEntity = new StringEntity(newData);
-    //             httpPutNewAccountId.setEntity(stringEntity);
-
-    //             try (CloseableHttpResponse response = httpclient.execute(httpPutNewAccountId)) {
-
-    //                 if (response.getEntity() == null) {
-    //                     System.out.println("something went wrong here");
-    //                 } else {
-    //                     System.out.println("all good");
-    //                 }
-
-    //             } catch (IOException e) {
-    //                 e.getMessage();
-    //             }
-
-    //             HttpPut httpPutNewStatus = new HttpPut("http://task-management-service:8081/api/v1/statusUpdate/" + id);
-    //             httpPutNewStatus.setHeader("Accept", "application/json");
-    //             httpPutNewStatus.setHeader("Content-type", "application/json");
-    //             // StringEntity stringEntity2 = new StringEntity(newData);
-    //             httpPutNewStatus.setEntity(stringEntity);
-
-    //             try (CloseableHttpResponse response = httpclient.execute(httpPutNewStatus)) {
-
-    //                 if (response.getEntity() == null) {
-    //                     System.out.println("something went wrong here");
-    //                 } else {
-    //                     System.out.println("all good");
-    //                 }
-
-    //             } catch (IOException e) {
-    //                 e.getMessage();
-    //             }
-
-    //             httpclient.close();
-    //             return ResponseEntity.ok(newData);
-
-    //         } else {
-    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to assign.");
-    //         }
-    //     } catch (HttpServerErrorException e) {
-    //         return ResponseEntity.status(e.getStatusCode()).body("Error in assigning SOC.");
-    //     } catch (Exception e) {
-    //         System.out.println(e.getMessage());
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error.");
-    //     }
-    // }
 
     @CrossOrigin(origins = "http://localhost:30008")
     @PutMapping("/changeStatus/{id}")
