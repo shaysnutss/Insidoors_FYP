@@ -115,72 +115,72 @@ services:
   ####################################
   # Proxy Log
   ####################################
-  # proxy-log:
-  #   build:
-  #     context: ./proxy-log
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   # env_file:
-  #   #   - "dev.env"
-  #   ports:
-  #     - "30012:8086"
+  proxy-log:
+    build:
+      context: ./proxy-log
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    ports:
+      - "30012:8086"
   ####################################
   # Building Access
   ####################################
-  # building-access:
-  #   build:
-  #     context: ./building-access
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   # env_file:
-  #   #   - "dev.env"
-  #   ports:
-  #     - "30013:8087"
+  building-access:
+    build:
+      context: ./building-access
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    ports:
+      - "30013:8087"
   ####################################
   # PC Access
   ####################################
-  # pc-access:
-  #   build:
-  #     context: ./pc-access
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   # env_file:
-  #   #   - "dev.env"
-  #   ports:
-  #     - "30014:8088"
+  pc-access:
+    build:
+      context: ./pc-access
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    ports:
+      - "30014:8088"
   ####################################
   # RBA
   ####################################
-  # rule-based-algorithm:
-  #   build:
-  #     context: ./rule-based-algorithm
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   # env_file:
-  #   #   - "dev.env"
-  #   ports:
-  #     - "30015:8089"
-  #   volumes:
-  #     - ./rule-based-algorithm/src/main/resources/data:/app/data
+  rule-based-algorithm:
+    build:
+      context: ./rule-based-algorithm
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    ports:
+      - "30015:8089"
+    volumes:
+      - ./rule-based-algorithm/src/main/resources/data:/app/data
   ####################################
   # RBA
   ####################################
-  # scheduler-service:
-  #   build:
-  #     context: ./scheduler-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   env_file:
-  #     - "dev.env"
-  #   ports:
-  #     - "30016:8080"
+  scheduler-service:
+    build:
+      context: ./scheduler-service
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - "dev.env"
+    ports:
+      - "30016:8080"
   ####################################
   # ml-service
   ####################################
-  # ml-service:
-  #   build:
-  #     context: ./ml-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   ports:
-  #     - "30017:5000"
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "30017:5000"
