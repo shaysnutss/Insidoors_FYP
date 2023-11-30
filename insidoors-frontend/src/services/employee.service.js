@@ -16,7 +16,6 @@ class employeeService {
     return axios.get(API_URL + "viewAllEmployeesByCaseNumber", { headers: authHeader()});
   };
 
-
   viewAllTasksByEmployee = (id) => {
     return axios.get(API_URL + "viewIncidentsByEmployeeId/" + id, {headers: authHeader()} );
   }
@@ -24,7 +23,6 @@ class employeeService {
   viewEmployeeByName = (name) => {
     return axios.get(API_URL + "viewEmployeeByName/" + name, {headers: authHeader()} );
   }
-
 
 }
 
