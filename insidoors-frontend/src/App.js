@@ -1,7 +1,6 @@
 import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import './App.css';
-//import Employees from './components/Employees/Employees';
-import { Login, Dashboard, Case } from './components'
+import { Login, Dashboard, Case, Employees } from './components'
 
 function App() {
     
@@ -24,11 +23,10 @@ function App() {
                     path="/main/case"
                     element={<Case />}
                 />
-                {/* <Route
+                <Route
                     path="/main/employees"
                     element={<Employees />}
-                /> */}
-                
+                />
             </Routes>
         </BrowserRouter>
     );

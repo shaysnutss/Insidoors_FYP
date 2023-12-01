@@ -36,4 +36,10 @@ public class PcAccess {
 
     @Column(name="working_hours")
     private int workingHours;
+
+    @Column(name="machine_lat")
+    private double machineLat;
+
+    @Column(name="machine_long")
+    private double machineLong;
 }

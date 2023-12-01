@@ -16,6 +16,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -31,17 +33,17 @@ import org.springframework.web.client.HttpServerErrorException;
 @RequestMapping(path = "/api/v1")
 public class TaskManagementCompositeController {
 
-    CloseableHttpClient httpclient = HttpClients.createDefault();
+    // CloseableHttpClient httpclient = HttpClients.createDefault();
     ObjectMapper objectMapper = new ObjectMapper();
 
     @CrossOrigin(origins = "http://localhost:30008")
     @GetMapping("/viewAllTasks")
     public ResponseEntity<?> viewAllTasks() {
-        try {
-            objectMapper.findAndRegisterModules();
+        objectMapper.findAndRegisterModules();
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks");
 
-            HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks");
-            CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
+        try (CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);){
 
             if (responseBodyTask.getStatusLine().getStatusCode() == 200) {
                 String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(), "UTF-8");
@@ -61,11 +63,13 @@ public class TaskManagementCompositeController {
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
                     item.put("accountId", jsonNodeTask.get(i).path("accountId"));
                     item.put("truePositive", jsonNodeTask.get(i).path("truePositive"));
+                    item.put("logId", jsonNodeTask.get(i).path("logId"));
 
                     // employee items
                     HttpGet httpgetEmployee = new HttpGet(
                             "http://employee-service:8082/api/v1/employees/" + jsonNodeTask.get(i).path("employeeId"));
                     CloseableHttpResponse responseBodyEmployee = httpclient.execute(httpgetEmployee);
+                    
                     String jsonContentEmployee = EntityUtils.toString(responseBodyEmployee.getEntity(), "UTF-8");
                     JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
 
@@ -85,6 +89,7 @@ public class TaskManagementCompositeController {
                     taskManagementList.add(item);
                 }
 
+                httpclient.close();
                 return ResponseEntity.ok(taskManagementList);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task management list not found.");
@@ -102,6 +107,7 @@ public class TaskManagementCompositeController {
     public ResponseEntity<?> viewAllTasksByAccountId(@PathVariable int id) {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/account/" + id);
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
@@ -125,6 +131,7 @@ public class TaskManagementCompositeController {
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
                     item.put("accountId", jsonNodeTask.get(i).path("accountId"));
                     item.put("truePositive", jsonNodeTask.get(i).path("truePositive"));
+                    item.put("logId", jsonNodeTask.get(i).path("logId"));
 
                     // employee items
                     HttpGet httpgetEmployee = new HttpGet(
@@ -149,6 +156,7 @@ public class TaskManagementCompositeController {
                     taskManagementList.add(item);
                 }
 
+                httpclient.close();
                 return ResponseEntity.ok(taskManagementList);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task management list not found.");
@@ -166,6 +174,7 @@ public class TaskManagementCompositeController {
     public ResponseEntity<?> viewTaskById(@PathVariable Long id) {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/" + id);
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
@@ -190,6 +199,7 @@ public class TaskManagementCompositeController {
                 item.put("dateAssigned", jsonNodeTask.get("dateAssigned"));
                 item.put("accountId", jsonNodeTask.get("accountId"));
                 item.put("truePositive", jsonNodeTask.get("truePositive"));
+                item.put("logId", jsonNodeTask.get("logId"));
 
                 // employee items
                 HttpGet httpgetEmployee = new HttpGet(
@@ -214,6 +224,7 @@ public class TaskManagementCompositeController {
                 // taskManagementList.add(item);
                 // }
 
+                httpclient.close();
                 return ResponseEntity.ok(item);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task management list not found.");
@@ -231,6 +242,7 @@ public class TaskManagementCompositeController {
     public ResponseEntity<?> viewAllCommentsByTaskId(@PathVariable Long id) {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetComments = new HttpGet("http://comments-service:8083/api/v1/comments/taskManagement/" + id);
             CloseableHttpResponse responseBodyComments = httpclient.execute(httpgetComments);
@@ -261,6 +273,7 @@ public class TaskManagementCompositeController {
                     commentsList.add(item);
                 }
 
+                httpclient.close();
                 return ResponseEntity.ok(commentsList);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Comments list not found.");
@@ -278,6 +291,7 @@ public class TaskManagementCompositeController {
     public ResponseEntity<?> listSOCs() {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAllAccounts");
             CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
@@ -297,6 +311,7 @@ public class TaskManagementCompositeController {
                     socAccountList.add(item);
                 }
 
+                httpclient.close();
                 return ResponseEntity.ok(socAccountList);
 
             } else {
@@ -316,6 +331,7 @@ public class TaskManagementCompositeController {
     public ResponseEntity<?> assignSOC(@PathVariable Long id, @RequestBody String newData) {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
 
             if (newData != null) {
                 HttpPut httpPutNewAccountId = new HttpPut(
@@ -355,6 +371,7 @@ public class TaskManagementCompositeController {
                     e.getMessage();
                 }
 
+                httpclient.close();
                 return ResponseEntity.ok(newData);
 
             } else {
@@ -373,6 +390,7 @@ public class TaskManagementCompositeController {
     public ResponseEntity<?> changeStatus(@PathVariable Long id, @RequestBody String newData) {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
 
             if (newData != null) {
                 HttpPut httpPutNewStatus = new HttpPut("http://task-management-service:8081/api/v1/statusUpdate/" + id);
@@ -393,6 +411,7 @@ public class TaskManagementCompositeController {
                     e.getMessage();
                 }
 
+                httpclient.close();
                 return ResponseEntity.ok(newData);
 
             } else {
@@ -411,6 +430,7 @@ public class TaskManagementCompositeController {
     public ResponseEntity<?> closeCase(@PathVariable Long id, @RequestBody String newData) {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/" + id);
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
@@ -439,23 +459,7 @@ public class TaskManagementCompositeController {
                     e.getMessage();
                 }
 
-                HttpPut httpPutTP = new HttpPut("http://task-management-service:8081/api/v1/truePositiveUpdate/" + id);
-                httpPutTP.setHeader("Accept", "application/json");
-                httpPutTP.setHeader("Content-type", "application/json");
-                httpPutTP.setEntity(stringEntity); // json must have status closed
-
-                try (CloseableHttpResponse response = httpclient.execute(httpPutTP)) {
-
-                if (response.getEntity() == null) {
-                System.out.println("something went wrong here");
-                } else {
-                //System.out.println("all good");
-                }
-
-                } catch (IOException e) {
-                e.getMessage();
-                }
-
+                httpclient.close();
                 return ResponseEntity.ok(newData);
 
             } else {
@@ -474,6 +478,7 @@ public class TaskManagementCompositeController {
     public ResponseEntity<?> viewAllTasksByEmployeeId(@PathVariable int id) {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/employee/" + id);
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
@@ -496,6 +501,7 @@ public class TaskManagementCompositeController {
                     item.put("status", jsonNodeTask.get(i).path("status"));
                     item.put("dateAssigned", jsonNodeTask.get(i).path("dateAssigned"));
                     item.put("truePositive", jsonNodeTask.get(i).path("truePositive"));
+                    item.put("logId", jsonNodeTask.get(i).path("logId"));
 
                     // soc account items
                     HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAccountById/"
@@ -510,6 +516,7 @@ public class TaskManagementCompositeController {
                     taskManagementList.add(item);
                 }
 
+                httpclient.close();
                 return ResponseEntity.ok(taskManagementList);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task management list not found.");
@@ -522,11 +529,13 @@ public class TaskManagementCompositeController {
         }
     }
 
+    @Async
     @CrossOrigin(origins = "http://localhost:30008")
     @PostMapping("/addComment/{id}")
     public ResponseEntity<?> addComment(@PathVariable Long id, @RequestBody String newComment) {
         try {
             objectMapper.findAndRegisterModules();
+            CloseableHttpClient httpclient = HttpClients.createDefault();
             HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/" + id); // task id
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
 
@@ -534,8 +543,21 @@ public class TaskManagementCompositeController {
                 HttpPost httpPostComment = new HttpPost("http://comments-service:8083/api/v1" + "/comments");
                 StringEntity stringEntity = new StringEntity(newComment);
                 httpPostComment.setEntity(stringEntity);
-                httpclient.execute(httpPostComment);
+                //httpclient.execute(httpPostComment);
 
+                try (CloseableHttpResponse response = httpclient.execute(httpPostComment);) {
+
+                    if (response.getEntity() == null) {
+                    System.out.println("something went wrong here");
+                    } else {
+                    //System.out.println("all good");
+                    }
+
+                } catch (IOException e) {
+                    e.getMessage();
+                }
+
+                httpclient.close();
                 return ResponseEntity.ok(newComment);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found.");

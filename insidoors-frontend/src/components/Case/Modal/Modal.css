@@ -59,7 +59,7 @@
     font-weight: 400;
     left: 50px;
     position: absolute;
-    top: 130px;
+    top: 150px;
 }
 
 .modal .textIncident {
@@ -72,7 +72,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 179px;
+    top: 200px;
     width: 208px;
 }
 
@@ -86,7 +86,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 229px;
+    top: 250px;
     width: 208px;
 }
 
@@ -100,7 +100,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 279px;
+    top: 300px;
     width: 127px;
 }
 
@@ -114,22 +114,8 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 329px;
+    top: 350px;
     width: 109px;
-}
-
-.modal .textDate {
-    color: #6f6f6f;
-    font-family: "Poppins-Regular", Helvetica;
-    font-size: 16px;
-    font-weight: 400;
-    height: 40px;
-    left: 48px;
-    letter-spacing: 0;
-    line-height: normal;
-    position: absolute;
-    top: 379px;
-    width: 156px;
 }
 
 .modal .employee {
@@ -138,11 +124,11 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 129px;
+    top: 150px;
     width: 203px;
 }
 
@@ -152,11 +138,11 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 179px;
+    top: 200px;
     width: 203px;
 }
 
@@ -165,11 +151,11 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 229px;
+    top: 250px;
     width: 203px;
 }
 
@@ -183,8 +169,21 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 265px;
-    width: 203px;
+    top: 285px;
+    width: 200px;
+}
+
+.modal .statusClosed {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 300px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 300px;
 }
 
 .modal .soc {
@@ -193,26 +192,38 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 320px;
-    width: 203px;
+    top: 340px;
+    width: 200px;
 }
 
-.modal .date {
+.modal .socClosed {
     color: #000000;
     font-family: "Poppins-Regular", Helvetica;
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 379px;
-    width: 203px;
+    top: 350px;
+}
+
+.modal .message-error {
+    color: lightcoral;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 24px;
+    font-weight: 500;
+    height: 40px;
+    left: 300px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 390px;
 }
 
 .modal .tab {
@@ -280,6 +291,7 @@
     border: 1px solid;
     border-color: #000000;
     border-radius: 5px;
+    overflow: hidden;
 }
 
 .modal .commentTitle {
@@ -304,6 +316,7 @@
     position: absolute;
     top: 25px;
     width: 495px;
+    overflow: scroll;
 }
 
 .modal .addCommentBox {
@@ -439,7 +452,7 @@
     font-weight: 400;
     left: 50px;
     position: absolute;
-    top: 130px;
+    top: 150px;
 }
 
 .modal1 .textIncident {
@@ -452,8 +465,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 179px;
-    width: 208px;
+    top: 200px;
 }
 
 .modal1 .textSeverity {
@@ -466,8 +478,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 229px;
-    width: 208px;
+    top: 250px;
 }
 
 .modal1 .textStatus {
@@ -480,8 +491,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 279px;
-    width: 127px;
+    top: 300px;
 }
 
 .modal1 .textSoc {
@@ -494,22 +504,7 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 329px;
-    width: 109px;
-}
-
-.modal1 .textDate {
-    color: #6f6f6f;
-    font-family: "Poppins-Regular", Helvetica;
-    font-size: 16px;
-    font-weight: 400;
-    height: 40px;
-    left: 48px;
-    letter-spacing: 0;
-    line-height: normal;
-    position: absolute;
-    top: 379px;
-    width: 156px;
+    top: 350px;
 }
 
 .modal1 .employee {
@@ -518,12 +513,11 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 129px;
-    width: 203px;
+    top: 150px;
 }
 
 .modal1 .incident {
@@ -532,12 +526,11 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 179px;
-    width: 203px;
+    top: 200px;
 }
 
 .modal1 .severity {
@@ -545,12 +538,11 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 229px;
-    width: 203px;
+    top: 250px;
 }
 
 .modal1 .status {
@@ -563,8 +555,21 @@
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 265px;
-    width: 203px;
+    top: 285px;
+    width: 200px;
+}
+
+.modal1 .statusClosed {
+    color: #000000;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 16px;
+    font-weight: 400;
+    height: 40px;
+    left: 300px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 300px;
 }
 
 .modal1 .soc {
@@ -573,26 +578,38 @@
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 320px;
-    width: 203px;
+    top: 340px;
+    width: 200px;
 }
 
-.modal1 .date {
+.modal1 .socClosed {
     color: #000000;
     font-family: "Poppins-Regular", Helvetica;
     font-size: 16px;
     font-weight: 400;
     height: 40px;
-    left: 301px;
+    left: 300px;
     letter-spacing: 0;
     line-height: normal;
     position: absolute;
-    top: 379px;
-    width: 203px;
+    top: 350px;
+}
+
+.modal1 .message-error {
+    color: lightcoral;
+    font-family: "Poppins-Regular", Helvetica;
+    font-size: 24px;
+    font-weight: 500;
+    height: 40px;
+    left: 300px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 390px;
 }
 
 .modal1 .tab {

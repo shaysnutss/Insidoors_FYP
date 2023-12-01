@@ -12,6 +12,10 @@ class userService {
     return axios.get(API_URL + "accountByTasks/viewName", { headers: authHeader() });
   }
 
+  getUser = () => {
+    return axios.get(API_URL + "accountByTasks/getAccount", { headers: authHeader() });
+  }
+
   getAllCases = () => {
     //return axios.get("https://jsonplaceholder.typicode.com/todos/");
     return axios.get("http://localhost:30010/api/v1/viewAllTasks");
@@ -31,22 +35,13 @@ class userService {
     return axios.get("http://localhost:30010/api/v1/listSOCs");
   }
 
-  putStatus = (id, status) => {
-    return axios({
-      method: 'put',
-      url: 'http://localhost:30010/api/v1/changeStatus/' + id,
-      data: {
-        "status": status
-      }
-    });
-  }
-
-  putSoc = (id, accountId) => {
+  putSoc = (id, accountId, status) => {
     return axios({
       method: 'put',
       url: 'http://localhost:30010/api/v1/assignSOC/' + id,
       data: {
-        "accountId": accountId
+        "accountId": accountId,
+        "status": status
       }
     });
   }
@@ -56,7 +51,20 @@ class userService {
       method: 'put',
       url: 'http://localhost:30010/api/v1/closeCase/' + id,
       data: {
-        "riskRating": riskRating
+        "riskRating": riskRating,
+        "truePositive": true
+      }
+    });
+  }
+
+  addComment = (id, socId, desc) => {
+    return axios({
+      method: 'post',
+      url: 'http://localhost:30010/api/v1/addComment/' + id,
+      data: {
+        "accountId": socId,
+        "commentDescription": desc,
+        "taskManagementId": id
       }
     });
   }

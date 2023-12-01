@@ -33,4 +33,13 @@ public class BuildingAccess {
 
     @Column(name="suspect")
     private int suspect;
+
+    @Column(name="office_lat")
+    private double officeLat;
+
+    @Column(name="office_long")
+    private double officeLong;
+
+    @Column(name="attempts")
+    private int attempts;
 }

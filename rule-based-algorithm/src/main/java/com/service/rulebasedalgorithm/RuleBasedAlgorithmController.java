@@ -1,7 +1,5 @@
 package com.service.rulebasedalgorithm;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
@@ -10,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.opencsv.CSVWriter;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -57,16 +54,15 @@ public class RuleBasedAlgorithmController {
             JsonNode jsonNode = objectMapper.readTree(jsonContent);
 
             for (int i = 0; i < jsonNode.size(); i++) {
-
                 boolean taskToCheck = rbaService.checkCaseSix(jsonNode.get(i).path("bytesOut").asInt());
                 if (taskToCheck) {
                     tasksPrePost.add(jsonNode.get(i));
                 } else {
-                    arrayNode.add(jsonNode.get(i));
+                    ObjectNode obj = rbaService.proxyObject(jsonNode, i);
+                    arrayNode.add(obj);
                 }
 
                 proxyLogId = (long) i+1;
-
             }
 
             HttpGet httpgetEmployees = new HttpGet("http://employee-service:8082/api/v1/employees");
@@ -74,76 +70,75 @@ public class RuleBasedAlgorithmController {
             String jsonContentEmployee = EntityUtils.toString(responseEmployees.getEntity(), "UTF-8");
             JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
 
+            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/example_proxy");
+            String arrayNodeString = arrayNode.toString();
+            StringEntity stringEntity2 = new StringEntity(arrayNodeString);
+            httpPostToML.setEntity(stringEntity2);
+
+             // call ML endpoint for proxy log and add anomalies to tasks
+             try (CloseableHttpResponse response3 =  httpclient.execute(httpPostToML)) {
+                if (response3.getEntity() != null) {
+                    String jsonContentML = EntityUtils.toString(response3.getEntity(), "UTF-8");
+                    JsonNode jsonNodeML = objectMapper.readTree(jsonContentML).get("message");
+                    String actualStringML = jsonNodeML.textValue();
+                    JsonNode actualNodeML = objectMapper.readTree(actualStringML);
+
+                    for (JsonNode item : actualNodeML) {
+                        ObjectNode obj = rbaService.makeCase7RequestBody(item, jsonNodeEmployee);
+                        obj.put("logId", "Proxy" + item.path("id").asInt());
+                        String task = obj.toString();
+                        tasks.add(task);
+                    }
+                    
+                } else {
+                    System.out.println("something went wrong here");
+                }
+            } catch (IOException e) {
+                e.getMessage();
+                System.out.println(e.getMessage());
+            }
+
+            // add case 6 data to tasks
             for (JsonNode taskPrePost : tasksPrePost) {
-                ObjectNode obj = objectMapper.createObjectNode();
-            
-                // System.out.println("for each loop id: " + taskPrePost.path("id").asInt());
-                // System.out.println("for each loop employee id: " + taskPrePost.path("userId").asInt());
-                obj.put("id", taskPrePost.path("id").asInt());
-                obj.put("incidentDesc", jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("firstname").asText() + " " + jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("lastname").asText() + " has made an unusually large amount of data upload or download.");
-                obj.put("incidentTitle", "Potential Data Exfiltration");
-                obj.put("severity", 100);
-                obj.put("accountId", 0);
-                obj.put("employeeId", taskPrePost.path("userId").asInt());
-                obj.put("suspect", 6);
+                ObjectNode obj = rbaService.makeCase6RequestBody(taskPrePost, jsonNodeEmployee);
+                obj.put("logId", "Proxy_" + taskPrePost.path("id").asInt());
                 String task = obj.toString();
                 tasks.add(task);
             }
+            tasksPrePost.clear();
 
+            // post tasks to database
             HttpPost httpPostTask = new HttpPost("http://task-management-service:8081/api/v1/tasks");
             String combinedString = String.join("/", tasks);
             StringEntity stringEntity = new StringEntity(combinedString);
             httpPostTask.setEntity(stringEntity);
             
             try (CloseableHttpResponse response =  httpclient.execute(httpPostTask)) {
-
                 if (response.getEntity() != null) {
                     //System.out.println("all good");
                 } else {
                     System.out.println("something went wrong here");
                 }
-
             } catch (IOException e) {
                 e.getMessage();
             }
 
+            // update suspect column in proxy log
             HttpPut httpPutSuspectCol = new HttpPut("http://proxy-log:8086/api/v1/suspectUpdate");
             httpPutSuspectCol.setEntity(stringEntity);
             
             try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
-
                 if (response2.getEntity() != null) {
                     //System.out.println("all good");
                 } else {
                     System.out.println("something went wrong here");
                 }
-
             } catch (IOException e) {
                 e.getMessage();
             }
+            tasks.clear();
 
-            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/example");
-            StringEntity stringEntity2 = new StringEntity(arrayNode.toString());
-            httpPostToML.setEntity(stringEntity2);
-
-            try (CloseableHttpResponse response3 =  httpclient.execute(httpPostToML)) {
-
-                if (response3.getEntity() != null) {
-                    String jsonML = EntityUtils.toString(response3.getEntity(), "UTF-8");
-                    JsonNode jsonToRead = objectMapper.readTree(jsonML);
-
-                    for (int l = 0; l < jsonToRead.size(); l++) {
-                        System.out.println(jsonToRead.get(l));
-                    }
-                } else {
-                    System.out.println("something went wrong here");
-                }
-
-            } catch (IOException e) {
-                e.getMessage();
-                System.out.println(e.getMessage());
-            }
-
+            httpclient.close();
             return ResponseEntity.ok("Complete");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not complete");
@@ -155,64 +150,140 @@ public class RuleBasedAlgorithmController {
 
         objectMapper.findAndRegisterModules();
         List<String> tasks = new ArrayList<>();
-        List<String[]> csvData = new ArrayList<>();
+        List<JsonNode> tasksPrePost4 = new ArrayList<>();
+        List<JsonNode> tasksPrePost5 = new ArrayList<>();
+        List<JsonNode> tasksPrePost3 = new ArrayList<>();
+        ArrayNode arrayNode = objectMapper.createArrayNode();
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpgetLog = new HttpGet("http://building-access:8087/api/v1/buildingaccesslogs/" + buildingAccessId);
         CloseableHttpResponse responseBodyLog = httpclient.execute(httpgetLog);
 
-        if (responseBodyLog.getEntity() != null) {
+        HttpGet httpgetEmployees = new HttpGet("http://employee-service:8082/api/v1/employees");
+        CloseableHttpResponse responseEmployees =  httpclient.execute(httpgetEmployees);
+
+        if (responseBodyLog.getEntity() != null && responseEmployees.getEntity() != null) {
             String jsonContent = EntityUtils.toString(responseBodyLog.getEntity(), "UTF-8");
             JsonNode jsonNode = objectMapper.readTree(jsonContent);
 
+            String jsonContentEmployee = EntityUtils.toString(responseEmployees.getEntity(), "UTF-8");
+            JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
+
             for (int i = 0; i < jsonNode.size(); i++) {
-                String idArray = jsonNode.get(i).path("id").asText();
-                String userIdArray = jsonNode.get(i).path("userId").asText();
-                String accessDateTime = jsonNode.get(i).path("accessDateTime").asText();
-                String direction = jsonNode.get(i).path("direction").asText();
-                String status = jsonNode.get(i).path("status").asText();
-                String officeLocation = jsonNode.get(i).path("officeLocation").asText();
-                String suspect = jsonNode.get(i).path("suspect").asText();
+                int employeeId = jsonNode.get(i).path("userId").asInt();
 
-                String[] csvArray = {idArray, userIdArray, accessDateTime, direction, status, officeLocation, suspect};
-
-                String taskToCheck = rbaService.checkCaseFour(jsonNode.get(i).path("status").asText(), jsonNode.get(i).path("userId").asInt());
-                if (!taskToCheck.equals("")) {
-                    tasks.add(taskToCheck);
-                    System.out.println("Case 4"+jsonNode.get(i).path("id").asText());
+                boolean taskToCheck3 = rbaService.checkCaseThree(jsonNodeEmployee.get(employeeId - 1).path("terminatedDate").asText());
+                if (taskToCheck3) {
+                    tasksPrePost3.add(jsonNode.get(i));
+                    continue;
                 } 
 
-                String taskToCheck2 = rbaService.checkCaseFive(jsonNode.get(i).path("userId").asInt(), jsonNode.get(i).path("officeLocation").asText());
-                if (!taskToCheck2.equals("")) {
-                    tasks.add(taskToCheck2);
-                    System.out.println("Case 5"+jsonNode.get(i).path("id").asText());
+                boolean taskToCheck = rbaService.checkCaseFour(jsonNode.get(i).path("status").asText());
+                if (taskToCheck) {
+                    tasksPrePost4.add(jsonNode.get(i));
+                    continue;
+                }
+
+                boolean taskToCheck2 = rbaService.checkCaseFive(jsonNode.get(i).path("officeLocation").asText(), jsonNodeEmployee.get(employeeId - 1).path("location").asText());
+                if (taskToCheck2) {
+                    tasksPrePost5.add(jsonNode.get(i));
+                    continue;
                 } 
                 
-                if (taskToCheck.equals("") && taskToCheck2.equals("")) {
-                    csvData.add(csvArray);
-                    //writer.writeNext(csvArray);
+                if (!taskToCheck && !taskToCheck2 && !taskToCheck3) {
+                    ObjectNode obj = rbaService.buildingObject(jsonNode, i, jsonNodeEmployee, employeeId);
+                    arrayNode.add(obj);
                 }
 
                 buildingAccessId = (long) i+1;
             }
 
+            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/example_building");
+            String arrayNodeString = arrayNode.toString();
+            StringEntity stringEntity2 = new StringEntity(arrayNodeString);
+            httpPostToML.setEntity(stringEntity2);
+
+            // call ML endpoint for building access and add anomalies to tasks
+            try (CloseableHttpResponse response3 =  httpclient.execute(httpPostToML)) {
+                if (response3.getEntity() != null) {
+                    String jsonContentML = EntityUtils.toString(response3.getEntity(), "UTF-8");
+                    JsonNode jsonNodeML = objectMapper.readTree(jsonContentML).get("message");
+                    String actualStringML = jsonNodeML.textValue();
+                    JsonNode actualNodeML = objectMapper.readTree(actualStringML);
+
+                    for (JsonNode item : actualNodeML) {
+                        ObjectNode obj = rbaService.makeCase7RequestBody(item, jsonNodeEmployee);
+                        obj.put("logId", "Building_" + item.path("id").asInt());
+                        String task = obj.toString();
+                        tasks.add(task);
+                    }
+                } else {
+                    System.out.println("something went wrong here");
+                }
+            } catch (IOException e) {
+                e.getMessage();
+                System.out.println(e.getMessage());
+            }
+
+            // add case 3 to tasks
+            for (JsonNode taskPrePost : tasksPrePost3) {
+                ObjectNode obj = rbaService.makeCase3RequestBody(taskPrePost, jsonNodeEmployee);
+                obj.put("logId", "Building_" + taskPrePost.path("id").asInt());
+                String task = obj.toString();
+                tasks.add(task);
+            }
+            tasksPrePost3.clear();
+            
+            // add case 4 to tasks
+            for (JsonNode taskPrePost : tasksPrePost4) {
+                ObjectNode obj = rbaService.makeCase4RequestBody(taskPrePost, jsonNodeEmployee);
+                obj.put("logId", "Building_" + taskPrePost.path("id").asInt());
+                String task = obj.toString();
+                tasks.add(task);
+            }
+            tasksPrePost4.clear();
+
+            // add case 5 to tasks
+            for (JsonNode taskPrePost : tasksPrePost5) {
+                ObjectNode obj = rbaService.makeCase5RequestBody(taskPrePost, jsonNodeEmployee);
+                obj.put("logId", "Building_" + taskPrePost.path("id").asInt());
+                String task = obj.toString();
+                tasks.add(task);
+            }
+            tasksPrePost5.clear();
+
+            // post tasks to database
             HttpPost httpPostTask = new HttpPost("http://task-management-service:8081/api/v1/tasks");
             String combinedString = String.join("/", tasks);
             StringEntity stringEntity = new StringEntity(combinedString);
             httpPostTask.setEntity(stringEntity);
 
             try (CloseableHttpResponse response =  httpclient.execute(httpPostTask)) {
-
                 if (response.getEntity() != null) {
                     //System.out.println("all good");
                 } else {
                     System.out.println("something went wrong here");
                 }
-
             } catch (IOException e) {
                 e.getMessage();
             }
 
+            // update suspect column in building access
+            HttpPut httpPutSuspectCol = new HttpPut("http://building-access:8087/api/v1/suspectUpdate");
+            httpPutSuspectCol.setEntity(stringEntity);
+            
+            try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
+                if (response2.getEntity() != null) {
+                    //System.out.println("all good");
+                } else {
+                    System.out.println("something went wrong here");
+                }
+            } catch (IOException e) {
+                e.getMessage();
+            }
+            tasks.clear();
+
+            httpclient.close();
             return ResponseEntity.ok("Complete");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not complete");
@@ -225,93 +296,166 @@ public class RuleBasedAlgorithmController {
 
         objectMapper.findAndRegisterModules();
         List<String> tasks = new ArrayList<>();
-        List<String[]> csvData = new ArrayList<>();
+        List<JsonNode> tasksPrePost1 = new ArrayList<>();
+        List<JsonNode> tasksPrePost2 = new ArrayList<>();
+        List<JsonNode> tasksPrePost3 = new ArrayList<>();
+        List<JsonNode> tasksPrePost5 = new ArrayList<>();
+        ArrayNode arrayNode = objectMapper.createArrayNode();
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpgetLog = new HttpGet("http://pc-access:8088/api/v1/pcaccesslogs/" + pcAccessId);
         CloseableHttpResponse responseBodyLog = httpclient.execute(httpgetLog);
+
+        HttpGet httpgetEmployees = new HttpGet("http://employee-service:8082/api/v1/employees");
+        CloseableHttpResponse responseEmployees =  httpclient.execute(httpgetEmployees);
+
+        HttpGet httpgetBALog = new HttpGet("http://building-access:8087/api/v1/buildingaccesslogs");
+        CloseableHttpResponse responseBodyBALog = httpclient.execute(httpgetBALog);
         
         if (responseBodyLog.getEntity() != null) {
             String jsonContent = EntityUtils.toString(responseBodyLog.getEntity(), "UTF-8");
             JsonNode jsonNode = objectMapper.readTree(jsonContent);
 
+            String jsonContentEmployee = EntityUtils.toString(responseEmployees.getEntity(), "UTF-8");
+            JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
+
+            String jsonContentBA = EntityUtils.toString(responseBodyBALog.getEntity(), "UTF-8");
+            JsonNode jsonNodeBA = objectMapper.readTree(jsonContentBA);
+
             for (int i = 0; i < jsonNode.size(); i++) {
-                String idArray = jsonNode.get(i).path("id").asText();
-                String userIdArray = jsonNode.get(i).path("userId").asText();
-                String accessDateTime = jsonNode.get(i).path("accessDateTime").asText();
-                String logOnOff = jsonNode.get(i).path("logOnOff").asText();
-                String machineName = jsonNode.get(i).path("machineName").asText();
-                String machineLocation = jsonNode.get(i).path("machineLocation").asText();
-                String suspect = jsonNode.get(i).path("suspect").asText();
-                String workingHours = jsonNode.get(i).path("workingHours").asText();
+                int employeeId = jsonNode.get(i).path("userId").asInt();
 
-                String[] csvArray = {idArray, userIdArray, accessDateTime, logOnOff, machineName, machineLocation, suspect, workingHours};
+                int taskToCheck2 = rbaService.checkCaseTwo(jsonNode.get(i).path("accessDateTime").asText(), jsonNode.get(i).path("userId").asInt(), jsonNode.get(i).path("machineLocation").asText(), jsonNodeEmployee.get(employeeId - 1).path("location").asText(), jsonNodeBA);
+                if (taskToCheck2 == 2) {
+                    tasksPrePost2.add(jsonNode.get(i));
+                    continue;
+                } else if (taskToCheck2 == 5) {
+                    tasksPrePost5.add(jsonNode.get(i));
+                    continue;
+                }
 
-                String taskToCheck2 = rbaService.checkCaseTwo(jsonNode.get(i).path("accessDateTime").asText(), jsonNode.get(i).path("userId").asInt(), jsonNode.get(i).path("machineLocation").asText());
-                if (taskToCheck2.equals("case 5")) {
+                boolean taskToCheck = rbaService.checkCaseThree(jsonNodeEmployee.get(employeeId - 1).path("terminatedDate").asText());
+                if (taskToCheck) {
+                    tasksPrePost3.add(jsonNode.get(i));
                     continue;
                 } 
 
-                if (!taskToCheck2.equals("")) {
-                    tasks.add(taskToCheck2);
-                    System.out.println("Adding to task Case 2: " + jsonNode.get(i).path("id").asInt());
-                    continue;
-                } 
-
-                String taskToCheck = rbaService.checkCaseThree(jsonNode.get(i).path("logOnOff").asText(), jsonNode.get(i).path("userId").asInt());
-                if (!taskToCheck.equals("")) {
-                    tasks.add(taskToCheck);
-                    System.out.println("Adding to task Case 3");
-                    continue;
-                } 
-
-                String taskToCheck3 = rbaService.checkCaseOne(jsonNode.get(i).path("accessDateTime").asText(), jsonNode.get(i).path("userId").asInt(), jsonNode.get(i).path("workingHours").asInt());
-                if (!taskToCheck3.equals("")) {
-                    tasks.add(taskToCheck3);
-                    System.out.println("Adding to task Case 1: " + jsonNode.get(i).path("id").asInt());
+                boolean taskToCheck3 = rbaService.checkCaseOne(jsonNode.get(i).path("accessDateTime").asText(), jsonNode.get(i).path("workingHours").asInt());
+                if (taskToCheck3) {
+                    tasksPrePost1.add(jsonNode.get(i));
                     if (jsonNode.get(i).path("logOnOff").asText().equals("Log On")) {
-                        String taskToCheckNext = rbaService.checkCaseOne(jsonNode.get(i+1).path("accessDateTime").asText(), jsonNode.get(i+1).path("userId").asInt(), jsonNode.get(i+1).path("workingHours").asInt());
-                        tasks.add(taskToCheckNext);
-                        System.out.println("Adding to task Case 1: " + jsonNode.get(i+1).path("id").asInt());
+                        tasksPrePost1.add(jsonNode.get(i+1));
                         i+=1;
                         continue;
                     } else {
-                        String taskToCheckPrev = rbaService.checkCaseOne(jsonNode.get(i-1).path("accessDateTime").asText(), jsonNode.get(i-1).path("userId").asInt(), jsonNode.get(i-1).path("workingHours").asInt());
-                        tasks.add(taskToCheckPrev);
-                        System.out.println("Adding to task Case 1: " + jsonNode.get(i-1).path("id").asInt());
+                        tasksPrePost1.add(jsonNode.get(i-1));
                         continue;
                     }
-                    
-                } 
-
-                if (taskToCheck.equals("") && taskToCheck2.equals("") && taskToCheck3.equals("")) {
-                    csvData.add(csvArray);
                 }
 
+                if (!taskToCheck && taskToCheck2 == 0 && !taskToCheck3) {
+                    ObjectNode obj = rbaService.pcObject(jsonNode, jsonNodeEmployee, employeeId, i);
+                    arrayNode.add(obj);
+                }
+                
                 pcAccessId = (long) i+1;
-               
-
             }
+
+            // call ML endpoint for pc access and add anomalies to tasks
+            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/example_pc");
+            String arrayNodeString = arrayNode.toString();
+            StringEntity stringEntity2 = new StringEntity(arrayNodeString);
+            httpPostToML.setEntity(stringEntity2);
+
+            try (CloseableHttpResponse response3 =  httpclient.execute(httpPostToML)) {
+                if (response3.getEntity() != null) {
+                    String jsonContentML = EntityUtils.toString(response3.getEntity(), "UTF-8");
+                    JsonNode jsonNodeML = objectMapper.readTree(jsonContentML).get("message");
+                    String actualStringML = jsonNodeML.textValue();
+                    JsonNode actualNodeML = objectMapper.readTree(actualStringML);
+
+                    for (JsonNode item : actualNodeML) {
+                        ObjectNode obj = rbaService.makeCase7RequestBody(item, jsonNodeEmployee);
+                        obj.put("logId", "PC_" + item.path("id").asInt());
+                        String task = obj.toString();
+                        tasks.add(task);
+                    }
+                } else {
+                    System.out.println("something went wrong here");
+                }
+            } catch (IOException e) {
+                e.getMessage();
+                System.out.println(e.getMessage());
+            }
+
+            // add case 3 to tasks
+            for (JsonNode taskPrePost : tasksPrePost3) {
+                ObjectNode obj = rbaService.makeCase3RequestBody(taskPrePost, jsonNodeEmployee);
+                obj.put("logId", "PC_" + taskPrePost.path("id").asInt());
+                String task = obj.toString();
+                tasks.add(task);
+            }
+            tasksPrePost3.clear();
+
+            // add case 1 to tasks
+            for (JsonNode taskPrePost : tasksPrePost1) {
+                ObjectNode obj = rbaService.makeCase1RequestBody(taskPrePost, jsonNodeEmployee);
+                obj.put("logId", "PC_" + taskPrePost.path("id").asInt());
+                String task = obj.toString();
+                tasks.add(task);
+            }
+            tasksPrePost1.clear();
+
+            // add case 2 to tasks
+            for (JsonNode taskPrePost : tasksPrePost2) {
+                ObjectNode obj = rbaService.makeCase2RequestBody(taskPrePost, jsonNodeEmployee);
+                obj.put("logId", "PC_" + taskPrePost.path("id").asInt());
+                String task = obj.toString();
+                tasks.add(task);
+            }
+            tasksPrePost2.clear();
+
+            // add case 5 to tasks
+            for (JsonNode taskPrePost : tasksPrePost5) {
+                ObjectNode obj = rbaService.makeCase5RequestBody(taskPrePost, jsonNodeEmployee);
+                obj.put("logId", "PC_" + taskPrePost.path("id").asInt());
+                String task = obj.toString();
+                tasks.add(task);
+            }
+            tasksPrePost5.clear();
             
+            // post tasks to database
             HttpPost httpPostTask = new HttpPost("http://task-management-service:8081/api/v1/tasks");
             String combinedString = String.join("/", tasks);
             StringEntity stringEntity = new StringEntity(combinedString);
             httpPostTask.setEntity(stringEntity);
-            //System.out.println(combinedString);
-           
+            
             try (CloseableHttpResponse response =  httpclient.execute(httpPostTask)) {
-
                 if (response.getEntity() != null) {
-                    System.out.println("all good");
-                    //System.out.println(response.getEntity().getContentLength());
+                    //System.out.println("all good");
                 } else {
                     System.out.println("something went wrong here");
                 }
-
             } catch (IOException e) {
                 e.getMessage();
             }
 
+            // update suspect column in pc access
+            // HttpPut httpPutSuspectCol = new HttpPut("http://pc-access:8088/api/v1/suspectUpdate");
+            // httpPutSuspectCol.setEntity(stringEntity);
+            
+            // try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
+            //     if (response2.getEntity() != null) {
+            //         //System.out.println("all good");
+            //     } else {
+            //         System.out.println("something went wrong here");
+            //     }
+            // } catch (IOException e) {
+            //     e.getMessage();
+            // }
+            // tasks.clear();
+
+            httpclient.close();
             return ResponseEntity.ok("Complete");
 
         } else {
@@ -319,27 +463,6 @@ public class RuleBasedAlgorithmController {
         }
     }
 
-    public boolean idExists(int id) throws org.apache.http.ParseException, IOException {
-
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpGet httpgetBA = new HttpGet("http://behavioral-analysis-service:8084/api/v1/behavioralanalysis");
-        CloseableHttpResponse responseBodyBA = httpclient.execute(httpgetBA);
-
-        if (responseBodyBA.getEntity() != null) {
-            String jsonContentBA = EntityUtils.toString(responseBodyBA.getEntity(), "UTF-8");
-            JsonNode jsonNodeBA = objectMapper.readTree(jsonContentBA);
-
-            for (int j = 0; j < jsonNodeBA.size(); j++) {
-                System.out.println(jsonNodeBA.get(j).path("id").asInt());
-                if (id == jsonNodeBA.get(j).path("employeeId").asInt()) {
-                    return true;
-                }
-            }
-            System.out.println("-------");
-        }
-        
-        return false;
-    }
 
     @GetMapping("/postToBA") 
     public ResponseEntity<?> postToBA() throws ClientProtocolException, IOException, ParseException {
@@ -352,17 +475,15 @@ public class RuleBasedAlgorithmController {
         CloseableHttpResponse responseBodyLog = httpclient.execute(httpgetLog);
         
         if (responseBodyLog.getEntity() != null) {
-
             String jsonContent = EntityUtils.toString(responseBodyLog.getEntity(), "UTF-8");
             JsonNode jsonNode = objectMapper.readTree(jsonContent);
 
-            for (int i = 0; i < jsonNode.size(); i++) {
+            //System.out.println(jsonNode);
 
-                System.out.println("employee id from task: " + jsonNode.get(i).path("employeeId").asInt());
+            for (int i = 0; i < jsonNode.size(); i++) {
                 HttpGet httpgetBA = new HttpGet("http://behavioral-analysis-service:8084/api/v1/behavioralanalysis/employee/" + jsonNode.get(i).path("employeeId").asInt());
 
                 try (CloseableHttpResponse responseBodyBA = httpclient.execute(httpgetBA);) {
-        
                     String jsonContentBA = EntityUtils.toString(responseBodyBA.getEntity(), "UTF-8");
                     JsonNode jsonNodeBA = objectMapper.readTree(jsonContentBA);
 
@@ -376,33 +497,29 @@ public class RuleBasedAlgorithmController {
                         }
     
                     } else if (!jsonNodeBA.get("id").isNull()){
-                        // then update suspected cases and break
-                        System.out.println("case update");
+                        // update suspected cases
+                        //System.out.println("case update");
                         HttpPut httpUpdateCases = new HttpPut("http://behavioral-analysis-service:8084/api/v1/updateSuspectedCases/" + jsonNode.get(i).path("employeeId").asInt());
                         String jsonString = "{\"suspectedCases\": 1}";
                         StringEntity stringEntity = new StringEntity(jsonString);
                         httpUpdateCases.setEntity(stringEntity);
                         
                         try (CloseableHttpResponse response =  httpclient.execute(httpUpdateCases)) {
-            
                             if (response.getEntity() != null) {
                                 //System.out.println("all good");
                             } else {
                                 System.out.println("something went wrong here");
                             }
-            
                         } catch (IOException e) {
                             e.getMessage();
                         }
                     
                     }
-    
                 } catch (IOException e) {
                     e.getMessage();
                 }
 
                 taskId = (long) i+1;
-
             }
 
             for (int key : baMap.keySet()) {
@@ -419,25 +536,23 @@ public class RuleBasedAlgorithmController {
             String combinedString = String.join("/", bARows);
             StringEntity stringEntity = new StringEntity(combinedString);
             httpPostBA.setEntity(stringEntity);
-            System.out.println(combinedString);
             
             try (CloseableHttpResponse response =  httpclient.execute(httpPostBA)) {
-
                 if (response.getEntity() != null) {
                     //System.out.println("all good");
                 } else {
                     System.out.println("something went wrong here");
                 }
-
             } catch (IOException e) {
                 e.getMessage();
             }
+            bARows.clear();
+            baMap.clear();
 
+            httpclient.close();
             return ResponseEntity.ok("Complete");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not complete");
         }
     }
-
-
 }

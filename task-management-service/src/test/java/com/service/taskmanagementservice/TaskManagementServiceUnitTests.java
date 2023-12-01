@@ -27,7 +27,7 @@ public class TaskManagementServiceUnitTests {
 
     @Test 
     void shouldCreateTask() throws Exception {
-        TaskManagementService task = new TaskManagementService(1L, "first", "description", "21-12-2023", 23, 200, "Open", 12, false);
+        TaskManagementService task = new TaskManagementService(1L, "B23", "first", "description", "21-12-2023", 23, 200, "Open", 12, false);
 
         mockMvc.perform(post("/api/v1/tasks").contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(task)))
@@ -38,8 +38,8 @@ public class TaskManagementServiceUnitTests {
     @Test
     void shouldReturnListOfTasks() throws Exception {
         List<TaskManagementService> mockTasks = new ArrayList<>(
-            Arrays.asList(new TaskManagementService(1L, "first", "description", "21-12-2023", 23, 200, "Open", 12, false),
-            new TaskManagementService(2L, "second", "description", "21-12-2023", 12, 120, "Closed", 34, false)));
+            Arrays.asList(new TaskManagementService(1L, "B23", "first", "description", "21-12-2023", 23, 200, "Open", 12, false),
+            new TaskManagementService(2L, "B23", "second", "description", "21-12-2023", 12, 120, "Closed", 34, false)));
     
         when(tMServiceRepo.findAll()).thenReturn(mockTasks);
         mockMvc.perform(get("/api/v1/tasks"))
@@ -51,7 +51,7 @@ public class TaskManagementServiceUnitTests {
     @Test
     void shouldReturnTask() throws Exception {
         long id = 1L;
-        TaskManagementService mockTask = new TaskManagementService(id, "first", "description", "21-12-2023", 23, 200, "Open", 12, false);
+        TaskManagementService mockTask = new TaskManagementService(id, "B23", "first", "description", "21-12-2023", 23, 200, "Open", 12, false);
 
         when(tMServiceRepo.findById(any())).thenReturn(Optional.of(mockTask));
         mockMvc.perform(get("/api/v1/tasks/1"))
@@ -70,7 +70,7 @@ public class TaskManagementServiceUnitTests {
     void shouldReturnTaskByEmployeeId() throws Exception {
         long id = 1L;
         List<TaskManagementService> mockTasks = new ArrayList<>(
-            Arrays.asList(new TaskManagementService(id, "first", "description", "21-12-2023", 23, 200, "Open", 12, false)));
+            Arrays.asList(new TaskManagementService(id, "B23", "first", "description", "21-12-2023", 23, 200, "Open", 12, false)));
 
         when(tMServiceRepo.findAllByEmployeeId(anyInt())).thenReturn(mockTasks);
         mockMvc.perform(get("/api/v1/tasks/employee/23"))
@@ -83,7 +83,7 @@ public class TaskManagementServiceUnitTests {
     void shouldReturnTaskByAccountId() throws Exception {
         long id = 1L;
         List<TaskManagementService> mockTasks = new ArrayList<>(
-            Arrays.asList(new TaskManagementService(id, "first", "description", "21-12-2023", 23, 200, "Open", 12, false)));
+            Arrays.asList(new TaskManagementService(id, "B23", "first", "description", "21-12-2023", 23, 200, "Open", 12, false)));
 
         when(tMServiceRepo.findAllByAccountId(anyInt())).thenReturn(mockTasks);
         mockMvc.perform(get("/api/v1/tasks/account/12"))
@@ -96,8 +96,8 @@ public class TaskManagementServiceUnitTests {
     void shouldUpdateTaskStatus() throws Exception {
         long id = 1L;
 
-        TaskManagementService mockTask = new TaskManagementService(id, "first", "description", "21-12-2023", 23, 200, "Open", 12, false);
-        TaskManagementService mockTaskUpdate = new TaskManagementService(id, "new", "description", "21-12-2023", 23, 200, "Closed", 12, false);
+        TaskManagementService mockTask = new TaskManagementService(id, "B23", "first", "description", "21-12-2023", 23, 200, "Open", 12, false);
+        TaskManagementService mockTaskUpdate = new TaskManagementService(id, "B23", "new", "description", "21-12-2023", 23, 200, "Closed", 12, false);
 
         when(tMServiceRepo.findById(id)).thenReturn(Optional.of(mockTask));
         when(tMServiceRepo.save(any(TaskManagementService.class))).thenReturn(mockTaskUpdate);
@@ -119,8 +119,8 @@ public class TaskManagementServiceUnitTests {
     void shouldUpdateTaskSOC() throws Exception {
         long id = 1L;
 
-        TaskManagementService mockTask = new TaskManagementService(id, "first", "description", "21-12-2023", 23, 200, "Open", 12, false);
-        TaskManagementService mockTaskUpdate = new TaskManagementService(id, "new", "description", "21-12-2023", 23, 200, "Open", 8, false);
+        TaskManagementService mockTask = new TaskManagementService(id, "B23", "first", "description", "21-12-2023", 23, 200, "Open", 12, false);
+        TaskManagementService mockTaskUpdate = new TaskManagementService(id, "B23", "new", "description", "21-12-2023", 23, 200, "Open", 8, false);
 
         when(tMServiceRepo.findById(id)).thenReturn(Optional.of(mockTask));
         when(tMServiceRepo.save(any(TaskManagementService.class))).thenReturn(mockTaskUpdate);

@@ -88,7 +88,7 @@ public class TaskManagementServiceIntegrationTests {
 
     @Test
     @Order(1)
-    @Sql(statements = "INSERT INTO task_management_service (tm_id, incident_title, incident_desc, incident_timestamp, employee_id, severity, status, account_id, true_positive) values (1, \"the first incident\", \"description\", \"2012-06-18\", 23, 200, \"Open\", 12, false)", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(statements = "INSERT INTO task_management_service (tm_id, log_id, incident_title, incident_desc, incident_timestamp, employee_id, severity, status, account_id, true_positive) values (1, \"B23\", \"the first incident\", \"description\", \"2012-06-18\", 23, 200, \"Open\", 12, false)", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testTaskList() {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<List<TaskManagementService>> response = restTemplate.exchange(
@@ -142,8 +142,8 @@ public class TaskManagementServiceIntegrationTests {
     @Test
     @Order(5)
     public void testCreateTask() throws JsonProcessingException {
-        String task1 = "{\"incidentDesc\":\"Crystal Mccleskey has attempted to log into their account after working hours.\",\"incidentTitle\":\"After Hour Login\",\"severity\":50,\"accountId\":0,\"employeeId\":1}";
-        String task2 = "{\"incidentDesc\":\"Another Incident\",\"incidentTitle\":\"Another Title\",\"severity\":30,\"accountId\":1,\"employeeId\":2}";
+        String task1 = "{\"logId\":\"B24\", \"incidentDesc\":\"Crystal Mccleskey has attempted to log into their account after working hours.\",\"incidentTitle\":\"After Hour Login\",\"severity\":50,\"accountId\":0,\"employeeId\":1}";
+        String task2 = "{\"logId\":\"B25\", \"incidentDesc\":\"Another Incident\",\"incidentTitle\":\"Another Title\",\"severity\":30,\"accountId\":1,\"employeeId\":2}";
         // Add more tasks as needed...
 
         String combinedTasks = task1 + "/" + task2 + "/";  // Concatenate tasks with "/"

@@ -1,11 +1,11 @@
-from sqlalchemy import Column, Integer, String, Date, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Date, Boolean, DateTime, Numeric
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
 # !! Replace placeholders before running !!
 Base = declarative_base()
-#engine = create_engine('mysql+mysqldb://<USER>:<PASSWORD>@<HOST>:<PORT>/insidoors', echo=True)
-engine = create_engine('mysql+pymysql://root:akshaya100@localhost:3306/insidoors', echo=True)
+
+engine = create_engine('mysql+mysqldb://<USER>:<PASSWORD>@<HOST>:<PORT>/insidoors', echo=True)
 
 class Employee(Base):
     __tablename__ = 'employees'
@@ -30,6 +30,8 @@ class PC_Access(Base):
     log_on_off = Column(String(255))
     machine_name = Column(String(255))
     machine_location = Column(String(255))
+    machine_lat = Column(Numeric(8,6))
+    machine_long = Column(Numeric(9,6))
     suspect = Column(Integer)
     working_hours = Column(Integer, nullable=True)
 
@@ -41,7 +43,10 @@ class Building_Access(Base):
     direction = Column(String(255))
     status = Column(String(255))
     office_location = Column(String(255))
+    office_lat = Column(Numeric(8,6))
+    office_long = Column(Numeric(9,6))
     suspect = Column(Integer)
+    attempts = Column(Integer)
 
 class Proxy_Log(Base):
     __tablename__ = 'proxy_log'

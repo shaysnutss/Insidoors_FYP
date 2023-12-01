@@ -1,3 +1,4 @@
+from io import StringIO
 import pandas as pd
 import numpy as np
 
@@ -180,21 +181,54 @@ def infer(data):
     # New case: large number of access attempts
 
     # unseen = X_test[X_test['label'] == 1].copy()
-    unseen = pd.read_json(data)
+    data = data.replace('/', '\\/')
+    data = data.replace("'", '"')
+    unseen = pd.read_json(StringIO(data))
+    unseen = split_date_time(unseen)
 
-    print(unseen)
+    # print(unseen)
 
-    np.random.seed(480)
-    unseen['attempts'] = np.random.randint(6, 20, unseen.shape[0])
+    # np.random.seed(480)
+    # unseen['attempts'] = np.random.randint(6, 20, unseen.shape[0])
 
 
     # Compute accuracy of Local Outlier Factor on unseen case
 
-    unseen_scores = clf_loaded.score_samples(unseen.drop(labels='label', axis=1))
-    unseen_preds = clf_loaded.predict(unseen.drop(labels='label', axis=1))
+    unseen_scores = clf_loaded.score_samples(unseen.drop(labels=['suspect', 'access_date_time'], axis=1))
+    unseen_preds = clf_loaded.predict(unseen.drop(labels=['suspect', 'access_date_time'], axis=1))
 
     results_counter = Counter(unseen_preds)
 
     print('Local Outlier Factor accuracy on unseen case:')
     print('Correct predictions: %d/%d (%f%%)' %
         (results_counter[-1], len(unseen_preds), results_counter[-1] / len(unseen_preds) * 100))
+
+
+    # Append prediction results to dataframe
+
+    unseen['suspect'] = unseen_preds
+    unseen = unseen[['id', 'user_id']].loc[unseen['suspect'] == -1]
+
+
+    # Return dataframe as json to rule-based algorithm controller
+
+    return unseen.to_json(orient='records')
+
+
+
+# Define function to split 'access_date_time' column into multiple component columns
+
+def split_date_time(df):
+
+    datetime_format = '%Y-%m-%d %H:%M:%S'
+    df['access_date_time'] = pd.to_datetime(df['access_date_time'], format=datetime_format)
+
+    df['access_year'] = df['access_date_time'].map(lambda x: x.year)
+    df['access_month'] = df['access_date_time'].map(lambda x: x.month)
+    df['access_day'] = df['access_date_time'].map(lambda x: x.day)
+    df['access_weekday'] = df['access_date_time'].map(lambda x: x.weekday())
+    df['access_hour'] = df['access_date_time'].map(lambda x: x.hour)
+    df['access_minute'] = df['access_date_time'].map(lambda x: x.minute)
+    df['access_second'] = df['access_date_time'].map(lambda x: x.second)
+
+    return df

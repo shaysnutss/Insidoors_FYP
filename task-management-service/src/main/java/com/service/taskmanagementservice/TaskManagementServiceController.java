@@ -100,11 +100,12 @@ public class TaskManagementServiceController {
 
             tmService.setIncidentTitle(jsonNode.get("incidentTitle").asText());
             tmService.setIncidentDesc(jsonNode.get("incidentDesc").asText());
-            //tmService.setIncidentTimestamp(jsonNode.get("incidentTimestamp").asText());
+            tmService.setIncidentTimestamp(jsonNode.get("incidentTimestamp").asText());
             tmService.setSeverity(jsonNode.get("severity").asInt());
             tmService.setStatus("Open");
             tmService.setAccountId(jsonNode.get("accountId").asInt());
             tmService.setEmployeeId(jsonNode.get("employeeId").asInt());
+            tmService.setLogId(jsonNode.get("logId").asText());
             tmService.setTruePositive(false);
 
             toSave.add(tmService);

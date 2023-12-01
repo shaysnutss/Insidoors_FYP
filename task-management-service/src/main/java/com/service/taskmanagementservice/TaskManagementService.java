@@ -16,6 +16,9 @@ public class TaskManagementService {
     
     private @Id @Column(name="tm_id") @GeneratedValue (strategy = GenerationType.IDENTITY) Long id;
 
+    @Column(name="log_id")
+    private String logId;
+
     @Column(name="incident_title")
     private String incidentTitle;
 

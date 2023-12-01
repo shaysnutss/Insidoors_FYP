@@ -10,14 +10,28 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.service.behavioralanalysiscompositeservice.Service.BehavioralAnalysisCompositeService;
 
+import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 /* The single purpose of this class is to contain helper methods for this service's APIs. */
 
 public class BehavioralAnalysisCompositeService {
+
+    @Value("${EMPLOYEES_API_BASE_URL}")
+    private String employeesApiBaseUrl;
+
+    @Value("${BHATOMIC_API_BASE_URL}")
+    private String bhApiBaseUrl;
+
+    @Value("${TASK_COMP_API_BASE_URL}")
+    private String taskMCompApiBaseUrl;
 
 
     // Sending GET request to employee service to get all employees
@@ -102,6 +116,38 @@ public class BehavioralAnalysisCompositeService {
         DB calls as they increase lag.
          */
     }
+
+    /* 
+     * This method is to list all employees, with their risk rating and number of cases
+     */
+
+     public List<Map<String,Object>> aggregateAllEmployees(List<Map<String, Object>> employeesResponse){
+        // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        // Using getMethod service method to send GET request to bh atomic service to get all bh
+        List<Map<String, Object>> bhResponse = getMethod(bhApiBaseUrl);
+
+        List<Map<String, Object>> toReturn = new ArrayList<>();
+
+        for (Map<String, Object> employee : employeesResponse) {
+            int employeeId = (int) employee.get("id");
+            Map<String,Object> relevantBH = employeeBH(employeeId,bhResponse);
+
+            // if all employees have not committed any incidents
+            // or if just the relevant employee has not committed any incidents
+            if((bhResponse == null) || (relevantBH == null)){
+                employee.put("riskRating",0);
+                employee.put("suspectedCases",0);
+            }else{
+                employee.put("riskRating",relevantBH.get("riskRating"));
+                employee.put("suspectedCases",relevantBH.get("suspectedCases"));
+            }
+            toReturn.add(employee);
+
+        }
+        return toReturn;
+     }
+
+
 
 
 }
