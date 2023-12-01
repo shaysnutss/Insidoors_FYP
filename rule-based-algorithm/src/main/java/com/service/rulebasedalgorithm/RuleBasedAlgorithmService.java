@@ -137,7 +137,7 @@ public class RuleBasedAlgorithmService {
         obj.put("id", item.path("id").asInt());
         obj.put("incidentDesc", jsonNodeEmployee.get(item.path("user_id").asInt() - 1).path("firstname").asText() + " " + jsonNodeEmployee.get(item.path("user_id").asInt() - 1).path("lastname").asText() + " is tied to an unknown case.");
         obj.put("incidentTitle", "Potential Security Breach");
-        obj.put("incidentTimestamp", item.path("accessDateTime").asText());
+        obj.put("incidentTimestamp", item.path("accessDateTime").asText().replace("T", " "));
         obj.put("severity", 50);
         obj.put("accountId", 0);
         obj.put("employeeId", item.path("user_id").asInt());
@@ -150,7 +150,7 @@ public class RuleBasedAlgorithmService {
         obj.put("id", taskPrePost.path("id").asInt());
         obj.put("incidentDesc", jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("firstname").asText() + " " + jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("lastname").asText() + " has made an unusually large amount of data upload or download.");
         obj.put("incidentTitle", "Potential Data Exfiltration");
-        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText());
+        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText().replace("T", " "));
         obj.put("severity", 100);
         obj.put("accountId", 0);
         obj.put("employeeId", taskPrePost.path("userId").asInt());
@@ -161,7 +161,7 @@ public class RuleBasedAlgorithmService {
     public ObjectNode makeCase5RequestBody(JsonNode taskPrePost, JsonNode jsonNodeEmployee) {
         ObjectNode obj = objectMapper.createObjectNode();
         obj.put("id", taskPrePost.path("id").asInt());
-        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText());
+        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText().replace("T", " "));
         obj.put("incidentDesc", jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("firstname").asText() + " " + jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("lastname").asText() + " has logged on or off from a machine at a location different from their own. This raises concerns of a potential account compromise or a malicious actor impersonating the employee.");
         obj.put("incidentTitle", "Impossible Traveller");
         obj.put("severity", 200);
@@ -176,7 +176,7 @@ public class RuleBasedAlgorithmService {
         obj.put("id", taskPrePost.path("id").asInt());
         obj.put("incidentDesc", jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("firstname").asText() + " " + jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("lastname").asText() + " failed to enter the building.");
         obj.put("incidentTitle", "Failed Attempt to Enter Building");
-        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText());
+        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText().replace("T", " "));
         obj.put("severity", 50);
         obj.put("accountId", 0);
         obj.put("employeeId", taskPrePost.path("userId").asInt());
@@ -189,7 +189,7 @@ public class RuleBasedAlgorithmService {
         obj.put("id", taskPrePost.path("id").asInt());
         obj.put("incidentDesc", jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("firstname").asText() + " " + jsonNodeEmployee.get(taskPrePost.path("userId").asInt() - 1).path("lastname").asText() + " has logged on or off from a machine post termination.");
         obj.put("incidentTitle", "Terminated Employee Login");
-        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText());
+        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText().replace("T", " "));
         obj.put("severity", 200);
         obj.put("accountId", 0);
         obj.put("employeeId", taskPrePost.path("userId").asInt());
@@ -206,7 +206,7 @@ public class RuleBasedAlgorithmService {
         obj.put("accountId", 0);
         obj.put("employeeId", taskPrePost.path("userId").asInt());
         obj.put("suspect", 2);
-        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText());
+        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText().replace("T", " "));
         return obj;
     }
 
@@ -219,7 +219,7 @@ public class RuleBasedAlgorithmService {
         obj.put("accountId", 0);
         obj.put("employeeId", taskPrePost.path("userId").asInt());
         obj.put("suspect", 1);
-        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText());
+        obj.put("incidentTimestamp", taskPrePost.path("accessDateTime").asText().replace("T", " "));
         return obj;
     }
 

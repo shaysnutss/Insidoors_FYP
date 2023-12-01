@@ -115,7 +115,6 @@ import { styled } from '@mui/system';
                                             <TableCell> <b>Incident Timestamp</b></TableCell>
                                             <TableCell> <b>Severity</b> </TableCell>
                                             <TableCell align="right"> <b>Status</b> </TableCell>
-                                            <TableCell align="right"> <b>Date Assigned</b> </TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -125,7 +124,6 @@ import { styled } from '@mui/system';
                                             <TableCell>{task.incidentTimestamp}</TableCell>
                                             <TableCell>{task.severity}</TableCell>
                                             <TableCell align="right">{task.status}</TableCell>
-                                            <TableCell align="right">{task.dateAssigned}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

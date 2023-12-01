@@ -1,7 +1,10 @@
 package com.service.taskmanagementcomposite;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +27,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -42,16 +44,27 @@ public class TaskManagementCompositeController {
         objectMapper.findAndRegisterModules();
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks");
-
+        HttpGet httpgetEmployee = new HttpGet("http://employee-service:8082/api/v1/employees");
+        HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAllAccounts");
+        
         try (CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);){
+            CloseableHttpResponse responseBodyEmployee = httpclient.execute(httpgetEmployee);
+            CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
 
             if (responseBodyTask.getStatusLine().getStatusCode() == 200) {
                 String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(), "UTF-8");
                 JsonNode jsonNodeTask = objectMapper.readTree(jsonContentTask);
 
+                String jsonContentEmployee = EntityUtils.toString(responseBodyEmployee.getEntity(), "UTF-8");
+                JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
+
+                String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
+                JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
+
                 List<Map<String, Object>> taskManagementList = new ArrayList<>();
                 for (int i = 0; i < jsonNodeTask.size(); i++) {
                     Map<String, Object> item = new HashMap<>();
+                    int employeeId = jsonNodeTask.get(i).path("employeeId").asInt();
 
                     // task management items
                     item.put("id", jsonNodeTask.get(i).path("id"));
@@ -66,24 +79,17 @@ public class TaskManagementCompositeController {
                     item.put("logId", jsonNodeTask.get(i).path("logId"));
 
                     // employee items
-                    HttpGet httpgetEmployee = new HttpGet(
-                            "http://employee-service:8082/api/v1/employees/" + jsonNodeTask.get(i).path("employeeId"));
-                    CloseableHttpResponse responseBodyEmployee = httpclient.execute(httpgetEmployee);
-                    
-                    String jsonContentEmployee = EntityUtils.toString(responseBodyEmployee.getEntity(), "UTF-8");
-                    JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
 
-                    item.put("employeeFirstname", jsonNodeEmployee.get("firstname"));
-                    item.put("employeeLastname", jsonNodeEmployee.get("lastname"));
+                    item.put("employeeFirstname", jsonNodeEmployee.get(employeeId - 1).path("firstname"));
+                    item.put("employeeLastname", jsonNodeEmployee.get(employeeId - 1).path("lastname"));
 
                     // soc account items
-                    HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAccountById/"
-                            + jsonNodeTask.get(i).path("accountId"));
-                    CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
-                    String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
-                    JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
 
-                    item.put("socName", jsonNodeAccount.get("name"));
+                    if (jsonNodeTask.get(i).path("accountId").asInt() == 0) {
+                        item.put("socName", "None");
+                    } else {
+                        item.put("socName", jsonNodeAccount.get(jsonNodeTask.get(i).path("accountId").asInt() - 1).path("name"));
+                    }
 
                     // Add the item to the list
                     taskManagementList.add(item);
@@ -110,16 +116,27 @@ public class TaskManagementCompositeController {
             CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/account/" + id);
+            HttpGet httpgetEmployee = new HttpGet("http://employee-service:8082/api/v1/employees");
+            HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAllAccounts");
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
+            CloseableHttpResponse responseBodyEmployee = httpclient.execute(httpgetEmployee);
+            CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
 
             // System.out.println(jsonNodeTask);
             if (responseBodyTask.getStatusLine().getStatusCode() == 200) {
                 String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(), "UTF-8");
                 JsonNode jsonNodeTask = objectMapper.readTree(jsonContentTask);
 
+                String jsonContentEmployee = EntityUtils.toString(responseBodyEmployee.getEntity(), "UTF-8");
+                JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
+
+                String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
+                JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
+
                 List<Map<String, Object>> taskManagementList = new ArrayList<>();
                 for (int i = 0; i < jsonNodeTask.size(); i++) {
                     Map<String, Object> item = new HashMap<>();
+                    int employeeId = jsonNodeTask.get(i).path("employeeId").asInt();
 
                     // task management items
                     item.put("id", jsonNodeTask.get(i).path("id"));
@@ -134,23 +151,15 @@ public class TaskManagementCompositeController {
                     item.put("logId", jsonNodeTask.get(i).path("logId"));
 
                     // employee items
-                    HttpGet httpgetEmployee = new HttpGet(
-                            "http://employee-service:8082/api/v1/employees/" + jsonNodeTask.get(i).path("employeeId"));
-                    CloseableHttpResponse responseBodyEmployee = httpclient.execute(httpgetEmployee);
-                    String jsonContentEmployee = EntityUtils.toString(responseBodyEmployee.getEntity(), "UTF-8");
-                    JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
-
-                    item.put("employeeFirstname", jsonNodeEmployee.get("firstname"));
-                    item.put("employeeLastname", jsonNodeEmployee.get("lastname"));
+                    item.put("employeeFirstname", jsonNodeEmployee.get(employeeId - 1).path("firstname"));
+                    item.put("employeeLastname", jsonNodeEmployee.get(employeeId - 1).path("lastname"));
 
                     // soc account items
-                    HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAccountById/"
-                            + jsonNodeTask.get(i).path("accountId"));
-                    CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
-                    String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
-                    JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
-
-                    item.put("socName", jsonNodeAccount.get("name"));
+                    if (jsonNodeTask.get(i).path("accountId").asInt() == 0) {
+                        item.put("socName", null);
+                    } else {
+                        item.put("socName", jsonNodeAccount.get(jsonNodeTask.get(i).path("accountId").asInt() - 1).path("name"));
+                    }
 
                     // Add the item to the list
                     taskManagementList.add(item);
@@ -177,17 +186,24 @@ public class TaskManagementCompositeController {
             CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/" + id);
+            HttpGet httpgetEmployee = new HttpGet("http://employee-service:8082/api/v1/employees");
+            HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAllAccounts");
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
+            CloseableHttpResponse responseBodyEmployee = httpclient.execute(httpgetEmployee);
+            CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
 
-            // System.out.println(jsonNodeTask);
             if (responseBodyTask.getStatusLine().getStatusCode() == 200) {
                 String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(), "UTF-8");
                 JsonNode jsonNodeTask = objectMapper.readTree(jsonContentTask);
 
-                // List<Map<String, Object>> taskManagementList = new ArrayList<>();
+                String jsonContentEmployee = EntityUtils.toString(responseBodyEmployee.getEntity(), "UTF-8");
+                JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
+
+                String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
+                JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
+
                 Map<String, Object> item = new HashMap<>();
-                // for (int i = 0; i < jsonNodeTask.size(); i++) {
-                // Map<String, Object> item = new HashMap<>();
+                int employeeId = jsonNodeTask.get("employeeId").asInt();
 
                 // task management items
                 item.put("id", jsonNodeTask.get("id"));
@@ -202,27 +218,17 @@ public class TaskManagementCompositeController {
                 item.put("logId", jsonNodeTask.get("logId"));
 
                 // employee items
-                HttpGet httpgetEmployee = new HttpGet(
-                        "http://employee-service:8082/api/v1/employees/" + jsonNodeTask.get("employeeId"));
-                CloseableHttpResponse responseBodyEmployee = httpclient.execute(httpgetEmployee);
-                String jsonContentEmployee = EntityUtils.toString(responseBodyEmployee.getEntity(), "UTF-8");
-                JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
 
-                item.put("employeeFirstname", jsonNodeEmployee.get("firstname"));
-                item.put("employeeLastname", jsonNodeEmployee.get("lastname"));
+                item.put("employeeFirstname", jsonNodeEmployee.get(employeeId - 1).path("firstname"));
+                item.put("employeeLastname", jsonNodeEmployee.get(employeeId - 1).path("lastname"));
 
                 // soc account items
-                HttpGet httpgetAccount = new HttpGet(
-                        "http://account-service:8080/api/v1/account/getAccountById/" + jsonNodeTask.get("accountId"));
-                CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
-                String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
-                JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
+                if (jsonNodeTask.get("accountId").asInt() == 0) {
+                    item.put("socName", null);
+                } else {
+                    item.put("socName", jsonNodeAccount.get(jsonNodeTask.get("accountId").asInt() - 1).path("name"));
+                }
 
-                item.put("socName", jsonNodeAccount.get("name"));
-
-                // Add the item to the list
-                // taskManagementList.add(item);
-                // }
 
                 httpclient.close();
                 return ResponseEntity.ok(item);
@@ -245,12 +251,17 @@ public class TaskManagementCompositeController {
             CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetComments = new HttpGet("http://comments-service:8083/api/v1/comments/taskManagement/" + id);
+            HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAllAccounts");
             CloseableHttpResponse responseBodyComments = httpclient.execute(httpgetComments);
+            CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
 
             // System.out.println(jsonNodeTask);
             if (responseBodyComments.getStatusLine().getStatusCode() == 200) {
                 String jsonContentComments = EntityUtils.toString(responseBodyComments.getEntity(), "UTF-8");
                 JsonNode jsonNodeComments = objectMapper.readTree(jsonContentComments);
+
+                String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
+                JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
 
                 List<Map<String, Object>> commentsList = new ArrayList<>();
                 for (int i = 0; i < jsonNodeComments.size(); i++) {
@@ -261,13 +272,7 @@ public class TaskManagementCompositeController {
                     item.put("commentDescription", jsonNodeComments.get(i).path("commentDescription"));
 
                     // soc account items
-                    HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAccountById/"
-                            + jsonNodeComments.get(i).path("accountId"));
-                    CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
-                    String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
-                    JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
-
-                    item.put("socName", jsonNodeAccount.get("name"));
+                    item.put("socName", jsonNodeAccount.get(jsonNodeComments.get("accountId").asInt() - 1).path("name"));
 
                     // Add the item to the list
                     commentsList.add(item);
@@ -521,12 +526,17 @@ public class TaskManagementCompositeController {
             CloseableHttpClient httpclient = HttpClients.createDefault();
 
             HttpGet httpgetTask = new HttpGet("http://task-management-service:8081/api/v1/tasks/employee/" + id);
+            HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAllAccounts");
+            CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
             CloseableHttpResponse responseBodyTask = httpclient.execute(httpgetTask);
 
             // System.out.println(jsonNodeTask);
             if (responseBodyTask.getStatusLine().getStatusCode() == 200) {
                 String jsonContentTask = EntityUtils.toString(responseBodyTask.getEntity(), "UTF-8");
                 JsonNode jsonNodeTask = objectMapper.readTree(jsonContentTask);
+
+                String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
+                JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
 
                 List<Map<String, Object>> taskManagementList = new ArrayList<>();
                 for (int i = 0; i < jsonNodeTask.size(); i++) {
@@ -544,13 +554,12 @@ public class TaskManagementCompositeController {
                     item.put("logId", jsonNodeTask.get(i).path("logId"));
 
                     // soc account items
-                    HttpGet httpgetAccount = new HttpGet("http://account-service:8080/api/v1/account/getAccountById/"
-                            + jsonNodeTask.get(i).path("accountId"));
-                    CloseableHttpResponse responseBodyAccount = httpclient.execute(httpgetAccount);
-                    String jsonContentAccount = EntityUtils.toString(responseBodyAccount.getEntity(), "UTF-8");
-                    JsonNode jsonNodeAccount = objectMapper.readTree(jsonContentAccount);
-
-                    item.put("socName", jsonNodeAccount.get("name"));
+                    if (jsonNodeTask.get(i).path("accountId").asInt() == 0) {
+                        item.put("socName", null);
+                    } else {
+                        item.put("socName", jsonNodeAccount.get(jsonNodeTask.get(i).path("accountId").asInt() - 1).path("name"));
+                    }
+                    
 
                     // Add the item to the list
                     taskManagementList.add(item);

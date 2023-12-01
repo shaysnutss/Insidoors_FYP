@@ -1,266 +1,267 @@
-.dashboard {
-    background-color: #ffffff;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    width: 100%;
-}
-
-.dashboard .screen {
-    background-color: #ffffff;
-    height: 768px;
-    position: relative;
-    width: 1366px;
-}
-
-.dashboard .screen .name {
-    position: relative;
-    left: 5.5%;
-    top: 130px;
-    font-family: "Poppins", Helvetica;
-    font-size: 40px;
+.dashboard { 
+    background-color: #ffffff; 
+    display: flex; 
+    flex-direction: row; 
+    justify-content: center; 
+    width: 100%; 
+} 
+ 
+.dashboard .screen { 
+    background-color: #ffffff; 
+    height: 768px; 
+    position: relative; 
+    width: 1366px; 
+} 
+ 
+.dashboard .screen .name { 
+    position: relative; 
+    left: 5.5%; 
+    top: 130px; 
+    font-family: "Poppins", Helvetica; 
+    font-size: 40px; 
+    font-weight: 700; 
+    color: #000000; 
+} 
+ 
+.dashboard .logo { 
+    left: 50px; 
+    position: absolute; 
+    top: 40px; 
+} 
+ 
+.dashboard .navigation-tab { 
+    left: 360px; 
+    position: absolute; 
+    top: 50px; 
+} 
+ 
+.dashboard .dashboard-tab { 
+    color: #78bcc4; 
+    background-color: #ffffff; 
+    border: none; 
+    font-family: "Poppins-Bold", Helvetica; 
+    font-size: 22px; 
+    font-weight: 700; 
+    left: 80px; 
+    position: absolute; 
+} 
+ 
+.dashboard .employee-tab { 
+    color: #000000; 
+    background-color: #ffffff; 
+    border: none; 
+    font-family: "Poppins-Medium", Helvetica; 
+    font-size: 22px; 
+    font-weight: 500; 
+    left: 260px; 
+    position: absolute; 
+} 
+ 
+.dashboard .case-tab { 
+    color: #000000; 
+    background-color: #ffffff; 
+    border: none; 
+    font-family: "Poppins-Medium", Helvetica; 
+    font-size: 22px; 
+    font-weight: 500; 
+    left: 420px; 
+    position: absolute; 
+    width: max-content; 
+} 
+ 
+.dashboard .extra-tab { 
+    left: 1100px; 
+    position: absolute; 
+    top: 50px; 
+} 
+ 
+.dashboard .ticket-title { 
+    top: 5px; 
+    text-align: center; 
+    position: relative; 
+    font-family: "Poppins", Helvetica; 
+    font-size: 25px; 
+    color: #000000; 
+} 
+ 
+.dashboard .open-ticket { 
+    background-color: #ffffff; 
+    height: 200px; 
+    position: absolute; 
+    top: 200px; 
+    width: 300px; 
+    left: 250px; 
+} 
+ 
+.dashboard .open-text { 
+        top: 25%; 
+        position: absolute; 
+        font-family: "Poppins", Helvetica; 
+        font-size: 70px; 
+        font-weight: 700; 
+        color: #000000; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%); 
+} 
+ 
+.dashboard .assign-ticket { 
+    background-color: #ffffff; 
+    height: 200px; 
+    position: absolute; 
+    top: 200px; 
+    width: 300px; 
+    left: 600px; 
+} 
+ 
+.dashboard .priority-ticket { 
+    background-color: #ffffff; 
+    height: 200px; 
+    position: absolute; 
+    top: 200px; 
+    width: 300px; 
+    left: 950px; 
+} 
+ 
+.dashboard .ticket-size { 
+    position: absolute; 
+    height: 140px; 
+    width: 270px; 
+} 
+ 
+.dashboard .ticket { 
+    top: 10px; 
+    left: 15px; 
+    background-color: #ffffff; 
+    border: 1px solid; 
+    border-color: #032539; 
+    border-radius: 10px; 
+    height: 140px; 
+    position: relative; 
+} 
+ 
+.dashboard .line { 
+    height: 2px; 
+    left: 0; 
+    position: absolute; 
+    top: 100px; 
+    width: 268px; 
+} 
+ 
+.dashboard .ticket-body { 
+    position: absolute; 
+    top: 10px; 
+} 
+ 
+.dashboard .priority-high { 
+    color: #9a0707; 
+    background-color: #f0bdbd; 
+    border-radius: 10px; 
+    height: 25px; 
+    font-family: "Poppins-SemiBold", Helvetica; 
+    font-size: 15px; 
+    font-weight: 600; 
+    left: 180px; 
+    position: absolute; 
+    text-align: center; 
+    line-height: 25px; 
+    width: 75px; 
+} 
+ 
+.dashboard .priority-med { 
+    color: #C5700C; 
+    background-color: #F0DCBD; 
+    border-radius: 10px; 
+    height: 25px; 
+    font-family: "Poppins-SemiBold", Helvetica; 
+    font-size: 15px; 
+    font-weight: 600; 
+    left: 180px; 
+    position: absolute; 
+    text-align: center; 
+    line-height: 25px; 
+    width: 75px; 
+} 
+ 
+.dashboard .priority-low { 
+    color: #27A109; 
+    background-color: #BEF0BD; 
+    border-radius: 10px; 
+    height: 25px; 
+    font-family: "Poppins-SemiBold", Helvetica; 
+    font-size: 15px; 
+    font-weight: 600; 
+    left: 180px; 
+    position: absolute; 
+    text-align: center; 
+    line-height: 25px; 
+    width: 75px; 
+} 
+ 
+.dashboard .title { 
+    color: #002c3e; 
+    font-family: "Poppins-Bold", Helvetica; 
+    font-size: 12px; 
+    overflow-x: hidden; 
     font-weight: 700;
-    color: #000000;
-}
-
-.dashboard .logo {
-    left: 50px;
-    position: absolute;
-    top: 40px;
-}
-
-.dashboard .navigation-tab {
-    left: 360px;
-    position: absolute;
-    top: 50px;
-}
-
-.dashboard .dashboard-tab {
-    color: #78bcc4;
-    background-color: #ffffff;
-    border: none;
-    font-family: "Poppins-Bold", Helvetica;
-    font-size: 22px;
-    font-weight: 700;
-    left: 80px;
-    position: absolute;
-}
-
-.dashboard .employee-tab {
-    color: #000000;
-    background-color: #ffffff;
-    border: none;
-    font-family: "Poppins-Medium", Helvetica;
-    font-size: 22px;
-    font-weight: 500;
-    left: 260px;
-    position: absolute;
-}
-
-.dashboard .case-tab {
-    color: #000000;
-    background-color: #ffffff;
-    border: none;
-    font-family: "Poppins-Medium", Helvetica;
-    font-size: 22px;
-    font-weight: 500;
-    left: 420px;
-    position: absolute;
-    width: max-content;
-}
-
-.dashboard .extra-tab {
-    left: 1100px;
-    position: absolute;
-    top: 50px;
-}
-
-.dashboard .ticket-title {
-    top: 5px;
-    text-align: center;
-    position: relative;
-    font-family: "Poppins", Helvetica;
-    font-size: 25px;
-    font-weight: 600;
-    color: #000000;
-}
-
-.dashboard .open-ticket {
-    background-color: #ffffff;
-    height: 200px;
-    position: absolute;
-    top: 200px;
-    width: 300px;
-    left: 250px;
-}
-
-.dashboard .open-text {
-    top: 25%;
-    left: 120px;
-    position: absolute;
-    font-family: "Poppins", Helvetica;
-    font-size: 70px;
-    font-weight: 700;
-    color: #000000;
-}
-
-.dashboard .assign-ticket {
-    background-color: #ffffff;
-    height: 200px;
-    position: absolute;
-    top: 200px;
-    width: 300px;
-    left: 600px;
-}
-
-.dashboard .priority-ticket {
-    background-color: #ffffff;
-    height: 200px;
-    position: absolute;
-    top: 200px;
-    width: 300px;
-    left: 950px;
-}
-
-.dashboard .ticket-size {
-    position: absolute;
-    height: 140px;
-    width: 270px;
-}
-
-.dashboard .ticket {
-    top: 10px;
-    left: 15px;
-    background-color: #ffffff;
-    border: 1px solid;
-    border-color: #032539;
-    border-radius: 10px;
-    height: 140px;
-    position: relative;
-}
-
-.dashboard .line {
-    height: 2px;
-    left: 0;
-    position: absolute;
-    top: 100px;
-    width: 268px;
-}
-
-.dashboard .ticket-body {
-    position: absolute;
-    top: 10px;
-}
-
-.dashboard .priority-high {
-    color: #9a0707;
-    background-color: #f0bdbd;
-    border-radius: 10px;
-    height: 25px;
-    font-family: "Poppins-SemiBold", Helvetica;
-    font-size: 15px;
-    font-weight: 600;
-    left: 180px;
-    position: absolute;
-    text-align: center;
-    line-height: 25px;
-    width: 75px;
-}
-
-.dashboard .priority-med {
-    color: #C5700C;
-    background-color: #F0DCBD;
-    border-radius: 10px;
-    height: 25px;
-    font-family: "Poppins-SemiBold", Helvetica;
-    font-size: 15px;
-    font-weight: 600;
-    left: 180px;
-    position: absolute;
-    text-align: center;
-    line-height: 25px;
-    width: 75px;
-}
-
-.dashboard .priority-low {
-    color: #27A109;
-    background-color: #BEF0BD;
-    border-radius: 10px;
-    height: 25px;
-    font-family: "Poppins-SemiBold", Helvetica;
-    font-size: 15px;
-    font-weight: 600;
-    left: 180px;
-    position: absolute;
-    text-align: center;
-    line-height: 25px;
-    width: 75px;
-}
-
-.dashboard .title {
-    color: #002c3e;
-    font-family: "Poppins-Bold", Helvetica;
-    font-size: 12px;
-    overflow-x: hidden;
-    font-weight: 700;
-    height: 30px;
-    left: 20px;
-    position: absolute;
-    width: 150px;
-}
-
-.dashboard .description {
-    color: #000000;
-    font-family: "Poppins-Light", Helvetica;
-    font-size: 12px;
-    font-weight: 400;
-    height: 30px;
-    left: 20px;
-    position: absolute;
-    top: 35px;
-    width: 240px;
-}
-
-.dashboard .message {
-    height: 25px;
-    left: 205px;
-    position: absolute;
-    top: 108px;
-    width: 60px;
-    color: #000000;
-    background-color: #ffffff;
-    border: none;
-    font-family: "Poppins-Medium", Helvetica;
-    font-size: 15px;
-    font-weight: 550;
-    position: absolute;
-}
-
-.dashboard .person {
-    height: 25px;
-    font-size: 15px;
-    font-weight: 500;
-    font-family: "Poppins-Medium", Helvetica;
-    color: #000000;
-    left: 15px;
-    position: relative;
-    top: 110px;
-    width: 25px;
-}
-
-.dashboard .logout-tab {
-    color: #000000;
-    background-color: #ffffff;
-    border: none;
-    font-family: "Poppins-Bold", Helvetica;
-    font-size: 22px;
-    font-weight: 500;
-    left: 200px;
-    position: absolute;
-}
-
-.dashboard .visual {
-    position: absolute;
-    margin-top: 50px;
-    top: 400px;
+    height: 30px; 
+    left: 20px; 
+    position: absolute; 
+    width: 150px; 
+} 
+ 
+.dashboard .description { 
+    color: #000000; 
+    font-family: "Poppins-Light", Helvetica; 
+    font-size: 12px; 
+    font-weight: 400; 
+    height: 30px; 
+    left: 20px; 
+    position: absolute; 
+    top: 35px; 
+    width: 240px; 
+} 
+ 
+.dashboard .message { 
+    height: 25px; 
+    left: 205px; 
+    position: absolute; 
+    top: 108px; 
+    width: 60px; 
+    color: #000000; 
+    background-color: #ffffff; 
+    border: none; 
+    font-family: "Poppins-Medium", Helvetica; 
+    font-size: 15px; 
+    font-weight: 550; 
+    position: absolute; 
+} 
+ 
+.dashboard .person { 
+    height: 25px; 
+    font-size: 15px; 
+    font-weight: 500; 
+    font-family: "Poppins-Medium", Helvetica; 
+    color: #000000; 
+    left: 15px; 
+    position: relative; 
+    top: 110px; 
+    width: 25px; 
+} 
+ 
+.dashboard .logout-tab { 
+    color: #000000; 
+    background-color: #ffffff; 
+    border: none; 
+    font-family: "Poppins-Bold", Helvetica; 
+    font-size: 22px; 
+    font-weight: 500; 
+    left: 200px; 
+    position: absolute; 
+} 
+ 
+.dashboard .visual { 
+    position: absolute; 
+    margin-top: 50px; 
+    top: 400px; 
 }
