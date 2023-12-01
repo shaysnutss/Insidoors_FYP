@@ -32,7 +32,7 @@ public class AmazonSES {
     static final String TEXTBODY = "Please check the task management system for the new case that is assigned to you.";
 
 
-    public String sendEmail(String name, String recipientEmail, String subject, int severity, String incidentTitle, int taskId) throws IOException {
+    public String sendEmail(String name, String recipientEmail, String subject, String severity, String incidentTitle, String taskId) throws IOException {
 
         try {
             AmazonSimpleEmailService client =
@@ -61,7 +61,7 @@ public class AmazonSES {
         return "Email sent";
     }
 
-    public String setContent(String name, int severity, String incidentTitle, int taskId){
+    public String setContent(String name, String severity, String incidentTitle, String taskId){
         // Create a context object and set the input variables in the context object.
         Context context = new Context();
         context.setVariable("name", name);

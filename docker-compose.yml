@@ -5,15 +5,15 @@ services:
   ####################################
   # Atomic Microservice: account-service
   ####################################
-  # account-service:
-  #   build:
-  #     context: ./account-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   env_file:
-  #     - "dev.env"
-  #   ports:
-  #     - "30000:8080"
+  account-service:
+    build:
+      context: ./account-service
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - "dev.env"
+    ports:
+      - "30000:8080"
   ####################################
   # Atomic Microservice: task-management-service
   ####################################
@@ -41,15 +41,15 @@ services:
   ####################################
   # Atomic Microservice: comments-service
   ####################################
-  # comments-service:
-  #   build:
-  #     context: ./comments-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   # env_file:
-  #   #   - "dev.env"
-  #   ports:
-  #     - "30004:8083"
+  comments-service:
+    build:
+      context: ./comments-service
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    ports:
+      - "30004:8083"
   ####################################
   # Atomic Microservice: behavioral-analysis-service
   ####################################
@@ -65,53 +65,53 @@ services:
   ####################################
   # Atomic Microservice: insidoors-frontend
   ####################################
-  # insidoors-frontend:
-  #   build:
-  #     context: ./insidoors-frontend
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   # env_file:
-  #   #   - "dev.env"
-  #   volumes:
-  #     - ./insidoors-frontend:/app
-  #   ports:
-  #     - "30008:3000"
+  insidoors-frontend:
+    build:
+      context: ./insidoors-frontend
+      dockerfile: Dockerfile
+    restart: always
+    # env_file:
+    #   - "dev.env"
+    volumes:
+      - ./insidoors-frontend:/app
+    ports:
+      - "30008:3000"
   ####################################
   # Composite Microservice: notification-service
   ####################################
-  # notification-service:
-  #    build:
-  #      context: ./notification-service
-  #      dockerfile: Dockerfile
-  #    restart: always
-  #    env_file:
-  #    - "dev.env"
-  #    ports:
-  #     - "30009:8080"
+  notification-service:
+     build:
+       context: ./notification-service
+       dockerfile: Dockerfile
+     restart: always
+     env_file:
+     - "dev.env"
+     ports:
+      - "30009:8080"
   ###################################
   # Composite Microservice: task-management-composite
   ####################################
-  # task-management-composite:
-  #   build:
-  #     context: ./task-management-composite
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   env_file:
-  #     - "dev.env"
-  #   ports:
-  #     - "30010:8085"
+  task-management-composite:
+    build:
+      context: ./task-management-composite
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - "dev.env"
+    ports:
+      - "30010:8085"
   ###################################
   # Composite Microservice: behavioral-analysis-composite-service
   ####################################
-  # behavioral-analysis-composite-service:
-  #   build:
-  #     context: ./behavioral-analysis-composite-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   env_file:
-  #    - "dev.env"
-  #   ports:
-  #     - "30011:8090"
+  behavioral-analysis-composite-service:
+    build:
+      context: ./behavioral-analysis-composite-service
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+     - "dev.env"
+    ports:
+      - "30011:8090"
   ####################################
   # Proxy Log
   ####################################
@@ -174,9 +174,9 @@ services:
       - "dev.env"
     ports:
       - "30016:8080"
-####################################
+  ####################################
   # ml-service
-####################################
+  ####################################
   ml-service:
     build:
       context: ./ml-service

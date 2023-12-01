@@ -1,6 +1,8 @@
 package com.service.notificationservice.Controller;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.notificationservice.Email.AmazonSES;
 import com.service.notificationservice.Service.NotificationService;
 import jakarta.mail.MessagingException;
@@ -31,18 +33,24 @@ public class NotificationController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/assignSOC/{id}")
-    public ResponseEntity<Void> assignSOCNotification(@PathVariable(value = "id") Long accountID, @RequestBody Map<String, Object> taskData) throws MessagingException, IOException {
+    public ResponseEntity<Void> assignSOCNotification(@PathVariable(value = "id") Long accountID, @RequestBody String taskData) throws MessagingException, IOException {
 
-        // Extracting task details from request body
-        int severity = (int) taskData.get("severity");
-        String incidentTitle = (String) taskData.get("incidentTitle");
+        System.out.println(taskData);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        //Extracting task details from new request body
+        JsonNode rootNode = objectMapper.readTree(taskData);
+        String severity = rootNode.get("severity").toString();
+        String incidentTitle = rootNode.get("incidentTitle").toString();
+        String taskId = rootNode.get("taskId").toString();
 
         // Sending GET request to account service to get account name
         String accountServiceUrl = accountApiBaseUrl + "/getAccountById/" + accountID;
         Map <String, Object> accountData = notificationService.getAccount(accountServiceUrl);
 
         if(accountData != null && ((amazonSES.sendEmail((String) accountData.get("name"), "insidoorsfyp@gmail.com",
-                "[INSIDOORS] New Task Assigned" + " - Severity " + severity, severity, incidentTitle, (int) taskData.get("id") )) != null)){
+                "[INSIDOORS] New Task Assigned" + " - Severity " + severity, severity, incidentTitle, taskId )) != null)){
             return ResponseEntity.ok().build();
         }
 
