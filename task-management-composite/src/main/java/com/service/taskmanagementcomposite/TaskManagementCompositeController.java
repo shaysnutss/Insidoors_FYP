@@ -1,14 +1,10 @@
 package com.service.taskmanagementcomposite;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -429,7 +425,6 @@ public class TaskManagementCompositeController {
         }
     }
 
-
     @CrossOrigin(origins = "http://localhost:30008")
     @PutMapping("/changeStatus/{id}")
     public ResponseEntity<?> changeStatus(@PathVariable Long id, @RequestBody String newData) {
@@ -504,23 +499,7 @@ public class TaskManagementCompositeController {
                     e.getMessage();
                 }
 
-                HttpPut httpPutTP = new HttpPut("http://task-management-service:8081/api/v1/truePositiveUpdate/" + id);
-                httpPutTP.setHeader("Accept", "application/json");
-                httpPutTP.setHeader("Content-type", "application/json");
-                httpPutTP.setEntity(stringEntity); // json must have status closed
-
-                try (CloseableHttpResponse response = httpclient.execute(httpPutTP)) {
-
-                    if (response.getEntity() == null) {
-                        System.out.println("something went wrong here");
-                    } else {
-                        // System.out.println("all good");
-                    }
-
-                } catch (IOException e) {
-                    e.getMessage();
-                }
-
+                httpclient.close();
                 return ResponseEntity.ok(newData);
 
             } else {

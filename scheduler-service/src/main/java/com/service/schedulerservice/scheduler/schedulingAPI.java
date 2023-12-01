@@ -56,9 +56,6 @@ public class schedulingAPI {
 
     }
 
-
-
-
     public ResponseEntity<?> getMethod(String apiUrl){
         try {
             HttpClient client = HttpClients.createDefault();
