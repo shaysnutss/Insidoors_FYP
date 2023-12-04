@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BuildingAccessRepository extends JpaRepository<BuildingAccess, Long> {
     
-    @Query(value = "SELECT * FROM BUILDING_ACCESS WHERE ID > ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM building_access WHERE ID > ?1", nativeQuery = true)
     List<BuildingAccess> findAllAfterId(Long desiredId);
 }

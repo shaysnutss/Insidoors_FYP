@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProxyLogRepository extends JpaRepository<ProxyLog, Long> {
     
-    @Query(value = "SELECT * FROM PROXY_LOG WHERE ID > ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM proxy_log WHERE ID > ?1", nativeQuery = true)
     List<ProxyLog> findAllAfterId(Long desiredId);
 }

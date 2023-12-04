@@ -173,6 +173,7 @@
   position: absolute;
   top: 35px;
   width: 240px;
+  overflow-y: scroll;
 }
 
 .case .message {
