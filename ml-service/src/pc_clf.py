@@ -1,6 +1,11 @@
+import json
+import os
+from dotenv import load_dotenv
 from io import StringIO
+
 import pandas as pd
 import numpy as np
+from sqlalchemy import create_engine
 
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -8,21 +13,46 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from feature_engine.creation import CyclicalFeatures
 
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.neighbors import LocalOutlierFactor
-
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
+from sklearn.model_selection import GridSearchCV
 
 from joblib import dump, load
 
 from collections import Counter
 
 
+# Global variables
+
+with open('settings.json', 'r') as file:
+    settings = json.load(file)
+
+pc_preprocessor = None
+
+
+
 def train():
 
-    # Load data
+    # Create connection to RDS
 
-    employee_df = pd.read_csv('employee_data_5k_new.csv', sep=';', header=0)
-    pc_df = pd.read_csv('pc_data_5k_new.csv', sep=';', header=0)
+    load_dotenv()
+
+    conf = {
+        'host': os.getenv('RDS_HOST'),
+        'port': os.getenv('RDS_PORT'),
+        'database': os.getenv('RDS_DB_TRAIN'),
+        'user': os.getenv('RDS_USER'),
+        'password': os.getenv('RDS_PASSWORD'),
+    }
+
+    engine = create_engine("mysql+pymysql://{user}:{password}@{host}:{port}/{database}".format(**conf))
+
+
+    # Load data from database into dataframes
+
+    with engine.connect() as con:
+        employee_df = pd.read_sql('SELECT * FROM employees', con=con)
+        pc_df = pd.read_sql('SELECT * FROM pc_access', con=con)
 
 
     # Add 'terminated' column to Employee dataframe
@@ -39,18 +69,19 @@ def train():
     pc_df = pc_df.join(join_df.set_index('id'), on='user_id', how='inner')
 
 
+    # Whether to use sklearn's StandardScaler() to scale numeric data
+    useStandardScaler = settings['useStandardScaler']
+
+    # Parameter grid for GridSearch hyperparameter tuning
+    params = settings['params']
+
+    # Number of folds for GridSearch cross-validation
+    cv = settings['cv']
+
+
     # Split 'access_date_time' column into multiple component columns
 
-    datetime_format = '%Y-%m-%d %H:%M:%S'
-    pc_df['access_date_time'] = pd.to_datetime(pc_df['access_date_time'], format=datetime_format)
-
-    pc_df['access_year'] = pc_df['access_date_time'].map(lambda x: x.year)
-    pc_df['access_month'] = pc_df['access_date_time'].map(lambda x: x.month)
-    pc_df['access_day'] = pc_df['access_date_time'].map(lambda x: x.day)
-    pc_df['access_weekday'] = pc_df['access_date_time'].map(lambda x: x.weekday())
-    pc_df['access_hour'] = pc_df['access_date_time'].map(lambda x: x.hour)
-    pc_df['access_minute'] = pc_df['access_date_time'].map(lambda x: x.minute)
-    pc_df['access_second'] = pc_df['access_date_time'].map(lambda x: x.second)
+    pc_df = split_date_time(pc_df)
 
 
     # Define function to assign binary truth labels for anomaly detection
@@ -66,149 +97,181 @@ def train():
     pc_df['label'] = pc_df['suspect'].map(label)
 
 
-    # Split data into train and test
+    # Split PC dataframe into train and test
     # 80% train, 20% test
 
-    to_drop = ['id', 'user_id', 'access_date_time', 'machine_name', 'suspect']
-    X_train, X_test, y_train, y_test = train_test_split(pc_df.drop(labels=to_drop, axis=1),
-                                                        pc_df['label'],
-                                                        test_size=0.2,
-                                                        random_state=480)
-
-    print('Data splits:')
-    print(X_train.shape)
-    print(X_test.shape)
+    pc_drop = ['id', 'user_id', 'access_date_time', 'machine_name', 'machine_lat', 'machine_long', 'suspect']
+    pc_X_train, pc_X_test, pc_y_train, pc_y_test = train_test_split(pc_df.drop(labels=pc_drop, axis=1),
+                                                                    pc_df['label'],
+                                                                    test_size=0.2,
+                                                                    random_state=480)
 
 
-    # Select only normal training data and drop 'label' column
+    # Select only normal pc_X_train data and drop 'label' column
 
-    X_train_normal = X_train.loc[X_train['label'] == 1]
-    X_train_normal = X_train_normal.drop(labels='label', axis=1)
+    pc_X_train_normal = pc_X_train.loc[pc_X_train['label'] == 1]
+    pc_X_train_normal = pc_X_train_normal.drop(labels='label', axis=1)
 
 
-    # Create feature encoding pipeline
+    # Create feature encodings for PC Access logs
 
-    numeric_features = ['access_year']
-    numeric_transformer = Pipeline(
+    pc_numeric_features = ['access_year']
+    pc_numeric_transformer = Pipeline(
         steps=[('scaler', StandardScaler())]
     )
 
-    categorical_features = ['log_on_off', 'machine_location', 'working_hours',
+    pc_categorical_features = ['log_on_off', 'machine_location', 'working_hours',
                             'user_location', 'terminated']
-    categorical_transformer = Pipeline(
+    pc_categorical_transformer = Pipeline(
         steps=[('encoder', OneHotEncoder(handle_unknown='ignore'))]
     )
 
-    cyclical_features = ['access_month', 'access_day', 'access_weekday',
-                        'access_hour', 'access_minute', 'access_second']
-    cyclical_transformer = Pipeline(
+    pc_cyclical_features = ['access_month', 'access_day', 'access_weekday',
+                            'access_hour', 'access_minute', 'access_second']
+    pc_cyclical_transformer = Pipeline(
         steps=[('encoder', CyclicalFeatures(drop_original=True))]
     )
 
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('numeric', numeric_transformer, numeric_features),
-            ('categorical', categorical_transformer, categorical_features),
-            ('cyclical', cyclical_transformer, cyclical_features)
-        ],
-        remainder='drop'
-    )
+    global pc_preprocessor
+
+    if useStandardScaler:
+        pc_preprocessor = ColumnTransformer(
+            transformers=[
+                ('numeric', pc_numeric_transformer, pc_numeric_features),
+                ('categorical', pc_categorical_transformer, pc_categorical_features),
+                ('cyclical', pc_cyclical_transformer, pc_cyclical_features)
+                ],
+            remainder='drop'
+        )
+    else:
+        pc_preprocessor = ColumnTransformer(
+            transformers=[
+                ('categorical', pc_categorical_transformer, pc_categorical_features),
+                ('cyclical', pc_cyclical_transformer, pc_cyclical_features)
+                ],
+            remainder='passthrough'
+        )
+
+    pc_preprocessor.fit(pc_X_train_normal)
+
+    pc_train_encodings = pc_preprocessor.transform(pc_X_train_normal)
+    
+
+    # Normalize encodings if StandardScaler is not used
+
+    pc_test_encodings = pc_preprocessor.transform(pc_X_test.drop(labels='label', axis=1))
+
+    if not useStandardScaler:        
+        pc_train_encodings = normalize(pc_train_encodings)
+        pc_test_encodings = normalize(pc_test_encodings)
 
 
-    # Initialise and fit Local Outlier Factor
+    # Define GridSearch scoring function for PC Access logs
+    # Scoring uses roc_auc
 
-    clf = Pipeline(
-        steps=[
-            ('preprocessor', preprocessor),
-            ('classifier', LocalOutlierFactor(novelty=True))
-        ]
-    )
-
-    clf.fit(X_train_normal)
+    def pc_scorer(estimator, _):
+        scores = estimator.score_samples(pc_test_encodings)
+        return roc_auc_score(pc_y_test, scores)
 
 
-    # Run predictions
+    # Initialise and fit Local Outlier Factor for PC Access logs
 
-    test_scores = clf.score_samples(X_test.drop(labels='label', axis=1))
-    test_preds = clf.predict(X_test.drop(labels='label', axis=1))
+    pc_clf = GridSearchCV(LocalOutlierFactor(novelty=True),
+                                param_grid=params,
+                                scoring=pc_scorer,
+                                cv=cv,
+                                verbose=3)
 
-
-    # Compute metrics
-
-    cm_labels = [1, -1]
-
-    test_accuracy = accuracy_score(y_test, test_preds)
-    test_precision = precision_score(y_test, test_preds)
-    test_recall = recall_score(y_test, test_preds)
-    test_f1 = f1_score(y_test, test_preds)
-    test_f1_weighted = f1_score(y_test, test_preds, average='weighted')
-    test_roc_auc = roc_auc_score(y_test, test_scores)
-    test_confusion = confusion_matrix(y_test, test_preds, labels=cm_labels)
+    pc_clf.fit(pc_train_encodings)
 
 
-    # Display evaluation results
+    # Run predictions for PC Access logs
 
-    print('Results for Local Outlier Factor:')
-    print('Accuracy:', test_accuracy)
-    print('Precision:', test_precision)
-    print('Recall:', test_recall)
-    print('F1:', test_f1)
-    print('F1 (Weighted):', test_f1_weighted)
-    print('ROC AUC:', test_roc_auc)
-    print('Confusion Matrix:\n', test_confusion)
+    pc_test_scores = pc_clf.score_samples(pc_test_encodings)
+    pc_test_preds = pc_clf.predict(pc_test_encodings)
+
+
+    # Compute metrics for PC classifier
+
+    pc_test_accuracy = accuracy_score(pc_y_test, pc_test_preds)
+    pc_test_precision = precision_score(pc_y_test, pc_test_preds)
+    pc_test_recall = recall_score(pc_y_test, pc_test_preds)
+    pc_test_f1 = f1_score(pc_y_test, pc_test_preds)
+    pc_test_f1_weighted = f1_score(pc_y_test, pc_test_preds, average='weighted')
+    pc_test_roc_auc = roc_auc_score(pc_y_test, pc_test_scores)
+
+
+    # Display evaluation results for PC classifier
+
+    print('Results for Local Outlier Factor on pc_test:')
+    print('Accuracy:', pc_test_accuracy)
+    print('Precision:', pc_test_precision)
+    print('Recall:', pc_test_recall)
+    print('F1:', pc_test_f1)
+    print('F1 (Weighted):', pc_test_f1_weighted)
+    print('ROC AUC:', pc_test_roc_auc)
 
 
     # Save classifier
 
-    dump(clf, 'models/pc_clf.joblib')
+    if useStandardScaler:
+        PC_CLF = '/models/pc_clf.joblib'
+    else:
+        PC_CLF = '/models/pc_clf.joblib'
+
+    dump(pc_clf.best_estimator_, PC_CLF)
 
 
 
-def infer(data):
+def classify(data):
 
-    print('pc received:', data)
+    # Whether to use sklearn's StandardScaler() to scale numeric data
+    useStandardScaler = settings['useStandardScaler']
+
+    # Custom classifier threshold
+    threshold = settings['pc_threshold']
+
 
     # Load classifier
 
-    clf_loaded = load('models/pc_clf.joblib')
+    if useStandardScaler:
+        pc_clf_loaded = load('/models/pc_clf.joblib')
+    else:
+        pc_clf_loaded = load('/models/pc_clf.joblib')
 
 
-    # Create new data for PC Access logs
-    # New case: unseen machine location
+    # Preprocess data
 
-    #countries = ['Russia', 'China', 'India', 'Brazil']
-
-    # unseen = X_test[X_test['label'] == 1].copy()
     data = data.replace('/', '\\/')
     data = data.replace("'", '"')
-    unseen = pd.read_json(StringIO(data))
-    unseen = split_date_time(unseen)
-
-    print(unseen)
-
-    # np.random.seed(480)
-    # unseen['machine_location'] = np.random.choice(countries, unseen.shape[0])
+    data_df = pd.read_json(StringIO(data))
+    data_df = split_date_time(data_df)
 
 
-    # Compute accuracy of Local Outlier Factor on unseen case
+    # Compute accuracy of PC classifier on incoming data
 
-    unseen_scores = clf_loaded.score_samples(unseen.drop(labels=['suspect', 'access_date_time'], axis=1))
-    unseen_preds = clf_loaded.predict(unseen.drop(labels=['suspect', 'access_date_time'], axis=1))
+    data_encodings = pc_preprocessor.transform(data_df)
+    if not useStandardScaler:
+        data_encodings = normalize(data_encodings)
 
-    results_counter = Counter(unseen_preds)
+    data_scores = pc_clf_loaded.score_samples(data_encodings)
+    data_preds = np.where(data_scores < threshold, -1, 1)
+    counter = Counter(data_preds)
 
-    print('Local Outlier Factor accuracy on unseen case:')
+    print('PC classifier accuracy for unseen data (Custom threshold):')
     print('Correct predictions: %d/%d (%f%%)' %
-        (results_counter[-1], len(unseen_preds), results_counter[-1] / len(unseen_preds) * 100))
+        (counter[-1], len(data_preds), counter[-1] / len(data_preds) * 100))    
+
 
     # Append prediction results to dataframe
 
-    unseen['suspect'] = unseen_preds
-    unseen = unseen[['id', 'user_id']].loc[unseen['suspect'] == -1]
+    data_df['suspect'] = data_preds
+    data_df = data_df[['id', 'user_id']].loc[data_df['suspect'] == -1]
+
 
     # Return dataframe as json to rule-based algorithm controller
 
-    return unseen.to_json(orient='records')
+    return data_df.to_json(orient='records')
 
 
 
@@ -228,3 +291,15 @@ def split_date_time(df):
     df['access_second'] = df['access_date_time'].map(lambda x: x.second)
 
     return df
+
+
+
+# Define function to normalize encodings
+
+def normalize(x):
+
+    m_ = np.mean(x, axis=1, keepdims=True)
+    x = x - m_
+    x = x / np.linalg.norm(x, axis=1, keepdims=True)
+    
+    return x

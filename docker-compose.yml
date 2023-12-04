@@ -182,7 +182,11 @@ services:
       context: ./ml-service
       dockerfile: Dockerfile
     restart: always
+    env_file:
+      - "dev.env"
     ports:
       - "30017:5000"
     environment:
       - PYTHONUNBUFFERED=1
+    volumes:
+      - ./ml-service/src/models:/models

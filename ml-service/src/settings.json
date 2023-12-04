@@ -1,0 +1,16 @@
+{
+    "useStandardScaler": true,
+
+    "params": {
+        "n_neighbors": [20, 25, 30],
+        "contamination": ["auto", 0.025, 0.05]
+    },
+
+    "cv": 3,
+
+    "pc_threshold" : -1.17,
+
+    "building_threshold" : -1.169,
+
+    "proxy_threshold" : -1.17
+}
