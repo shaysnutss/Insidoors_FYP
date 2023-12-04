@@ -51,7 +51,7 @@ def train():
     # Load data from database into dataframes
 
     with engine.connect() as con:
-        proxy_df = pd.read_sql('SELECT * FROM proxy_access', con=con)
+        proxy_df = pd.read_sql('SELECT * FROM proxy_log', con=con)
 
 
     # Whether to use sklearn's StandardScaler() to scale numeric data
