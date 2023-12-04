@@ -57,7 +57,7 @@ get_ipython().system('whichgpu')
 
 # FUTURE ITERATIONS:
 # 1. properly incorporate tabular data
-# 2. add support for continual learning
+# 2. add support for online learning
 
 
 # ## Insidoors Text Classification Model for PC Access, Building Access, and Proxy Logs
