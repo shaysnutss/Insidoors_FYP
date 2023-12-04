@@ -1,6 +1,11 @@
+import json
+import os
+from dotenv import load_dotenv
 from io import StringIO
+
 import pandas as pd
 import numpy as np
+from sqlalchemy import create_engine
 
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -8,33 +13,51 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from feature_engine.creation import CyclicalFeatures
 
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.neighbors import LocalOutlierFactor
-
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
+from sklearn.model_selection import GridSearchCV
 
 from joblib import dump, load
 
 from collections import Counter
 
 
+# Global variables
+
+with open('settings.json', 'r') as file:
+    settings = json.load(file)
+
+building_preprocessor = None
+
+
+
 def train():
 
-    # Load data
+    # Create connection to RDS
 
-    employee_df = pd.read_csv('employee_data_5k_new.csv', sep=';', header=0)
-    building_df = pd.read_csv('building_data_5k_new.csv', sep=';', header=0)
+    load_dotenv()
+
+    conf = {
+        'host': os.getenv('RDS_HOST'),
+        'port': os.getenv('RDS_PORT'),
+        'database': os.getenv('RDS_DB_TRAIN'),
+        'user': os.getenv('RDS_USER'),
+        'password': os.getenv('RDS_PASSWORD'),
+    }
+
+    engine = create_engine("mysql+pymysql://{user}:{password}@{host}:{port}/{database}".format(**conf))
+
+
+    # Load data from database into dataframes
+
+    with engine.connect() as con:
+        employee_df = pd.read_sql('SELECT * FROM employees', con=con)
+        building_df = pd.read_sql('SELECT * FROM building_access', con=con)
 
 
     # Add 'terminated' column to Employee dataframe
 
     employee_df['terminated'] = np.where(employee_df['terminated_date'].notnull(), 'Y', 'N')
-
-
-    # Preparation for testing unseen cases
-    # Add 'attempts' column to Building Access dataframe
-
-    np.random.seed(480)
-    building_df['attempts'] = np.random.randint(1, 6, building_df.shape[0])
 
 
     # Inner join Employee dataframe with Building Access dataframe
@@ -44,18 +67,19 @@ def train():
     building_df = building_df.join(join_df.set_index('id'), on='user_id', how='inner')
 
 
+    # Whether to use sklearn's StandardScaler() to scale numeric data
+    useStandardScaler = settings['useStandardScaler']
+
+    # Parameter grid for GridSearch hyperparameter tuning
+    params = settings['params']
+
+    # Number of folds for GridSearch cross-validation
+    cv = settings['cv']
+
+
     # Split 'access_date_time' column into multiple component columns
 
-    datetime_format = '%Y-%m-%d %H:%M:%S'
-    building_df['access_date_time'] = pd.to_datetime(building_df['access_date_time'], format=datetime_format)
-
-    building_df['access_year'] = building_df['access_date_time'].map(lambda x: x.year)
-    building_df['access_month'] = building_df['access_date_time'].map(lambda x: x.month)
-    building_df['access_day'] = building_df['access_date_time'].map(lambda x: x.day)
-    building_df['access_weekday'] = building_df['access_date_time'].map(lambda x: x.weekday())
-    building_df['access_hour'] = building_df['access_date_time'].map(lambda x: x.hour)
-    building_df['access_minute'] = building_df['access_date_time'].map(lambda x: x.minute)
-    building_df['access_second'] = building_df['access_date_time'].map(lambda x: x.second)
+    building_df = split_date_time(building_df)
 
 
     # Define function to assign binary truth labels for anomaly detection
@@ -71,148 +95,180 @@ def train():
     building_df['label'] = building_df['suspect'].map(label)
 
 
-    # Split data into train and test
+    # Split Building dataframe into train and test
     # 80% train, 20% test
 
-    to_drop = ['id', 'user_id', 'access_date_time', 'suspect']
-    X_train, X_test, y_train, y_test = train_test_split(building_df.drop(labels=to_drop, axis=1),
-                                                        building_df['label'],
-                                                        test_size=0.2,
-                                                        random_state=480)
-
-    print('Data splits:')
-    print(X_train.shape)
-    print(X_test.shape)
+    building_drop = ['id', 'user_id', 'access_date_time', 'office_lat', 'office_long', 'suspect']
+    building_X_train, building_X_test, building_y_train, building_y_test = train_test_split(building_df.drop(labels=building_drop, axis=1),
+                                                                                            building_df['label'],
+                                                                                            test_size=0.2,
+                                                                                            random_state=480)
 
 
-    # Select only normal training data and drop 'label' column
+    # Select only normal building_X_train data and drop 'label' column
 
-    X_train_normal = X_train.loc[X_train['label'] == 1]
-    X_train_normal = X_train_normal.drop(labels='label', axis=1)
+    building_X_train_normal = building_X_train.loc[building_X_train['label'] == 1]
+    building_X_train_normal = building_X_train_normal.drop(labels='label', axis=1)
 
 
-    # Create feature encoding pipeline
+    # Create feature encodings for Building Access logs
 
-    numeric_features = ['attempts', 'access_year']
-    numeric_transformer = Pipeline(
+    building_numeric_features = ['attempts', 'access_year']
+    building_numeric_transformer = Pipeline(
         steps=[('scaler', StandardScaler())]
     )
 
-    categorical_features = ['direction', 'status', 'office_location', 'terminated']
-    categorical_transformer = Pipeline(
+    building_categorical_features = ['direction', 'status', 'office_location', 'terminated']
+    building_categorical_transformer = Pipeline(
         steps=[('encoder', OneHotEncoder(handle_unknown='ignore'))]
     )
 
-    cyclical_features = ['access_month', 'access_day', 'access_weekday',
-                        'access_hour', 'access_minute', 'access_second']
-    cyclical_transformer = Pipeline(
+    building_cyclical_features = ['access_month', 'access_day', 'access_weekday',
+                                'access_hour', 'access_minute', 'access_second']
+    building_cyclical_transformer = Pipeline(
         steps=[('encoder', CyclicalFeatures(drop_original=True))]
     )
 
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('numeric', numeric_transformer, numeric_features),
-            ('categorical', categorical_transformer, categorical_features),
-            ('cyclical', cyclical_transformer, cyclical_features)
-        ],
-        remainder='drop'
-    )
+    global building_preprocessor
+
+    if useStandardScaler:
+        building_preprocessor = ColumnTransformer(
+            transformers=[
+                ('numeric', building_numeric_transformer, building_numeric_features),
+                ('categorical', building_categorical_transformer, building_categorical_features),
+                ('cyclical', building_cyclical_transformer, building_cyclical_features)
+                ],
+            remainder='drop'
+        )
+    else:
+        building_preprocessor = ColumnTransformer(
+            transformers=[
+                ('categorical', building_categorical_transformer, building_categorical_features),
+                ('cyclical', building_cyclical_transformer, building_cyclical_features)
+                ],
+            remainder='passthrough'
+        )
+
+    building_preprocessor.fit(building_X_train_normal)
+
+    building_train_encodings = building_preprocessor.transform(building_X_train_normal)
+    
+
+    # Normalize encodings if StandardScaler is not used
+
+    building_test_encodings = building_preprocessor.transform(building_X_test.drop(labels='label', axis=1))
+
+    if not useStandardScaler:        
+        building_train_encodings = normalize(building_train_encodings)
+        building_test_encodings = normalize(building_test_encodings)
 
 
-    # Initialise and fit Local Outlier Factor
+    # Define GridSearch scoring function for Building Access logs
+    # Scoring uses roc_auc
 
-    clf = Pipeline(
-        steps=[
-            ('preprocessor', preprocessor),
-            ('classifier', LocalOutlierFactor(novelty=True))
-        ]
-    )
-
-    clf.fit(X_train_normal)
+    def building_scorer(estimator, _):
+        scores = estimator.score_samples(building_test_encodings)
+        return roc_auc_score(building_y_test, scores)
 
 
-    # Run predictions
+    # Initialise and fit Local Outlier Factor for Building Access logs
 
-    test_scores = clf.score_samples(X_test.drop(labels='label', axis=1))
-    test_preds = clf.predict(X_test.drop(labels='label', axis=1))
+    building_clf = GridSearchCV(LocalOutlierFactor(novelty=True),
+                                param_grid=params,
+                                scoring=building_scorer,
+                                cv=cv,
+                                verbose=3)
 
-
-    # Compute metrics
-
-    cm_labels = [1, -1]
-
-    test_accuracy = accuracy_score(y_test, test_preds)
-    test_precision = precision_score(y_test, test_preds)
-    test_recall = recall_score(y_test, test_preds)
-    test_f1 = f1_score(y_test, test_preds)
-    test_f1_weighted = f1_score(y_test, test_preds, average='weighted')
-    test_roc_auc = roc_auc_score(y_test, test_scores)
-    test_confusion = confusion_matrix(y_test, test_preds, labels=cm_labels)
+    building_clf.fit(building_train_encodings)
 
 
-    # Display evaluation results
+    # Run predictions for Building Access logs
 
-    print('Results for Local Outlier Factor:')
-    print('Accuracy:', test_accuracy)
-    print('Precision:', test_precision)
-    print('Recall:', test_recall)
-    print('F1:', test_f1)
-    print('F1 (Weighted):', test_f1_weighted)
-    print('ROC AUC:', test_roc_auc)
-    print('Confusion Matrix:\n', test_confusion)
+    building_test_scores = building_clf.score_samples(building_test_encodings)
+    building_test_preds = building_clf.predict(building_test_encodings)
+
+
+    # Compute metrics for Building classifier
+
+    building_test_accuracy = accuracy_score(building_y_test, building_test_preds)
+    building_test_precision = precision_score(building_y_test, building_test_preds)
+    building_test_recall = recall_score(building_y_test, building_test_preds)
+    building_test_f1 = f1_score(building_y_test, building_test_preds)
+    building_test_f1_weighted = f1_score(building_y_test, building_test_preds, average='weighted')
+    building_test_roc_auc = roc_auc_score(building_y_test, building_test_scores)
+
+
+    # Display evaluation results for Building classifier
+
+    print('Results for Local Outlier Factor on building_test:')
+    print('Accuracy:', building_test_accuracy)
+    print('Precision:', building_test_precision)
+    print('Recall:', building_test_recall)
+    print('F1:', building_test_f1)
+    print('F1 (Weighted):', building_test_f1_weighted)
+    print('ROC AUC:', building_test_roc_auc)
 
 
     # Save classifier
 
-    dump(clf, 'models/building_clf.joblib')
+    if useStandardScaler:
+        BUILDING_CLF = '/models/building_clf.joblib'
+    else:
+        BUILDING_CLF = '/models/building_clf.joblib'
+
+    dump(building_clf.best_estimator_, BUILDING_CLF)
 
 
 
-def infer(data):
+def classify(data):
 
-    print('building received:', data)
-    
+    # Whether to use sklearn's StandardScaler() to scale numeric data
+    useStandardScaler = settings['useStandardScaler']
+
+    # Custom classifier threshold
+    threshold = settings['building_threshold']
+
+
     # Load classifier
 
-    clf_loaded = load('models/building_clf.joblib')
+    if useStandardScaler:
+        building_clf_loaded = load('/models/building_clf.joblib')
+    else:
+        building_clf_loaded = load('/models/building_clf.joblib')
 
 
-    # Create new data for Building Access logs
-    # New case: large number of access attempts
+    # Preprocess data
 
-    # unseen = X_test[X_test['label'] == 1].copy()
     data = data.replace('/', '\\/')
     data = data.replace("'", '"')
-    unseen = pd.read_json(StringIO(data))
-    unseen = split_date_time(unseen)
-
-    # print(unseen)
-
-    # np.random.seed(480)
-    # unseen['attempts'] = np.random.randint(6, 20, unseen.shape[0])
+    data_df = pd.read_json(StringIO(data))
+    data_df = split_date_time(data_df)
 
 
-    # Compute accuracy of Local Outlier Factor on unseen case
+    # Compute accuracy of Building classifier on incoming data
 
-    unseen_scores = clf_loaded.score_samples(unseen.drop(labels=['suspect', 'access_date_time'], axis=1))
-    unseen_preds = clf_loaded.predict(unseen.drop(labels=['suspect', 'access_date_time'], axis=1))
+    data_encodings = building_preprocessor.transform(data_df)
+    if not useStandardScaler:
+        data_encodings = normalize(data_encodings)
 
-    results_counter = Counter(unseen_preds)
+    data_scores = building_clf_loaded.score_samples(data_encodings)
+    data_preds = np.where(data_scores < threshold, -1, 1)
+    counter = Counter(data_preds)
 
-    print('Local Outlier Factor accuracy on unseen case:')
+    print('Building classifier accuracy for unseen data (Custom threshold):')
     print('Correct predictions: %d/%d (%f%%)' %
-        (results_counter[-1], len(unseen_preds), results_counter[-1] / len(unseen_preds) * 100))
+        (counter[-1], len(data_preds), counter[-1] / len(data_preds) * 100))    
 
 
     # Append prediction results to dataframe
 
-    unseen['suspect'] = unseen_preds
-    unseen = unseen[['id', 'user_id']].loc[unseen['suspect'] == -1]
+    data_df['suspect'] = data_preds
+    data_df = data_df[['id', 'user_id']].loc[data_df['suspect'] == -1]
 
 
     # Return dataframe as json to rule-based algorithm controller
 
-    return unseen.to_json(orient='records')
+    return data_df.to_json(orient='records')
 
 
 
@@ -232,3 +288,15 @@ def split_date_time(df):
     df['access_second'] = df['access_date_time'].map(lambda x: x.second)
 
     return df
+
+
+
+# Define function to normalize encodings
+
+def normalize(x):
+
+    m_ = np.mean(x, axis=1, keepdims=True)
+    x = x - m_
+    x = x / np.linalg.norm(x, axis=1, keepdims=True)
+    
+    return x

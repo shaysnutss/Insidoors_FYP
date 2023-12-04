@@ -70,7 +70,7 @@ public class RuleBasedAlgorithmController {
             String jsonContentEmployee = EntityUtils.toString(responseEmployees.getEntity(), "UTF-8");
             JsonNode jsonNodeEmployee = objectMapper.readTree(jsonContentEmployee);
 
-            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/example_proxy");
+            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/classify_proxy");
             String arrayNodeString = arrayNode.toString();
             StringEntity stringEntity2 = new StringEntity(arrayNodeString);
             httpPostToML.setEntity(stringEntity2);
@@ -124,18 +124,18 @@ public class RuleBasedAlgorithmController {
             }
 
             // update suspect column in proxy log
-            // HttpPut httpPutSuspectCol = new HttpPut("http://proxy-log:8086/api/v1/suspectUpdate");
-            // httpPutSuspectCol.setEntity(stringEntity);
+            HttpPut httpPutSuspectCol = new HttpPut("http://proxy-log:8086/api/v1/suspectUpdate");
+            httpPutSuspectCol.setEntity(stringEntity);
             
-            // try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
-            //     if (response2.getEntity() != null) {
-            //         //System.out.println("all good");
-            //     } else {
-            //         System.out.println("something went wrong here");
-            //     }
-            // } catch (IOException e) {
-            //     e.getMessage();
-            // }
+            try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
+                if (response2.getEntity() != null) {
+                    //System.out.println("all good");
+                } else {
+                    System.out.println("something went wrong here");
+                }
+            } catch (IOException e) {
+                e.getMessage();
+            }
             tasks.clear();
 
             httpclient.close();
@@ -198,7 +198,7 @@ public class RuleBasedAlgorithmController {
                 buildingAccessId = (long) i+1;
             }
 
-            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/example_building");
+            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/classify_building");
             String arrayNodeString = arrayNode.toString();
             StringEntity stringEntity2 = new StringEntity(arrayNodeString);
             httpPostToML.setEntity(stringEntity2);
@@ -269,18 +269,18 @@ public class RuleBasedAlgorithmController {
             }
 
             // update suspect column in building access
-            // HttpPut httpPutSuspectCol = new HttpPut("http://building-access:8087/api/v1/suspectUpdate");
-            // httpPutSuspectCol.setEntity(stringEntity);
+            HttpPut httpPutSuspectCol = new HttpPut("http://building-access:8087/api/v1/suspectUpdate");
+            httpPutSuspectCol.setEntity(stringEntity);
             
-            // try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
-            //     if (response2.getEntity() != null) {
-            //         //System.out.println("all good");
-            //     } else {
-            //         System.out.println("something went wrong here");
-            //     }
-            // } catch (IOException e) {
-            //     e.getMessage();
-            // }
+            try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
+                if (response2.getEntity() != null) {
+                    //System.out.println("all good");
+                } else {
+                    System.out.println("something went wrong here");
+                }
+            } catch (IOException e) {
+                e.getMessage();
+            }
             tasks.clear();
 
             httpclient.close();
@@ -362,7 +362,7 @@ public class RuleBasedAlgorithmController {
             }
 
             // call ML endpoint for pc access and add anomalies to tasks
-            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/example_pc");
+            HttpPost httpPostToML = new HttpPost("http://ml-service:5000/classify_pc");
             String arrayNodeString = arrayNode.toString();
             StringEntity stringEntity2 = new StringEntity(arrayNodeString);
             httpPostToML.setEntity(stringEntity2);
@@ -441,18 +441,18 @@ public class RuleBasedAlgorithmController {
             }
 
             // update suspect column in pc access
-            // HttpPut httpPutSuspectCol = new HttpPut("http://pc-access:8088/api/v1/suspectUpdate");
-            // httpPutSuspectCol.setEntity(stringEntity);
+            HttpPut httpPutSuspectCol = new HttpPut("http://pc-access:8088/api/v1/suspectUpdate");
+            httpPutSuspectCol.setEntity(stringEntity);
             
-            // try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
-            //     if (response2.getEntity() != null) {
-            //         //System.out.println("all good");
-            //     } else {
-            //         System.out.println("something went wrong here");
-            //     }
-            // } catch (IOException e) {
-            //     e.getMessage();
-            // }
+            try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
+                if (response2.getEntity() != null) {
+                    //System.out.println("all good");
+                } else {
+                    System.out.println("something went wrong here");
+                }
+            } catch (IOException e) {
+                e.getMessage();
+            }
             tasks.clear();
 
             httpclient.close();
