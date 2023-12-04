@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PcAccessRepository extends JpaRepository<PcAccess, Long> {
     
-    @Query(value = "SELECT * FROM PC_ACCESS WHERE ID > ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM pc_access WHERE ID > ?1", nativeQuery = true)
     List<PcAccess> findAllAfterId(Long desiredId);
 }

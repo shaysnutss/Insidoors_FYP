@@ -124,18 +124,18 @@ public class RuleBasedAlgorithmController {
             }
 
             // update suspect column in proxy log
-            HttpPut httpPutSuspectCol = new HttpPut("http://proxy-log:8086/api/v1/suspectUpdate");
-            httpPutSuspectCol.setEntity(stringEntity);
+            // HttpPut httpPutSuspectCol = new HttpPut("http://proxy-log:8086/api/v1/suspectUpdate");
+            // httpPutSuspectCol.setEntity(stringEntity);
             
-            try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
-                if (response2.getEntity() != null) {
-                    //System.out.println("all good");
-                } else {
-                    System.out.println("something went wrong here");
-                }
-            } catch (IOException e) {
-                e.getMessage();
-            }
+            // try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
+            //     if (response2.getEntity() != null) {
+            //         //System.out.println("all good");
+            //     } else {
+            //         System.out.println("something went wrong here");
+            //     }
+            // } catch (IOException e) {
+            //     e.getMessage();
+            // }
             tasks.clear();
 
             httpclient.close();
@@ -269,18 +269,18 @@ public class RuleBasedAlgorithmController {
             }
 
             // update suspect column in building access
-            HttpPut httpPutSuspectCol = new HttpPut("http://building-access:8087/api/v1/suspectUpdate");
-            httpPutSuspectCol.setEntity(stringEntity);
+            // HttpPut httpPutSuspectCol = new HttpPut("http://building-access:8087/api/v1/suspectUpdate");
+            // httpPutSuspectCol.setEntity(stringEntity);
             
-            try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
-                if (response2.getEntity() != null) {
-                    //System.out.println("all good");
-                } else {
-                    System.out.println("something went wrong here");
-                }
-            } catch (IOException e) {
-                e.getMessage();
-            }
+            // try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
+            //     if (response2.getEntity() != null) {
+            //         //System.out.println("all good");
+            //     } else {
+            //         System.out.println("something went wrong here");
+            //     }
+            // } catch (IOException e) {
+            //     e.getMessage();
+            // }
             tasks.clear();
 
             httpclient.close();
@@ -441,18 +441,18 @@ public class RuleBasedAlgorithmController {
             }
 
             // update suspect column in pc access
-            HttpPut httpPutSuspectCol = new HttpPut("http://pc-access:8088/api/v1/suspectUpdate");
-            httpPutSuspectCol.setEntity(stringEntity);
+            // HttpPut httpPutSuspectCol = new HttpPut("http://pc-access:8088/api/v1/suspectUpdate");
+            // httpPutSuspectCol.setEntity(stringEntity);
             
-            try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
-                if (response2.getEntity() != null) {
-                    //System.out.println("all good");
-                } else {
-                    System.out.println("something went wrong here");
-                }
-            } catch (IOException e) {
-                e.getMessage();
-            }
+            // try (CloseableHttpResponse response2 =  httpclient.execute(httpPutSuspectCol)) {
+            //     if (response2.getEntity() != null) {
+            //         //System.out.println("all good");
+            //     } else {
+            //         System.out.println("something went wrong here");
+            //     }
+            // } catch (IOException e) {
+            //     e.getMessage();
+            // }
             tasks.clear();
 
             httpclient.close();

@@ -28,7 +28,7 @@ const Dashboard = () => {
   let caseId = 0;
 
   useEffect(() => {
-    viz.src = 'https://public.tableau.com/views/Dashboard-Insidoors/Storyboard?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link';
+    viz.src = 'https://public.tableau.com/views/Dashboard-InsidoorsRemote/Storyboard?:language=en-US&:display_count=n&:origin=viz_share_link';
     viz.toolbar = 'hidden';
     viz.device = 'desktop';
     viz.width = '1366px';
